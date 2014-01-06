@@ -4,7 +4,7 @@ title: "2013总结&2014规划"
 date: 2014-01-02 11:40
 comments: true
 categories: summary
-published: false
+published: true
 ---
 >2013可以说是自己人生的一个转折点，经历了很多，也成长了很多。过去的终究会过去，人生还得继续向前，希望从这一刻起开始记录自己的工作和生活，并能一直坚持下去！
 

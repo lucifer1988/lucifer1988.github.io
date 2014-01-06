@@ -96,5 +96,7 @@ google_analytics_tracking_id:
 facebook_like: false
 
 # duoshuo comments
-duoshuo_comments: true
-duoshuo_short_name: lucifer1988
+#duoshuo_comments: true
+#duoshuo_short_name: lucifer1988
+# weibo share
+weibo_share:true
