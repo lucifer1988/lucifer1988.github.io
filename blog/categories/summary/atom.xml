@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[刘毅的技术博客]]></title>
-  <link href="http://lucifer1988.github.io/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Summary | 刘毅的技术博客]]></title>
+  <link href="http://lucifer1988.github.io/blog/categories/summary/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
   <updated>2014-01-06T12:22:43+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
