@@ -7,7 +7,8 @@ title: 刘毅的技术博客
 subtitle: 记录自己的学习生活点滴，也希望和大家交流分享！
 author: 刘毅
 simple_search: http://google.com/search
-description:
+description: 刘毅的技术博客
+keywords: iOS,iPhone,iPad,Mac,Dota
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
@@ -44,7 +45,7 @@ pygments: false # default python pygments have been replaced by pygments.rb
 paginate: 10          # Posts per page on the blog index
 pagination_dir: blog  # Directory base for pagination URLs eg. /blog/page/2/
 recent_posts: 10       # Posts in the sidebar Recent Posts section
-excerpt_link: "阅读 on &rarr;"  # "Continue reading" link text at the bottom of excerpted articles
+excerpt_link: "阅读 &rarr;"  # "Continue reading" link text at the bottom of excerpted articles
 
 titlecase: true       # Converts page and post titles to titlecase
 
@@ -64,10 +65,18 @@ default_asides: [asides/recent_posts.html, custom/asides/about.html]
 # ----------------------- #
 
 # Github repositories
-github_user:lucifer1988
+github_user: lucifer1988
 github_repo_count: 0
 github_show_profile_link: true
 github_skip_forks: true
+
+# Twitter
+# twitter_user:
+# twitter_tweet_count: 4
+# twitter_show_replies: false
+# twitter_follow_button: true
+# twitter_show_follower_count: false
+# twitter_tweet_button: false
 
 # Google +1
 google_plus_one: false
@@ -87,8 +96,8 @@ delicious_user:
 delicious_count: 3
 
 # Disqus Comments
-#disqus_short_name:
-#disqus_show_comment_count: false
+disqus_short_name:
+disqus_show_comment_count: false
 
 # Google Analytics
 google_analytics_tracking_id:
