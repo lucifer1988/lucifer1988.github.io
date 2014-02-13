@@ -27,7 +27,25 @@
   <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
   <script src="/javascripts/octopress.js" type="text/javascript"></script>
   <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<script type="text/javascript">
 
+function addBlankTargetForLinks () {
+
+  $('a[href^="http"]').each(function(){
+
+      $(this).attr('target', '_blank');
+
+  });
+
+}
+
+$(document).bind('DOMNodeInserted', function(event) {
+
+  addBlankTargetForLinks();
+
+});
+
+</script>
   
 
 </head>
@@ -56,7 +74,7 @@
 <ul class="main-navigation">
   <li><a href="/">首页</a></li>
   <li><a href="/blog/archives">所有文章</a></li>
-  <li><a href="/blog/categories/ios/">iOS开发专题</a></li>
+  <li><a href="/blog/categories/iOS/">iOS开发专题</a></li>
   <li><a href="http://weibo.com/u/2638849461" target="_blank">我的微博</a></li>
 </ul>
 
@@ -102,6 +120,10 @@
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/02/13/hello-world-octopressfa-bu-wen-zhang-bu-zou/">基于Octopress搭建自己的博客网站</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2014/01/02/2013-summary-and-2014-plan/">2013总结&2014规划</a>
