@@ -151,7 +151,8 @@ int main(int argc, const char * argv[])
     链接文字：[百度](http://www.baidu.com)  
     索引方式链接文字：[百度][1]  
     图像和链接非常类似，区别在开头加一个惊叹号：![百度情人节Logo](http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif)  
-    也可以使用索引方式：![百度情人节Logo][2]
+    也可以使用索引方式：![百度情人节Logo][2]  
+    另：引用本地图片：{% img /images/baidu_lover'sDay.gif %}
     
     [1]:http://www.baidu.com
     [2]:http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif
@@ -160,7 +161,8 @@ int main(int argc, const char * argv[])
 链接文字：[百度](http://www.baidu.com)  
 索引方式链接文字：[百度][1]   
 图像和链接非常类似，区别在开头加一个惊叹号：![百度情人节Logo](http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif)   
-也可以使用索引方式：![百度情人节Logo][2] 
+也可以使用索引方式：![百度情人节Logo][2]  
+另：引用本地图片：{% img /images/baidu_lover'sDay.gif %}
  
 [1]:http://www.baidu.com
 [2]:http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif
