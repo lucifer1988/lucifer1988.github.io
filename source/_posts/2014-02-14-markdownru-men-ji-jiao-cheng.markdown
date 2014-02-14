@@ -176,4 +176,6 @@ Mac环境下推荐使用[Mou](http://mouapp.com)，一个Mac平台上轻量级�
 
 如果你想深入学习下Markdown语法，可参考以下内容：  
 <http://wowubuntu.com/markdown/index.html>  
-<http://www.ituring.com.cn/article/504>
+<http://www.ituring.com.cn/article/504>  
+
+*PS:当天是情人节加元宵节，祝我女朋友晓莉永远美丽漂亮，天天开心快乐，愿我们能幸福相伴一生！*
