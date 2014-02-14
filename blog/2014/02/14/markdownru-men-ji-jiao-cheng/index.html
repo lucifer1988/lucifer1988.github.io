@@ -1,0 +1,509 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Markdown入门级教程 - 刘毅的技术博客</title>
+  <meta name="author" content="刘毅">
+
+  
+  <meta name="description" content="Markdown入门级教程">
+  <meta name="keywords" content="Markdown,Mou">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucifer1988.github.io/blog/2014/02/14/markdownru-men-ji-jiao-cheng">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="刘毅的技术博客" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<script type="text/javascript">
+
+function addBlankTargetForLinks () {
+
+  $('a[href^="http"]').each(function(){
+
+      $(this).attr('target', '_blank');
+
+  });
+
+}
+
+$(document).bind('DOMNodeInserted', function(event) {
+
+  addBlankTargetForLinks();
+
+});
+
+</script>
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">刘毅的技术博客</a></h1>
+  
+    <h2>记录自己的学习生活点滴，也希望和大家交流分享！</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucifer1988.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">首页</a></li>
+  <li><a href="/blog/archives">所有文章</a></li>
+  <li><a href="/blog/categories/iOS/">iOS开发专题</a></li>
+  <li><a href="http://weibo.com/u/2638849461" target="_blank">我的微博</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Markdown入门级教程</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-14T18:53:31+08:00" pubdate data-updated="true">Feb 14<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><blockquote><p>Markdown是一种轻量级标记语言，创始人为约翰·格鲁伯（John Gruber）和亚伦·斯沃茨（Aaron Swartz）。它允许人们“使用易读易写的纯文本格式编写文档，然后转换成有效的XHTML(或者HTML)文档”。这种语言吸收了很多在电子邮件&#8221;中已有的纯文本标记的特性。</p></blockquote>
+
+<p>Markdown语法简洁明了、学习成本低、而且与HTML完美兼容，所以成为了Bloger们的最爱，当下主流的博客平台Octopress、WordPress等都推荐使用Markdown。本文将介绍一些基本的Markdown语法规则，仅作入门之用。</p>
+
+<!--more-->
+
+
+<h2>语法</h2>
+
+<p>语法介绍的格式将采取上面代码，下面实际效果的格式，方便查看。</p>
+
+<h3>1、换行和分割线</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>单个回车
+</span><span class='line'>不能换行
+</span><span class='line'>
+</span><span class='line'>行尾添加两个空格，这里-&gt;
+</span><span class='line'>可以强制换行
+</span><span class='line'>
+</span><span class='line'>连续回车
+</span><span class='line'>
+</span><span class='line'>可以分段
+</span><span class='line'>
+</span><span class='line'>要生成水平分割线，可以在单独一行里输入3个或以上的短横线、星号或者下划线实现。短横线和星号之间可以输入任意空格。以下每一行都产生一条水平分割线。
+</span><span class='line'>* * *
+</span><span class='line'>*****
+</span><span class='line'>---------------------------------------</span></code></pre></td></tr></table></div></figure>
+
+
+<p>单个回车
+不能换行</p>
+
+<p>行尾添加两个空格，这里-><br/>
+可以换行</p>
+
+<p>连续回车</p>
+
+<p>可以分段</p>
+
+<p>要生成水平分割线，可以在单独一行里输入3个或以上的短横线、星号或者下划线实现。短横线和星号之间可以输入任意空格。以下每一行都产生一条水平分割线。</p>
+
+<hr />
+
+<hr />
+
+<hr />
+
+<h3>2、标题</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#一级标题
+</span><span class='line'>##二级标题
+</span><span class='line'>###···
+</span><span class='line'>######最小六级标题</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>一级标题</h1>
+
+<h2>二级标题</h2>
+
+<h3>···</h3>
+
+<h6>最小六级标题</h6>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>另一种一级标题写法
+</span><span class='line'>=
+</span><span class='line'>另一种二级标题写法
+</span><span class='line'>-</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>另一种一级标题写法</h1>
+
+<h2>另一种二级标题写法</h2>
+
+<h3>3、强调和引用</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>*注意* 或 _注意_ （斜体强调）  
+</span><span class='line'>**注意** 或 __注意__ （粗体强调）  
+</span><span class='line'>***注意*** 或 ___注意___ （斜粗体强调）  </span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>注意</em> 或 <em>注意</em> （斜体强调）<br/>
+<strong>注意</strong> 或 <strong>注意</strong> （粗体强调）<br/>
+<strong><em>注意</em></strong> 或 <strong><em>注意</em></strong> （斜粗体强调）</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&gt;引用只需要在被引用的内容段落开头加上右尖括号('&gt;')即可。
+</span><span class='line'>你可以选择只在开头加一个。
+</span><span class='line'>也可以在每行前面都加一个，效果是一样的。</span></code></pre></td></tr></table></div></figure>
+
+
+<blockquote><p>引用只需要在被引用的内容段落开头加上右尖括号(&lsquo;>&rsquo;)即可。
+你可以选择只在开头加一个。
+也可以在每行前面都加一个，效果是一样的。</p></blockquote>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; 嵌套引用：这是一个引用。这是第一行
+</span><span class='line'>这是第二行。
+</span><span class='line'>&gt;&gt; 这是一个嵌套的引用。这是第一行。
+</span><span class='line'>这是第二行
+</span><span class='line'>&gt; 
+</span><span class='line'>&gt; 外层引用的第三行。前面需要一个视觉上的空行表示内层嵌套的结束，空行前面的('&gt;')可有可无。</span></code></pre></td></tr></table></div></figure>
+
+
+<blockquote><p>嵌套引用：这是一个引用。这是第一行
+这是第二行。</p>
+
+<blockquote><p>这是一个嵌套的引用。这是第一行。
+这是第二行</p></blockquote>
+
+<p>外层引用的第三行。前面需要一个视觉上的空行表示内层嵌套的结束，空行前面的(&lsquo;>&rsquo;)可有可无。</p></blockquote>
+
+<h3>4、列表</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>* 无序列表的一项（*也可用+或-代替，\*后要有一个空格）
+</span><span class='line'>  * 嵌套列表子项，要以一个制表符或者4个空格缩进
+</span><span class='line'>      * 最多支持三级嵌套缩进
+</span><span class='line'>* 无序列表的另一项</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>无序列表的一项（*也可用+或-代替，*后要有一个空格）
+
+<ul>
+<li>嵌套列表子项，要以一个制表符或者4个空格缩进
+
+<ul>
+<li>最多支持三级嵌套缩进</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>无序列表的另一项</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>1. 有序列表项目1（同样标识符与内容间有空格）
+</span><span class='line'>2. 有序列表项目2
+</span><span class='line'>3. 有序列表项目3</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>有序列表项目1（同样标识符与内容间有空格）</li>
+<li>有序列表项目2</li>
+<li>有序列表项目3</li>
+</ol>
+
+
+<h3>5、代码片段</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>//行的开头空4个空格，表示程序代码（或者用两段```包起来，可显示行号）
+</span><span class='line'>int main(int argc, const char * argv[])
+</span><span class='line'>{
+</span><span class='line'>
+</span><span class='line'>    @autoreleasepool {
+</span><span class='line'>
+</span><span class='line'>        NSLog(@"Hello, World!");
+</span><span class='line'>    }
+</span><span class='line'>    return 0;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h3>6、链接和图片</h3>
+
+<pre><code>直接标注链接：&lt;http://www.baidu.com&gt;  
+链接文字：[百度](http://www.baidu.com)  
+索引方式链接文字：[百度][1]  
+图像和链接非常类似，区别在开头加一个惊叹号：![百度情人节Logo](http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif)  
+也可以使用索引方式：![百度情人节Logo][2]
+
+[1]:http://www.baidu.com
+[2]:http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif
+</code></pre>
+
+<p>直接标注链接：<a href="http://www.baidu.com">http://www.baidu.com</a><br/>
+链接文字：<a href="http://www.baidu.com">百度</a><br/>
+索引方式链接文字：<a href="http://www.baidu.com">百度</a> <br/>
+图像和链接非常类似，区别在开头加一个惊叹号：<img src="http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif" alt="百度情人节Logo" /> <br/>
+也可以使用索引方式：<img src="http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif" alt="百度情人节Logo" /></p>
+
+<!--more-->
+
+
+<h2>编辑器</h2>
+
+<p>Mac环境下推荐使用<a href="http://mouapp.com">Mou</a>，一个Mac平台上轻量级的Markdown编辑器，非常好用！</p>
+
+<!--more-->
+
+
+<h2>进一步学习</h2>
+
+<p>如果你想深入学习下Markdown语法，可参考以下内容：<br/>
+<a href="http://wowubuntu.com/markdown/index.html">http://wowubuntu.com/markdown/index.html</a><br/>
+<a href="http://www.ituring.com.cn/article/504">http://www.ituring.com.cn/article/504</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">刘毅</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-14T18:53:31+08:00" pubdate data-updated="true">Feb 14<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/blogbasics/'>BlogBasics</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <style>
+    .flash-video{display:none;}
+</style>
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <span class="jiathis_txt">分享到：</span>
+  <a class="jiathis_button_qzone">QQ空间</a>
+  <a class="jiathis_button_tsina">新浪微博</a>
+  <a class="jiathis_button_tqq">腾讯微博</a>
+  <a class="jiathis_button_renren">人人网</a>
+  <a class="jiathis_button_douban">豆瓣</a>
+  <a class="jiathis_button_weixin">微信</a>
+  <a href="http://www.jiathis.com/share?uid=1885095" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript">
+var jiathis_config = {data_track_clickback:'true'};
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1885095" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+
+<br />
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1885095"></script>
+<!-- UY END -->
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/02/13/hello-world-octopressfa-bu-wen-zhang-bu-zou/" title="Previous Post: 基于Octopress搭建自己的博客网站">&laquo; 基于Octopress搭建自己的博客网站</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/02/14/markdownru-men-ji-jiao-cheng/">Markdown入门级教程</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/13/hello-world-octopressfa-bu-wen-zhang-bu-zou/">基于Octopress搭建自己的博客网站</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/02/2013-summary-and-2014-plan/">2013总结&2014规划</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>About Me</h1>
+    <p> iOS开发, 菜鸟程序猿, Dotar<br/>
+      <br/>我的经历:
+      <br/>2007.9 进入吉大学习高端大气的电子信息工程
+      <br/>2011.9 考研失利,转投中传计算机专业,接触iOS
+      <br/>2013.8 入职盘古,以iOS程序员的身份开始职业生涯<br/>
+      <br/>我的微博: <a href="http://weibo.com/u/2638849461" target="_blank">JamesRaynor-刘毅</a>
+      <br/>
+      <br/><span id="wb_follow_btn"></span>
+  </p>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - 刘毅 -
+  <span class="credit">Powered by <a href="http://octopress.org" target="_blank">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=3350288267" type="text/javascript" charset="utf-8"></script>
+<script>
+    WB2.anyWhere(function(W){
+        W.widget.followButton({
+            'uid': 2638849461,
+            'nick_name': 'JamesRaynor-刘毅',
+            'id': "wb_follow_btn",
+            'show_head' : true, 
+            'show_name' : true, 
+            'show_cancel': false
+        });
+    });
+</script>
+6vvqnj09Z6
+
+</body>
+</html>

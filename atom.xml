@@ -4,7 +4,7 @@
   <title><![CDATA[刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2014-02-13T16:37:20+08:00</updated>
+  <updated>2014-02-14T11:05:52+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,259 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Markdown入门级教程]]></title>
+    <link href="http://lucifer1988.github.io/blog/2014/02/14/markdownru-men-ji-jiao-cheng/"/>
+    <updated>2014-02-14T18:53:31+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2014/02/14/markdownru-men-ji-jiao-cheng</id>
+    <content type="html"><![CDATA[<blockquote><p>Markdown是一种轻量级标记语言，创始人为约翰·格鲁伯（John Gruber）和亚伦·斯沃茨（Aaron Swartz）。它允许人们“使用易读易写的纯文本格式编写文档，然后转换成有效的XHTML(或者HTML)文档”。这种语言吸收了很多在电子邮件&#8221;中已有的纯文本标记的特性。</p></blockquote>
+
+<p>Markdown语法简洁明了、学习成本低、而且与HTML完美兼容，所以成为了Bloger们的最爱，当下主流的博客平台Octopress、WordPress等都推荐使用Markdown。本文将介绍一些基本的Markdown语法规则，仅作入门之用。</p>
+
+<!--more-->
+
+
+<h2>语法</h2>
+
+<p>语法介绍的格式将采取上面代码，下面实际效果的格式，方便查看。</p>
+
+<h3>1、换行和分割线</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>单个回车
+</span><span class='line'>不能换行
+</span><span class='line'>
+</span><span class='line'>行尾添加两个空格，这里-&gt;
+</span><span class='line'>可以强制换行
+</span><span class='line'>
+</span><span class='line'>连续回车
+</span><span class='line'>
+</span><span class='line'>可以分段
+</span><span class='line'>
+</span><span class='line'>要生成水平分割线，可以在单独一行里输入3个或以上的短横线、星号或者下划线实现。短横线和星号之间可以输入任意空格。以下每一行都产生一条水平分割线。
+</span><span class='line'>* * *
+</span><span class='line'>*****
+</span><span class='line'>---------------------------------------</span></code></pre></td></tr></table></div></figure>
+
+
+<p>单个回车
+不能换行</p>
+
+<p>行尾添加两个空格，这里-><br/>
+可以换行</p>
+
+<p>连续回车</p>
+
+<p>可以分段</p>
+
+<p>要生成水平分割线，可以在单独一行里输入3个或以上的短横线、星号或者下划线实现。短横线和星号之间可以输入任意空格。以下每一行都产生一条水平分割线。</p>
+
+<hr />
+
+<hr />
+
+<hr />
+
+<h3>2、标题</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>#一级标题
+</span><span class='line'>##二级标题
+</span><span class='line'>###···
+</span><span class='line'>######最小六级标题</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>一级标题</h1>
+
+<h2>二级标题</h2>
+
+<h3>···</h3>
+
+<h6>最小六级标题</h6>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>另一种一级标题写法
+</span><span class='line'>=
+</span><span class='line'>另一种二级标题写法
+</span><span class='line'>-</span></code></pre></td></tr></table></div></figure>
+
+
+<h1>另一种一级标题写法</h1>
+
+<h2>另一种二级标题写法</h2>
+
+<h3>3、强调和引用</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>*注意* 或 _注意_ （斜体强调）  
+</span><span class='line'>**注意** 或 __注意__ （粗体强调）  
+</span><span class='line'>***注意*** 或 ___注意___ （斜粗体强调）  </span></code></pre></td></tr></table></div></figure>
+
+
+<p><em>注意</em> 或 <em>注意</em> （斜体强调）<br/>
+<strong>注意</strong> 或 <strong>注意</strong> （粗体强调）<br/>
+<strong><em>注意</em></strong> 或 <strong><em>注意</em></strong> （斜粗体强调）</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&gt;引用只需要在被引用的内容段落开头加上右尖括号('&gt;')即可。
+</span><span class='line'>你可以选择只在开头加一个。
+</span><span class='line'>也可以在每行前面都加一个，效果是一样的。</span></code></pre></td></tr></table></div></figure>
+
+
+<blockquote><p>引用只需要在被引用的内容段落开头加上右尖括号(&lsquo;>&rsquo;)即可。
+你可以选择只在开头加一个。
+也可以在每行前面都加一个，效果是一样的。</p></blockquote>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; 嵌套引用：这是一个引用。这是第一行
+</span><span class='line'>这是第二行。
+</span><span class='line'>&gt;&gt; 这是一个嵌套的引用。这是第一行。
+</span><span class='line'>这是第二行
+</span><span class='line'>&gt; 
+</span><span class='line'>&gt; 外层引用的第三行。前面需要一个视觉上的空行表示内层嵌套的结束，空行前面的('&gt;')可有可无。</span></code></pre></td></tr></table></div></figure>
+
+
+<blockquote><p>嵌套引用：这是一个引用。这是第一行
+这是第二行。</p>
+
+<blockquote><p>这是一个嵌套的引用。这是第一行。
+这是第二行</p></blockquote>
+
+<p>外层引用的第三行。前面需要一个视觉上的空行表示内层嵌套的结束，空行前面的(&lsquo;>&rsquo;)可有可无。</p></blockquote>
+
+<h3>4、列表</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>* 无序列表的一项（*也可用+或-代替，\*后要有一个空格）
+</span><span class='line'>  * 嵌套列表子项，要以一个制表符或者4个空格缩进
+</span><span class='line'>      * 最多支持三级嵌套缩进
+</span><span class='line'>* 无序列表的另一项</span></code></pre></td></tr></table></div></figure>
+
+
+<ul>
+<li>无序列表的一项（*也可用+或-代替，*后要有一个空格）
+
+<ul>
+<li>嵌套列表子项，要以一个制表符或者4个空格缩进
+
+<ul>
+<li>最多支持三级嵌套缩进</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>无序列表的另一项</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>1. 有序列表项目1（同样标识符与内容间有空格）
+</span><span class='line'>2. 有序列表项目2
+</span><span class='line'>3. 有序列表项目3</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>有序列表项目1（同样标识符与内容间有空格）</li>
+<li>有序列表项目2</li>
+<li>有序列表项目3</li>
+</ol>
+
+
+<h3>5、代码片段</h3>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>//行的开头空4个空格，表示程序代码（或者用两段```包起来，可显示行号）
+</span><span class='line'>int main(int argc, const char * argv[])
+</span><span class='line'>{
+</span><span class='line'>
+</span><span class='line'>    @autoreleasepool {
+</span><span class='line'>
+</span><span class='line'>        NSLog(@"Hello, World!");
+</span><span class='line'>    }
+</span><span class='line'>    return 0;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<h3>6、链接和图片</h3>
+
+<pre><code>直接标注链接：&lt;http://www.baidu.com&gt;  
+链接文字：[百度](http://www.baidu.com)  
+索引方式链接文字：[百度][1]  
+图像和链接非常类似，区别在开头加一个惊叹号：![百度情人节Logo](http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif)  
+也可以使用索引方式：![百度情人节Logo][2]
+
+[1]:http://www.baidu.com
+[2]:http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif
+</code></pre>
+
+<p>直接标注链接：<a href="http://www.baidu.com">http://www.baidu.com</a><br/>
+链接文字：<a href="http://www.baidu.com">百度</a><br/>
+索引方式链接文字：<a href="http://www.baidu.com">百度</a> <br/>
+图像和链接非常类似，区别在开头加一个惊叹号：<img src="http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif" alt="百度情人节Logo" /> <br/>
+也可以使用索引方式：<img src="http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif" alt="百度情人节Logo" /></p>
+
+<!--more-->
+
+
+<h2>编辑器</h2>
+
+<p>Mac环境下推荐使用<a href="http://mouapp.com">Mou</a>，一个Mac平台上轻量级的Markdown编辑器，非常好用！</p>
+
+<!--more-->
+
+
+<h2>进一步学习</h2>
+
+<p>如果你想深入学习下Markdown语法，可参考以下内容：<br/>
+<a href="http://wowubuntu.com/markdown/index.html">http://wowubuntu.com/markdown/index.html</a><br/>
+<a href="http://www.ituring.com.cn/article/504">http://www.ituring.com.cn/article/504</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[基于Octopress搭建自己的博客网站]]></title>
