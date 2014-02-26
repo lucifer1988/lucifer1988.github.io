@@ -111,7 +111,7 @@ categories: BlogBasics
 ```
 rake generate
 git add .
-git commit -am "Some comment here." 
+git commit -m "Some comment here." 
 git push origin source
 rake deploy
 ```
