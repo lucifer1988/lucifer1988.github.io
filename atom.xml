@@ -4,7 +4,7 @@
   <title><![CDATA[刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2014-02-26T15:02:54+08:00</updated>
+  <updated>2014-02-26T15:09:28+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -593,7 +593,7 @@
 <span class='line-number'>5</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>rake generate
 </span><span class='line'>git add .
-</span><span class='line'>git commit -am "Some comment here." 
+</span><span class='line'>git commit -m "Some comment here." 
 </span><span class='line'>git push origin source
 </span><span class='line'>rake deploy</span></code></pre></td></tr></table></div></figure>
 
