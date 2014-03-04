@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2014-03-04T13:16:31+08:00</updated>
+  <updated>2014-03-04T13:24:53+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -86,8 +86,7 @@ Cleaning up&hellip;
 可以参考[这里](https://github.com/square/PonyDebugger/issues/100)的解决方法，在我安装的过程中也遇到了这个问题，按照提示是</code>pip<code>安装时没有配置</code>&mdash;allow-external pybonjour &mdash;allow-unverified pybonjour```。</p>
 
 <ul>
-<li>成功安装后，在终端输入<code>ponyd serve --listen-interface=127.0.0.1
-</code>，打开监听。</li>
+<li>成功安装后，在终端输入<code>ponyd serve --listen-interface=127.0.0.1</code>，打开监听。</li>
 <li>最后打开浏览器，输入地址<code>http://localhost:9000</code>，如果访问到如下结果，说明安装成功。</li>
 </ul>
 

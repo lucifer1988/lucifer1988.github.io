@@ -4,7 +4,7 @@
   <title><![CDATA[刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2014-03-03T17:13:53+08:00</updated>
+  <updated>2014-03-04T13:24:53+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -14,20 +14,20 @@
 
   
   <entry>
-    <title type="html"><![CDATA[调试利器-ponyDebugger]]></title>
+    <title type="html"><![CDATA[调试利器-PonyDebugger]]></title>
     <link href="http://lucifer1988.github.io/blog/2014/03/03/diao-shi-li-qi-ponydebugger/"/>
     <updated>2014-03-03T15:12:01+08:00</updated>
     <id>http://lucifer1988.github.io/blog/2014/03/03/diao-shi-li-qi-ponydebugger</id>
     <content type="html"><![CDATA[<p><img src="http://lucifer1988.github.io/images/ponyDebugger_icon.png"></p>
 
-<p>ponyDebugger是git上一个利用Chrome开发者工具来进行iOS客户端远程调试的工具包，与其他远类型程调试工具相比，它有着非常IMBA且又非常实用的功能：网络活动监控、查看CoreData对象、视图层级查看等，下面让我们看看如何驾驭这只神奇的小马驹吧！</p>
+<p>PonyDebugger是git上一个利用Chrome开发者工具来进行iOS客户端远程调试的工具包，与其他远类型程调试工具相比，它有着非常IMBA且又非常实用的功能：网络活动监控、查看CoreData对象、视图层级查看等，下面让我们看看如何驾驭这只神奇的小马驹吧！</p>
 
 <!--more-->
 
 
 <h2>功能</h2>
 
-<p>ponyDebugger提供了四个特色的功能，包括：监控网络、CoreData对象查看、视图分层查看和远程日志打印。</p>
+<p>PonyDebugger提供了四个特色的功能，包括：监控网络、CoreData对象查看、视图分层查看和远程日志打印。</p>
 
 <h3>监控网络</h3>
 
@@ -43,21 +43,125 @@
 
 <h3>视图分层查看</h3>
 
-<p>这个功能对于前端开发者来说是最重要不过了，ponyDebugger将你应用的视图关系以xml的形式分层展示出来，选择相应xml，会在客户端进行对应视图的高亮响应，xml的属性信息可以在客户端进行配置，而且竟然支持直接修改xml属性值，而客户端UI会实时做出改变！</p>
+<p>这个功能对于前端开发者来说是最重要不过了，PonyDebugger将你应用的视图关系以xml的形式分层展示出来，选择相应xml，会在客户端进行对应视图的高亮响应，xml的属性信息可以在客户端进行配置，而且竟然支持直接修改xml属性值，而客户端UI会实时做出改变！</p>
 
 <p><img src="http://lucifer1988.github.io/images/ponyDebugger_ViewHierarchy.png"></p>
 
 <h3>远程日志打印</h3>
 
-<p>这个可能你觉得没什么亮点，上次介绍的NSLogger可是专门做这件事的，不过ponyDebugger的这一功能也不会让你失望，它的语句类型不多，主要分为<code>PDLog()</code>和<code>PDLogObjects()</code>，<code>PDLog()</code>负责打印字符串信息，<code>PDLogObjects()</code>负责打印对象和数组。不过正如下图所示，<code>PDLogObjects()</code>打印出的对象也是分层展示的，比如查看一个数组中自定义modal对象的一个属性的值这样的事情就非常轻松，而且不用你再回Xcode中加断点，这是不很爽啊！</p>
+<p>这个可能你觉得没什么亮点，上次介绍的NSLogger可是专门做这件事的，不过PonyDebugger的这一功能也不会让你失望，它的语句类型不多，主要分为<code>PDLog()</code>和<code>PDLogObjects()</code>，<code>PDLog()</code>负责打印字符串信息，<code>PDLogObjects()</code>负责打印对象和数组。不过正如下图所示，<code>PDLogObjects()</code>打印出的对象也是分层展示的，比如查看一个数组中自定义modal对象的一个属性的值这样的事情就非常轻松，而且不用你再回Xcode中加断点，这是不很爽啊！</p>
 
 <p><img src="http://lucifer1988.github.io/images/ponyDebugger_Console.png"></p>
 
 <h2>配置</h2>
 
+<p>配置工作包括配置服务器端和客户端。</p>
+
+<h3>配置服务器端</h3>
+
+<ul>
+<li>安装Xcode&rsquo;s Command Line Tools，在之前的版本中可直接在Xcode中安装，如果你的环境更新到10.9和Xcode5之后，不妨参考<a href="http://ourcoders.com/thread/show/1208/">这里</a>进行安装，这是之前10.9更新CocoaPods时发现的一个问题。</li>
+<li>在终端执行以下命令，进行安装</li>
+</ul>
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -sk https://cloud.github.com/downloads/square/PonyDebugger/bootstrap-ponyd.py | \
+</span><span class='line'>  python - --ponyd-symlink=/usr/local/bin/ponyd ~/Library/PonyDebugger</span></code></pre></td></tr></table></div></figure>
+
+
+<p>注：如果在安装过程中报出如下错误：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>···
+</span><span class='line'>  Running setup.py (path:/Users/user/Library/PonyDebugger/build/tornado/setup.py) egg_info for package tornado
+</span><span class='line'>
+</span><span class='line'>    warning: no previously-included files matching '_auto2to3*' found anywhere in distribution
+</span><span class='line'>Downloading/unpacking pybonjour (from ponydebugger)
+</span><span class='line'>  Could not find any downloads that satisfy the requirement pybonjour (from ponydebugger)
+</span><span class='line'>  Some externally hosted files were ignored (use --allow-external pybonjour to allow).
+</span><span class='line'>Cleaning up...</span></code></pre></td></tr></table></div></figure>
+
+
+<p>可以参考<a href="https://github.com/square/PonyDebugger/issues/100">这里</a>的解决方法，在我安装的过程中也遇到了这个问题，按照提示是<code>pip</code>安装时没有配置<code>--allow-external pybonjour --allow-unverified pybonjour</code>。</p>
+
+<ul>
+<li>成功安装后，在终端输入<code>ponyd serve --listen-interface=127.0.0.1</code>，打开监听。</li>
+<li>最后打开浏览器，输入地址<code>http://localhost:9000</code>，如果访问到如下结果，说明安装成功。</li>
+</ul>
+
+
+<p><img src="http://lucifer1988.github.io/images/ponyDebugger_install.png"></p>
+
+<h3>配置客户端</h3>
+
+<p>由于现在PonyDebugger支持CocoaPods安装了，可以直接在你的podfile中加入：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>pod 'PonyDebugger'</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然后，安装一下就可以了。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>pod install</span></code></pre></td></tr></table></div></figure>
+
+
+<p>不了解CocoaPods的童鞋可以参考下唐巧大哥的<a href="http://blog.devtang.com/blog/2012/12/02/use-cocoapod-to-manage-ios-lib-dependency/">这篇介绍</a>，希望手动加入PonyDebugger的童鞋可以参考<a href="https://github.com/square/PonyDebugger">官方文档</a>中Manual Installation一项。</p>
+
 <h2>使用</h2>
 
+<p>相比起搭建环境，PonyDebugger的使用非常简单。你需要在你应用的<code>AppDelegate.m</code>的<code>- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {}</code>方法中加入以下代码：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>PDDebugger *debugger = [PDDebugger defaultInstance];
+</span><span class='line'>//设置网络监控
+</span><span class='line'>[debugger enableNetworkTrafficDebugging];
+</span><span class='line'>[debugger forwardAllNetworkTraffic];
+</span><span class='line'>//通过TCP连接至服务端
+</span><span class='line'>[debugger connectToURL:[NSURL URLWithString:@"ws://localhost:9000/device"]];
+</span><span class='line'>// 也可通过bonjour自动连接
+</span><span class='line'>//[debugger autoConnect];
+</span><span class='line'>// 或连接至指定bonjour服务
+</span><span class='line'>//[debugger autoConnectToBonjourServiceNamed:@"MY PONY"];
+</span><span class='line'>//设置CoreData监控
+</span><span class='line'>[debugger enableCoreDataDebugging];
+</span><span class='line'>[debugger addManagedObjectContext:self.managedObjectContext withName:@"TIME Test MOC"];
+</span><span class='line'>//设置视图分层监控
+</span><span class='line'>[debugger enableViewHierarchyDebugging];
+</span><span class='line'>[debugger setDisplayedViewAttributeKeyPaths:@[@"frame", @"hidden", @"alpha", @"opaque", @"accessibilityLabel", @"text"]];
+</span><span class='line'>//设置远程日志打印
+</span><span class='line'>[debugger enableRemoteLogging];</span></code></pre></td></tr></table></div></figure>
+
+
 <h2>小结</h2>
+
+<p>本文可以作为<code>PonyDebugger</code>一个入门级的文档。相比上一次介绍的<code>NSLogger</code>来说，<code>PonyDebugger</code>的展示方式和查看方式更加直观和方便，作为通用的调试工具非常不错，而<code>NSLogger</code>拥有强大的日志记录功能，但想要发挥<code>NSLogger</code>的作用，对程序员的经验和能力就有了一定的要求，所以两种工具各有千秋，大家各取所需就好。</p>
 ]]></content>
   </entry>
   
@@ -368,19 +472,19 @@
 <span class='line-number'>4</span>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; 嵌套引用：这是一个引用。这是第一行
+</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; 嵌套引用：这是一个引用。这是第一行。  
 </span><span class='line'>这是第二行。
-</span><span class='line'>&gt;&gt; 这是一个嵌套的引用。这是第一行。
-</span><span class='line'>这是第二行
+</span><span class='line'>&gt;&gt; 这是一个嵌套的引用。这是第一行。  
+</span><span class='line'>这是第二行。
 </span><span class='line'>&gt; 
 </span><span class='line'>&gt; 外层引用的第三行。前面需要一个视觉上的空行表示内层嵌套的结束，空行前面的('&gt;')可有可无。</span></code></pre></td></tr></table></div></figure>
 
 
-<blockquote><p>嵌套引用：这是一个引用。这是第一行
+<blockquote><p>嵌套引用：这是一个引用。这是第一行。<br/>
 这是第二行。</p>
 
-<blockquote><p>这是一个嵌套的引用。这是第一行。
-这是第二行</p></blockquote>
+<blockquote><p>这是一个嵌套的引用。这是第一行。<br/>
+这是第二行。</p></blockquote>
 
 <p>外层引用的第三行。前面需要一个视觉上的空行表示内层嵌套的结束，空行前面的(&lsquo;>&rsquo;)可有可无。</p></blockquote>
 

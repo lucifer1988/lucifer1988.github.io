@@ -4,7 +4,7 @@
   <title><![CDATA[Category: BlogBasics | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/blogbasics/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2014-03-04T13:16:31+08:00</updated>
+  <updated>2014-03-04T13:24:53+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -202,7 +202,7 @@ return 0;
 索引方式链接文字：[百度][1]  
 图像和链接非常类似，区别在开头加一个惊叹号：![百度情人节Logo](http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif)  
 也可以使用索引方式：![百度情人节Logo][2]  
-另：引用本地图片：{% img /images/baidu_lover'sDay.gif %}
+另：引用本地图片：<img src="/images/baidu_lover'sDay.gif">
 
 [1]:http://www.baidu.com
 [2]:http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif
@@ -213,7 +213,7 @@ return 0;
 索引方式链接文字：<a href="http://www.baidu.com">百度</a> <br/>
 图像和链接非常类似，区别在开头加一个惊叹号：<img src="http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif" alt="百度情人节Logo" /> <br/>
 也可以使用索引方式：<img src="http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif" alt="百度情人节Logo" /><br/>
-另：引用本地图片：{% img /images/baidu_lover'sDay.gif %}</p>
+另：引用本地图片：<img src="/images/baidu_lover'sDay.gif"></p>
 
 <!--more-->
 
