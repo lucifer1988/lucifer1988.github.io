@@ -70,8 +70,7 @@ Cleaning up...
 ```
 可以参考[这里](https://github.com/square/PonyDebugger/issues/100)的解决方法，在我安装的过程中也遇到了这个问题，按照提示是```pip```安装时没有配置```--allow-external pybonjour --allow-unverified pybonjour```。
 
-* 成功安装后，在终端输入```ponyd serve --listen-interface=127.0.0.1
-```，打开监听。
+* 成功安装后，在终端输入```ponyd serve --listen-interface=127.0.0.1```，打开监听。
 * 最后打开浏览器，输入地址```http://localhost:9000```，如果访问到如下结果，说明安装成功。
 
 <img src="/images/ponyDebugger_install.png">
