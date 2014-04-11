@@ -1,24 +1,115 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[刘毅的技术博客]]></title>
-  <link href="http://lucifer1988.github.io/atom.xml" rel="self"/>
-  <link href="http://lucifer1988.github.io/"/>
-  <updated>2014-04-11T12:40:11+08:00</updated>
-  <id>http://lucifer1988.github.io/</id>
-  <author>
-    <name><![CDATA[刘毅]]></name>
-    
-  </author>
-  <generator uri="http://octopress.org/">Octopress</generator>
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>raywenderlich.com代码风格规范 - 刘毅的技术博客</title>
+  <meta name="author" content="刘毅">
 
   
-  <entry>
-    <title type="html"><![CDATA[raywenderlich.com代码风格规范]]></title>
-    <link href="http://lucifer1988.github.io/blog/2014/04/09/raywenderlich-dot-comdai-ma-feng-ge-gui-fan/"/>
-    <updated>2014-04-09T14:36:55+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2014/04/09/raywenderlich-dot-comdai-ma-feng-ge-gui-fan</id>
-    <content type="html"><![CDATA[<p><a href="http://www.raywenderlich.com">raywenderlich.com</a>对于搞iOS开发的人来说不会陌生（如果你经常关注一些技术博客的话），它原本只是Ray Wenderlich的个人博客，但通过不断聚集优秀的开发者参与到其站点的技术博客撰写，包括了应用开发和游戏开发的各个方面，同时将这些技术博客整理成书，作为开发教程出售（貌似最近还出视频教程了，又想法圈钱了···），这样raywenderlich.com渐渐发展成了一个iOS开发社区，其优质的文章和对文章本地化的重视，使得其影响力逐渐向全球扩展。本文是对其最近公布的自家的Objective-C代码风格规范的一些整理，原文地址在<a href="https://github.com/raywenderlich/objective-c-style-guide">这里</a>。</p>
+  <meta name="description" content="raywenderlich.com代码风格规范">
+  <meta name="keywords" content="objective-c,raywenderlich.com,">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucifer1988.github.io/blog/2014/04/09/raywenderlich-dot-comdai-ma-feng-ge-gui-fan">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="刘毅的技术博客" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<script type="text/javascript">
+
+function addBlankTargetForLinks () {
+
+  $('a[href^="http"]').each(function(){
+
+      $(this).attr('target', '_blank');
+
+  });
+
+}
+
+$(document).bind('DOMNodeInserted', function(event) {
+
+  addBlankTargetForLinks();
+
+});
+
+</script>
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">刘毅的技术博客</a></h1>
+  
+    <h2>记录自己的学习生活点滴，也希望和大家交流分享！</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucifer1988.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">首页</a></li>
+  <li><a href="/blog/archives">所有文章</a></li>
+  <li><a href="/blog/categories/ios">iOS开发专题</a></li>
+  <li><a href="http://weibo.com/u/2638849461" target="_blank">我的微博</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">raywenderlich.com代码风格规范</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-09T14:36:55+08:00" pubdate data-updated="true">Apr 9<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p><a href="http://www.raywenderlich.com">raywenderlich.com</a>对于搞iOS开发的人来说不会陌生（如果你经常关注一些技术博客的话），它原本只是Ray Wenderlich的个人博客，但通过不断聚集优秀的开发者参与到其站点的技术博客撰写，包括了应用开发和游戏开发的各个方面，同时将这些技术博客整理成书，作为开发教程出售（貌似最近还出视频教程了，又想法圈钱了···），这样raywenderlich.com渐渐发展成了一个iOS开发社区，其优质的文章和对文章本地化的重视，使得其影响力逐渐向全球扩展。本文是对其最近公布的自家的Objective-C代码风格规范的一些整理，原文地址在<a href="https://github.com/raywenderlich/objective-c-style-guide">这里</a>。</p>
 
 <!--more-->
 
@@ -1007,862 +1098,168 @@
 <li><a href="http://www.cimgf.com/zds-code-style-guide/">Marcus Zarra</a></li>
 </ul>
 
-]]></content>
-  </entry>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
   
-  <entry>
-    <title type="html"><![CDATA[调试利器-PonyDebugger]]></title>
-    <link href="http://lucifer1988.github.io/blog/2014/03/03/diao-shi-li-qi-ponydebugger/"/>
-    <updated>2014-03-03T15:12:01+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2014/03/03/diao-shi-li-qi-ponydebugger</id>
-    <content type="html"><![CDATA[<p><img src="http://lucifer1988.github.io/images/ponyDebugger_icon.png"></p>
 
-<p>PonyDebugger是git上一个利用Chrome开发者工具来进行iOS客户端远程调试的工具包，与其他远类型程调试工具相比，它有着非常IMBA且又非常实用的功能：网络活动监控、查看CoreData对象、视图层级查看等，下面让我们看看如何驾驭这只神奇的小马驹吧！</p>
+<span class="byline author vcard">Posted by <span class="fn">刘毅</span></span>
 
-<!--more-->
+      
 
 
-<h2>功能</h2>
-
-<p>PonyDebugger提供了四个特色的功能，包括：监控网络、CoreData对象查看、视图分层查看和远程日志打印。</p>
-
-<h3>监控网络</h3>
-
-<p>所有通过NSURLConnection进行的网络访问，都会被监测到，也就是说那些基于NSURLConnection的第三方网络组件，如AFNetworking，都可以被监测到，而且看以方便的查看到：访问类型、接口名、错误类型，返回类型、网络延时等信息，非常强大！</p>
-
-<p><img src="http://lucifer1988.github.io/images/ponyDebugger_Network.png"></p>
-
-<h3>CoreData对象查看</h3>
-
-<p>这个功能就不必多说了，你可能见过很多方便的sqlite工具，比如FireFox的SQLite Manager插件，但是这样直接查看CoreData对象的不多见吧？</p>
-
-<p><img src="http://lucifer1988.github.io/images/ponyDebugger_CoreData.png"></p>
-
-<h3>视图分层查看</h3>
-
-<p>这个功能对于前端开发者来说是最重要不过了，PonyDebugger将你应用的视图关系以xml的形式分层展示出来，选择相应xml，会在客户端进行对应视图的高亮响应，xml的属性信息可以在客户端进行配置，而且竟然支持直接修改xml属性值，而客户端UI会实时做出改变！</p>
-
-<p><img src="http://lucifer1988.github.io/images/ponyDebugger_ViewHierarchy.png"></p>
-
-<h3>远程日志打印</h3>
-
-<p>这个可能你觉得没什么亮点，上次介绍的NSLogger可是专门做这件事的，不过PonyDebugger的这一功能也不会让你失望，它的语句类型不多，主要分为<code>PDLog()</code>和<code>PDLogObjects()</code>，<code>PDLog()</code>负责打印字符串信息，<code>PDLogObjects()</code>负责打印对象和数组。不过正如下图所示，<code>PDLogObjects()</code>打印出的对象也是分层展示的，比如查看一个数组中自定义modal对象的一个属性的值这样的事情就非常轻松，而且不用你再回Xcode中加断点，这是不很爽啊！</p>
-
-<p><img src="http://lucifer1988.github.io/images/ponyDebugger_Console.png"></p>
-
-<h2>配置</h2>
-
-<p>配置工作包括配置服务器端和客户端。</p>
-
-<h3>配置服务器端</h3>
-
-<ul>
-<li>安装Xcode&rsquo;s Command Line Tools，在之前的版本中可直接在Xcode中安装，如果你的环境更新到10.9和Xcode5之后，不妨参考<a href="http://ourcoders.com/thread/show/1208/">这里</a>进行安装，这是之前10.9更新CocoaPods时发现的一个问题。</li>
-<li>在终端执行以下命令，进行安装</li>
-</ul>
 
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -sk https://cloud.github.com/downloads/square/PonyDebugger/bootstrap-ponyd.py | \
-</span><span class='line'>  python - --ponyd-symlink=/usr/local/bin/ponyd ~/Library/PonyDebugger</span></code></pre></td></tr></table></div></figure>
 
 
-<p>注：如果在安装过程中报出如下错误：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>···
-</span><span class='line'>  Running setup.py (path:/Users/user/Library/PonyDebugger/build/tornado/setup.py) egg_info for package tornado
-</span><span class='line'>
-</span><span class='line'>    warning: no previously-included files matching '_auto2to3*' found anywhere in distribution
-</span><span class='line'>Downloading/unpacking pybonjour (from ponydebugger)
-</span><span class='line'>  Could not find any downloads that satisfy the requirement pybonjour (from ponydebugger)
-</span><span class='line'>  Some externally hosted files were ignored (use --allow-external pybonjour to allow).
-</span><span class='line'>Cleaning up...</span></code></pre></td></tr></table></div></figure>
 
 
-<p>可以参考<a href="https://github.com/square/PonyDebugger/issues/100">这里</a>的解决方法，在我安装的过程中也遇到了这个问题，按照提示是<code>pip</code>安装时没有配置<code>--allow-external pybonjour --allow-unverified pybonjour</code>。</p>
-
-<ul>
-<li>成功安装后，在终端输入<code>ponyd serve --listen-interface=127.0.0.1</code>，打开监听。</li>
-<li>最后打开浏览器，输入地址<code>http://localhost:9000</code>，如果访问到如下结果，说明安装成功。</li>
-</ul>
-
-
-<p><img src="http://lucifer1988.github.io/images/ponyDebugger_install.png"></p>
-
-<h3>配置客户端</h3>
-
-<p>由于现在PonyDebugger支持CocoaPods安装了，可以直接在你的podfile中加入：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>pod 'PonyDebugger'</span></code></pre></td></tr></table></div></figure>
-
-
-<p>然后，安装一下就可以了。</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>pod install</span></code></pre></td></tr></table></div></figure>
-
-
-<p>不了解CocoaPods的童鞋可以参考下唐巧大哥的<a href="http://blog.devtang.com/blog/2012/12/02/use-cocoapod-to-manage-ios-lib-dependency/">这篇介绍</a>，希望手动加入PonyDebugger的童鞋可以参考<a href="https://github.com/square/PonyDebugger">官方文档</a>中Manual Installation一项。</p>
-
-<h2>使用</h2>
-
-<p>相比起搭建环境，PonyDebugger的使用非常简单。你需要在你应用的<code>AppDelegate.m</code>的<code>- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {}</code>方法中加入以下代码：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>PDDebugger *debugger = [PDDebugger defaultInstance];
-</span><span class='line'>//设置网络监控
-</span><span class='line'>[debugger enableNetworkTrafficDebugging];
-</span><span class='line'>[debugger forwardAllNetworkTraffic];
-</span><span class='line'>//通过TCP连接至服务端
-</span><span class='line'>[debugger connectToURL:[NSURL URLWithString:@"ws://localhost:9000/device"]];
-</span><span class='line'>// 也可通过bonjour自动连接
-</span><span class='line'>//[debugger autoConnect];
-</span><span class='line'>// 或连接至指定bonjour服务
-</span><span class='line'>//[debugger autoConnectToBonjourServiceNamed:@"MY PONY"];
-</span><span class='line'>//设置CoreData监控
-</span><span class='line'>[debugger enableCoreDataDebugging];
-</span><span class='line'>[debugger addManagedObjectContext:self.managedObjectContext withName:@"TIME Test MOC"];
-</span><span class='line'>//设置视图分层监控
-</span><span class='line'>[debugger enableViewHierarchyDebugging];
-</span><span class='line'>[debugger setDisplayedViewAttributeKeyPaths:@[@"frame", @"hidden", @"alpha", @"opaque", @"accessibilityLabel", @"text"]];
-</span><span class='line'>//设置远程日志打印
-</span><span class='line'>[debugger enableRemoteLogging];</span></code></pre></td></tr></table></div></figure>
-
-
-<h2>小结</h2>
-
-<p>本文可以作为<code>PonyDebugger</code>一个入门级的文档。相比上一次介绍的<code>NSLogger</code>来说，<code>PonyDebugger</code>的展示方式和查看方式更加直观和方便，作为通用的调试工具非常不错，而<code>NSLogger</code>拥有强大的日志记录功能，但想要发挥<code>NSLogger</code>的作用，对程序员的经验和能力就有了一定的要求，所以两种工具各有千秋，大家各取所需就好。</p>
-]]></content>
-  </entry>
   
-  <entry>
-    <title type="html"><![CDATA[强力的日志分析工具-NSLogger]]></title>
-    <link href="http://lucifer1988.github.io/blog/2014/02/25/qiang-li-de-ri-zhi-fen-xi-gong-ju-nslogger/"/>
-    <updated>2014-02-25T17:00:29+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2014/02/25/qiang-li-de-ri-zhi-fen-xi-gong-ju-nslogger</id>
-    <content type="html"><![CDATA[<blockquote><p>NSLogger出现了，在Florent Pillet的打造下，一个开源强力的输出工具给了log这一古老的工作崭新的生命。标签输出，优先级查找，直接输出图像，多线程标记，时序控制，甚至是通过网络log到别人的终端或者是从别人的终端程序中记录log。在这里，只有想不到没有做不到，堪称是史上最为强大的logger。<br/>
-<p align="right">&mdash;OneV&rsquo;s Den</p></p></blockquote>
-
-<p>NSLogger是一款强力的日志记录和分析工具，其强大的功能，可以完全替代Xcode自带的Debugger，本文将介绍一些其主要特点和用法。git地址：<a href="https://github.com/fpillet/NSLogger">https://github.com/fpillet/NSLogger</a></p>
-
-<!--more-->
 
 
-<h2>安装</h2>
+<time datetime="2014-04-09T14:36:55+08:00" pubdate data-updated="true">Apr 9<span>th</span>, 2014</time>
+      
 
-<p>NSLogger由两部分组成，一是需要加入工程中的组件代码，二是查看和管理日志的Mac客户端。组件代码可通过CocoaPods安装，也可通过手动添加（手动添加需要引入CFNetwok.framework和SystemConfiguration.framework）。Mac客户端NSLoggerViewer的源码包含在了组件当中，可以自己生成，也可以<a href="http://doruby.com/assets/NSLoggerViewer.zip">点击这里</a>下载生成好的客户端，NSLoggerViewer实际运行图：</p>
-
-<p><img src="http://lucifer1988.github.io/images/NSLoggerViewer.png"></p>
-
-<!--more-->
-
-
-<h2>特点</h2>
-
-<ul>
-<li>标签输出</li>
-<li>自定义优先级</li>
-<li>直接输出图片</li>
-<li>多线程标记</li>
-<li>时序控制</li>
-<li>远程记录</li>
-</ul>
-
-
-<!--more-->
-
-
-<h2>配置</h2>
-
-<p>首先要将LoggerClient.h头文件import进来，通过LoggerSetOptions()配置Logger的一些属性：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>enum {
-</span><span class='line'>  kLoggerOption_LogToConsole               = 0x01,
-</span><span class='line'>  kLoggerOption_BufferLogsUntilConnection  = 0x02,
-</span><span class='line'>  kLoggerOption_BrowseBonjour              = 0x04,
-</span><span class='line'>  kLoggerOption_BrowseOnlyLocalDomain      = 0x08,
-</span><span class='line'>  kLoggerOption_UseSSL                     = 0x10,
-</span><span class='line'>  kLoggerOption_CaptureSystemConsole       = 0x20
-</span><span class='line'>};
-</span><span class='line'>
-</span><span class='line'>void LoggerSetOptions(Logger *logger, uint32_t flags);</span></code></pre></td></tr></table></div></figure>
-
-
-<p>一般使用默认Logger，第一个参数传入NULL就行，至于第二个参数主要是一些功能开关选项，将需要开启的功能相或后作为第二个参数即可，详细参数说明<a href="https://github.com/fpillet/NSLogger/wiki/NSLogger-API">点击</a>，实例：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'> LoggerSetOptions(NULL,                  
-</span><span class='line'>                   kLoggerOption_BufferLogsUntilConnection |
-</span><span class='line'>                   kLoggerOption_UseSSL |
-</span><span class='line'>                   kLoggerOption_CaptureSystemConsole|
-</span><span class='line'>                   kLoggerOption_BrowseBonjour|
-</span><span class='line'>                   kLoggerOption_BrowseOnlyLocalDomain : 0));</span></code></pre></td></tr></table></div></figure>
-
-
-<p>NSLogger支持TCP和Bonjour两种方式连接终端设备，Bonjour连接一般不需要配置，如果要是使用TCP连接，要通过LoggerSetViewerHost()配置IP地址和端口（同时需配置NSLoggerViewer，在Preferences的Network中，勾选 “Listen for loggers on TCP port”打开监听）：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>void LoggerSetViewerHost(Logger *aLogger, CFStringRef host, UInt32 port);</span></code></pre></td></tr></table></div></figure>
-
-
-<p>同样，使用默认Logger，第一参数传NULL，实例：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>LoggerSetViewerHost(NULL, (__bridge CFStringRef)@"192.168.11.38", (UInt32)50000);</span></code></pre></td></tr></table></div></figure>
-
-
-<p>以上代码放到<code>- (void)applicationDidFinishLaunching:(UIApplication *)application</code>统一配置。</p>
-
-<!--more-->
-
-
-<h2>使用</h2>
-
-<p>使用NSLogger基本方法和NSLog并无本质差别，只是开发者可以添加一些标签和级别参数，以供NSLoggerViewer端的日志过滤。</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>void LogMessage(NSString *tag, int level, NSString *format, ...);</span></code></pre></td></tr></table></div></figure>
-
-
-<p>同时也支持添加文件名、方法名、行号、变量名等参数：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>void LogMessageF(const char *file, int line, const char *function, NSString *tag, int level, NSString *format, ...);
-</span><span class='line'>void LogMessage_va(NSString *tag, int level, NSString *format, va_list args);</span></code></pre></td></tr></table></div></figure>
-
-
-<p>NSLogger支持直接打印二进制数据：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>void LogData(NSString *tag, int level, NSData *data);
-</span><span class='line'>void LogDataF(const char *file, int line, const char *function, NSString *tag, int level, NSData *data);</span></code></pre></td></tr></table></div></figure>
-
-
-<p>NSLogger最大的优点，支持直接打印图片，而且可以指定打印图片的大小：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>void LogImageData(NSString *tag, int level, int width, int height, NSData *data);
-</span><span class='line'>void LogImageDataF(const char *file, int line, const char *function, NSString *tag, int level, int width, int height, NSData *data);</span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<!--more-->
-
-
-<h2>Tips</h2>
-
-<ul>
-<li>直接使用默认打印函数过于繁琐，可结合需求自己定义宏来定义打印方法：</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#ifdef DEBUG
-</span><span class='line'>#define LOG_NETWORK(level, ...) LogMessageF(FILE,LINE,FUNCTION,"network",level,__VA_ARGS__) 
-</span><span class='line'>#define LOG_GENERAL(level, ...) LogMessageF(__FILE__,__LINE__,__FUNCTION__,“general”,level,VA_ARGS)
-</span><span class='line'>#define LOG_GRAPHICS(level, ...) LogMessageF(FILE,LINE,FUNCTION,@"graphics",level,VA_ARGS)
-</span><span class='line'>#define LOG_TRACE(...) LogMessageF( __FILE__,__LINE__,__FUNCTION__, NULL, 0, __VA_ARGS__)
-</span><span class='line'>#else
-</span><span class='line'>#define LOG_NETWORK(...) do{}while(0)
-</span><span class='line'>#define LOG_GENERAL(...) do{}while(0)
-</span><span class='line'>#define LOG_GRAPHICS(...) do{}while(0)
-</span><span class='line'>#define LOG_TRACE(...) do{}while(0)</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>如果程序启动后，没有数据发送到NSLoggerViewer，可以先clean一下。</li>
-<li>通过NSLoggerViewer当中Tools功能下<code>Add Mark</code>(<strong>Cmd-M</strong>)可以在日志列表底部快速添加一个时间戳标记，而使用<code>Add Mark With Title</code>(<strong>shift-Cmd-M</strong>)可以添加自定义标题的标记，通过这些标记将日志按照需要进行分块。<br/>
-<img src="http://lucifer1988.github.io/images/NSLoggerViewer_Marker.png"></li>
-</ul>
-
-
-<h2>总结</h2>
-
-<p>本文介绍了NSLogger的一些基本用法和技巧，以后还会介绍一些其他的调试工具，不过个人感觉工具再好，不能真正结合自己的项目用起来，也没有太大意义，所以还是在平时能多去试试这些工具，这样才能利用到它们为我们真正做一些事情。</p>
-]]></content>
-  </entry>
+<span class="categories">
   
-  <entry>
-    <title type="html"><![CDATA[Markdown入门级教程]]></title>
-    <link href="http://lucifer1988.github.io/blog/2014/02/14/markdownru-men-ji-jiao-cheng/"/>
-    <updated>2014-02-14T18:53:31+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2014/02/14/markdownru-men-ji-jiao-cheng</id>
-    <content type="html"><![CDATA[<blockquote><p>Markdown是一种轻量级标记语言，创始人为约翰·格鲁伯（John Gruber）和亚伦·斯沃茨（Aaron Swartz）。它允许人们“使用易读易写的纯文本格式编写文档，然后转换成有效的XHTML(或者HTML)文档”。这种语言吸收了很多在电子邮件&#8221;中已有的纯文本标记的特性。</p></blockquote>
-
-<p>Markdown语法简洁明了、学习成本低、而且与HTML完美兼容，所以成为了Bloger们的最爱，当下主流的博客平台Octopress、WordPress等都推荐使用Markdown。本文将介绍一些基本的Markdown语法规则，仅作入门之用。</p>
-
-<!--more-->
-
-
-<h2>语法</h2>
-
-<p>语法介绍的格式将采取上面代码，下面实际效果的格式，方便查看。</p>
-
-<h3>1、换行和分割线</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>单个回车
-</span><span class='line'>不能换行
-</span><span class='line'>
-</span><span class='line'>行尾添加两个空格，这里-&gt;
-</span><span class='line'>可以强制换行
-</span><span class='line'>
-</span><span class='line'>连续回车
-</span><span class='line'>
-</span><span class='line'>可以分段
-</span><span class='line'>
-</span><span class='line'>要生成水平分割线，可以在单独一行里输入3个或以上的短横线、星号或者下划线实现。短横线和星号之间可以输入任意空格。以下每一行都产生一条水平分割线。
-</span><span class='line'>* * *
-</span><span class='line'>*****
-</span><span class='line'>---------------------------------------</span></code></pre></td></tr></table></div></figure>
-
-
-<p>单个回车
-不能换行</p>
-
-<p>行尾添加两个空格，这里-><br/>
-可以换行</p>
-
-<p>连续回车</p>
-
-<p>可以分段</p>
-
-<p>要生成水平分割线，可以在单独一行里输入3个或以上的短横线、星号或者下划线实现。短横线和星号之间可以输入任意空格。以下每一行都产生一条水平分割线。</p>
-
-<hr />
-
-<hr />
-
-<hr />
-
-<h3>2、标题</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>#一级标题
-</span><span class='line'>##二级标题
-</span><span class='line'>###···
-</span><span class='line'>######最小六级标题</span></code></pre></td></tr></table></div></figure>
-
-
-<h1>一级标题</h1>
-
-<h2>二级标题</h2>
-
-<h3>···</h3>
-
-<h6>最小六级标题</h6>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>另一种一级标题写法
-</span><span class='line'>=
-</span><span class='line'>另一种二级标题写法
-</span><span class='line'>-</span></code></pre></td></tr></table></div></figure>
-
-
-<h1>另一种一级标题写法</h1>
-
-<h2>另一种二级标题写法</h2>
-
-<h3>3、强调和引用</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>*注意* 或 _注意_ （斜体强调）  
-</span><span class='line'>**注意** 或 __注意__ （粗体强调）  
-</span><span class='line'>***注意*** 或 ___注意___ （斜粗体强调）  </span></code></pre></td></tr></table></div></figure>
-
-
-<p><em>注意</em> 或 <em>注意</em> （斜体强调）<br/>
-<strong>注意</strong> 或 <strong>注意</strong> （粗体强调）<br/>
-<strong><em>注意</em></strong> 或 <strong><em>注意</em></strong> （斜粗体强调）</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&gt;引用只需要在被引用的内容段落开头加上右尖括号('&gt;')即可。
-</span><span class='line'>你可以选择只在开头加一个。
-</span><span class='line'>也可以在每行前面都加一个，效果是一样的。</span></code></pre></td></tr></table></div></figure>
-
-
-<blockquote><p>引用只需要在被引用的内容段落开头加上右尖括号(&lsquo;>&rsquo;)即可。
-你可以选择只在开头加一个。
-也可以在每行前面都加一个，效果是一样的。</p></blockquote>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>&gt; 嵌套引用：这是一个引用。这是第一行。  
-</span><span class='line'>这是第二行。
-</span><span class='line'>&gt;&gt; 这是一个嵌套的引用。这是第一行。  
-</span><span class='line'>这是第二行。
-</span><span class='line'>&gt; 
-</span><span class='line'>&gt; 外层引用的第三行。前面需要一个视觉上的空行表示内层嵌套的结束，空行前面的('&gt;')可有可无。</span></code></pre></td></tr></table></div></figure>
-
-
-<blockquote><p>嵌套引用：这是一个引用。这是第一行。<br/>
-这是第二行。</p>
-
-<blockquote><p>这是一个嵌套的引用。这是第一行。<br/>
-这是第二行。</p></blockquote>
-
-<p>外层引用的第三行。前面需要一个视觉上的空行表示内层嵌套的结束，空行前面的(&lsquo;>&rsquo;)可有可无。</p></blockquote>
-
-<h3>4、列表</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>* 无序列表的一项（*也可用+或-代替，\*后要有一个空格）
-</span><span class='line'>  * 嵌套列表子项，要以一个制表符或者4个空格缩进
-</span><span class='line'>      * 最多支持三级嵌套缩进
-</span><span class='line'>* 无序列表的另一项</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>无序列表的一项（*也可用+或-代替，*后要有一个空格）
-
-<ul>
-<li>嵌套列表子项，要以一个制表符或者4个空格缩进
-
-<ul>
-<li>最多支持三级嵌套缩进</li>
-</ul>
-</li>
-</ul>
-</li>
-<li>无序列表的另一项</li>
-</ul>
-
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>1. 有序列表项目1（同样标识符与内容间有空格）
-</span><span class='line'>2. 有序列表项目2
-</span><span class='line'>3. 有序列表项目3</span></code></pre></td></tr></table></div></figure>
-
-
-<ol>
-<li>有序列表项目1（同样标识符与内容间有空格）</li>
-<li>有序列表项目2</li>
-<li>有序列表项目3</li>
-</ol>
-
-
-<h3>5、代码片段</h3>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>//行的开头空4个空格，表示程序代码（或者用两段```包起来，可显示行号）
-</span><span class='line'>int main(int argc, const char * argv[])
-</span><span class='line'>{
-</span><span class='line'>
-</span><span class='line'>    @autoreleasepool {
-</span><span class='line'>
-</span><span class='line'>        NSLog(@"Hello, World!");
-</span><span class='line'>    }
-</span><span class='line'>    return 0;
-</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-
-<h3>6、链接和图片</h3>
-
-<pre><code>直接标注链接：&lt;http://www.baidu.com&gt;  
-链接文字：[百度](http://www.baidu.com)  
-索引方式链接文字：[百度][1]  
-图像和链接非常类似，区别在开头加一个惊叹号：![百度情人节Logo](http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif)  
-也可以使用索引方式：![百度情人节Logo][2]  
-另：引用本地图片：&lt;img src="http://lucifer1988.github.io/images/baidu_lover'sDay.gif"&gt;
-
-[1]:http://www.baidu.com
-[2]:http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif
-</code></pre>
-
-<p>直接标注链接：<a href="http://www.baidu.com">http://www.baidu.com</a><br/>
-链接文字：<a href="http://www.baidu.com">百度</a><br/>
-索引方式链接文字：<a href="http://www.baidu.com">百度</a> <br/>
-图像和链接非常类似，区别在开头加一个惊叹号：<img src="http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif" alt="百度情人节Logo" /> <br/>
-也可以使用索引方式：<img src="http://www.baidu.com/img/pc270x119_16f8c8283f357d242afa2d432c051d44.gif" alt="百度情人节Logo" /><br/>
-另：引用本地图片：<img src="http://lucifer1988.github.io/images/baidu_lover'sDay.gif"></p>
-
-<!--more-->
-
-
-<h2>编辑器</h2>
-
-<p>Mac环境下推荐使用<a href="http://mouapp.com">Mou</a>，一个Mac平台上轻量级的Markdown编辑器，非常好用！</p>
-
-<!--more-->
-
-
-<h2>进一步学习</h2>
-
-<p>如果你想深入学习下Markdown语法，可参考以下内容：<br/>
-<a href="http://wowubuntu.com/markdown/index.html">http://wowubuntu.com/markdown/index.html</a><br/>
-<a href="http://www.ituring.com.cn/article/504">http://www.ituring.com.cn/article/504</a></p>
-
-<p><em>PS:当天是情人节加元宵节，祝我女朋友晓莉永远美丽漂亮，天天开心快乐，愿我们能幸福相伴一生！</em></p>
-]]></content>
-  </entry>
+    <a class='category' href='/blog/categories/ios/'>iOS</a>
   
-  <entry>
-    <title type="html"><![CDATA[基于Octopress搭建自己的博客网站]]></title>
-    <link href="http://lucifer1988.github.io/blog/2014/02/13/hello-world-octopressfa-bu-wen-zhang-bu-zou/"/>
-    <updated>2014-02-13T01:19:13+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2014/02/13/hello-world-octopressfa-bu-wen-zhang-bu-zou</id>
-    <content type="html"><![CDATA[<p>本文将介绍当前主流的一个基于git的博客管理工具：<a href="http://octopress.org/">Octopress</a>，它是利用<a href="https://github.com/jekyll/jekyll">Jekyll</a>博客引擎开发的一个博客系统，生成的页面可以利用github page来展现，大致原理是利用git来管理你的博客文章，然后发布到github上成为独立博客站点。本博客就是基于Octopress搭建的。</p>
+</span>
 
-<!--more-->
 
-
-<h2>安装</h2>
-
-<p>安装Octopress的详细步骤在其官方文档有详细说明，地址是<a href="http://octopress.org/docs/setup/">http://octopress.org/docs/setup/</a>，这里只列一下大致步骤：</p>
-
-<h3>安装Ruby</h3>
-
-<p>Mac环境下一般是自带Ruby的，不过你需要注意下Ruby的版本：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>ruby --version</span></code></pre></td></tr></table></div></figure>
-
-
-<p>如果低于1.9.3，那么就需要更新：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rvm install 1.9.3
-</span><span class='line'>rvm use 1.9.3
-</span><span class='line'>rvm rubygems latest</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>安装Octopress</h3>
-
-<p>确保Ruby环境OK后，继续安装Octopress，先从git上clone其代码：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git clone git://github.com/imathis/octopress.git octopress
-</span><span class='line'>cd octopress    # If you use RVM, You'll be asked if you trust the .rvmrc file (say yes).
-</span><span class='line'>ruby --version  # Should report Ruby 1.9.3</span></code></pre></td></tr></table></div></figure>
-
-
-<p>继续安装依赖项：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>gem install bundler
-</span><span class='line'>rbenv rehash    # If you use rbenv, rehash to be able to run the bundle command
-</span><span class='line'>bundle install</span></code></pre></td></tr></table></div></figure>
-
-
-<p>最后一步：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rake install</span></code></pre></td></tr></table></div></figure>
-
-
-<h3>一些配置工作</h3>
-
-<p>安装好后要进行一些配置工作：</p>
-
-<ul>
-<li>修改_config.yml中有关博客名，作者名之类的信息，填写git上对应的仓库url（见下一小节）。</li>
-<li>删去_config.yml中twitter相关的信息，否则由于GFW的原因，将会造成页面load很慢。</li>
-<li>修改定制文件/source/_includes/custom/head.html 把google的自定义字体去掉，原因同上。</li>
-</ul>
-
-
-<p>注：在修改_config.yml时注意，所有的键值格式都是类似<code>title: 刘毅的技术博客</code>，即<code>:</code>后是有个空格的，如果在修改时不慎删去，可能在<code>rake generate</code>出现类似这样的问题：<a href="http://stackoverflow.com/questions/10086806/i-can-not-do-any-modify-after-octopress-installed/13898285#13898285">http://stackoverflow.com/questions/10086806/i-can-not-do-any-modify-after-octopress-installed/13898285#13898285</a>，在这里提醒下各位。</p>
-
-<p>更进一步的配置参见：<a href="http://octopress.org/docs/configuring/">http://octopress.org/docs/configuring/</a></p>
-
-<!--more-->
-
-
-<h2>部署</h2>
-
-<p>我们利用<a href="http://pages.github.com">Github Pages</a>来托管博客。</p>
-
-<p>首先，你需要在github上创建一个新的仓库，命名方式是username.github.io，这就是上一步需要填写的url，也是将来博客地址的域名。</p>
-
-<p>创建好仓库之后，需要在octopress文件夹下运行rake命令来部署git仓库，期间需要输入你的仓库地址：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rake setup_github_pages</span></code></pre></td></tr></table></div></figure>
-
-
-<p>然后生成博客内容，并部署到仓库，这也是每次编辑好新博客后需要做的事：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rake generate
-</span><span class='line'>rake deploy</span></code></pre></td></tr></table></div></figure>
-
-
-<p>现在已经就可以在<code>http://username.github.io</code>访问到新的博客内容了，不过octopress的source部分更新需要手动提交：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>git add .
-</span><span class='line'>git commit -m 'your commit words'
-</span><span class='line'>git push origin source </span></code></pre></td></tr></table></div></figure>
-
-
-
-
-<!--more-->
-
-
-<h2>写博客</h2>
-
-<p>上面都完成之后，写博客要做的事就很easy了，首先依然需要rake命令new一个新博客文件：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rake new_post["你的文章名"]</span></code></pre></td></tr></table></div></figure>
-
-
-<p>命名支持中英文，会在source/_posts/下生成一个markdown文件，抬头是：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>layout: post
-</span><span class='line'>title: "基于Octopress搭建自己的博客网站"
-</span><span class='line'>date: 2014-02-12 17:19:13
-</span><span class='line'>comments: true
-</span><span class='line'>published: false
-</span><span class='line'>categories: BlogBasics</span></code></pre></td></tr></table></div></figure>
-
-
-<p>这里的published: false字段是我自己添加的，它置为false的作用是即使你部署这篇博客到git上，也不会被访问到，这可以满足你在彻底完成并润色好文章之后再发布的需要。另外，这里文章的编辑使用markdown语法，我会在之后写一篇博客介绍下的。</p>
-
-<p>现在假设你精心撰写的文章已经OK了，那么就将它发布吧：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rake generate
-</span><span class='line'>git add .
-</span><span class='line'>git commit -m "Some comment here." 
-</span><span class='line'>git push origin source
-</span><span class='line'>rake deploy</span></code></pre></td></tr></table></div></figure>
-
-
-<p>现在你应该已经能访问到你的新博客了，如果需要在部署之前先本地预览下博客，可以在终端输入：</p>
-
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>rake preview</span></code></pre></td></tr></table></div></figure>
-
-
-<p>然后在本地浏览器访问：<code>http://localhost:4000/</code>预览你的博客。</p>
-
-<!--more-->
-
-
-<h2>高级配置</h2>
-
-<p>因为Octopress自带的Disqus Comments评论系统比较慢，所以你可以选择国内的评论和分享系统，本博客分享系统用的是<a href="http://www.jiathis.com">加网</a>，评论系统用的是<a href="http://www.uyan.cc">友言</a>，具体步骤是：</p>
-
-<ul>
-<li>增加文件：source/_includes/post/weibo.html</li>
-<li>访问 <a href="http://www.jiathis.com/">http://www.jiathis.com/</a>，获取分享的代码</li>
-<li>访问 <a href="http://uyan.cc/">http://uyan.cc/</a>，获得评论的代码</li>
-<li>将上面2步获得的代码都加入weibo.html中即可</li>
-</ul>
-
-
-<!--more-->
-
-
-<h2>参考</h2>
-
-<p>我的博客搭建和这篇文章的完成主要参考了Octopress官方文档和<a href="http://blog.devtang.com/blog/2012/02/10/setup-blog-based-on-github/">唐巧</a>、<a href="http://beyondvincent.com/blog/2013/08/03/108-creating-a-github-blog-using-octopress/">破船</a>的相关教程，他们都是我很尊敬的iOS开发者，可以多多关注他们，一定会受益匪浅！</p>
-]]></content>
-  </entry>
+    </p>
+    
+      <div class="sharing">
   
-  <entry>
-    <title type="html"><![CDATA[2013总结&2014规划]]></title>
-    <link href="http://lucifer1988.github.io/blog/2014/01/02/2013-summary-and-2014-plan/"/>
-    <updated>2014-01-02T11:40:00+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2014/01/02/2013-summary-and-2014-plan</id>
-    <content type="html"><![CDATA[<blockquote><p>2013可以说是自己人生的一个转折点，经历了很多，也成长了很多。过去的终究会过去，人生还得继续向前，希望从这一刻起开始记录自己的工作和生活，并能一直坚持下去！</p></blockquote>
-
-<h2>过去的2013</h2>
-
-<p>2013的我正式步出校园，走向了社会，但这第一步走的就异常坎坷。</p>
-
-<h3>时间轴</h3>
-
-<ul>
-<li>1月份进入盘古实习，认识了新的同事并开始接触企业级的App的开发流程</li>
-<li>3月份会学校写论文，5月答辩，之后和女朋友去了上海、杭州毕业旅行</li>
-<li>6月份回到公司，得知公司欲与即刻合并，开始纠结去留</li>
-<li>7月份和女朋友订婚，双方父母都来京了，虽然闹了些不愉快，自己还是决定和她一直走下去</li>
-<li>8月份终于入职，自己决定留下，但是户口没有解决</li>
-<li>9月份女朋友从百度跳到了人寿研发，解决了户口，两个人还是安心了些</li>
-<li>10月份起开始经历公司各种变化，折腾到最后自己还是选择了老本行，选择了移动搜索事业部</li>
-<li>十一回了趟家，感觉见父母的时间明显少了好多</li>
-<li>11月开始和女朋友看房，见识到了帝都的房价</li>
-<li>期间做了一些组件和工具类app的开发，但是由于公司变故，没有参与大型的企业级App，很遗憾</li>
-<li>12月底说好的新公司仍没成立</li>
-</ul>
-
-
-<h3>关于工作</h3>
-
-<ul>
-<li>开始经常使用git，遇到问题会去stackOverflow看看</li>
-<li>开始学习CocoaTouch SDK的机制运行的原理</li>
-<li>写代码的时候开始注意实现和效率两方面</li>
-<li>对设计模式开始关注</li>
-<li>开始记录自己积累的一些开发经验，但没有自己的总结</li>
-<li>接触了一些Web开发的皮毛</li>
-<li>完成了两个iOS的小型项目</li>
-<li>从实验室赶工式的开发思维开始向企业级的开发思维转变</li>
-</ul>
-
-
-<h3>关于生活</h3>
-
-<ul>
-<li>和晓莉同学结束1年的爱情短跑，两人订婚</li>
-<li>买了土豪金，买了小米2S（给女友），买了高配台式机，挣得第一桶金做了这些</li>
-<li>中午时间和同事打乒乓球，重拾儿时爱好</li>
-<li>每天会玩几盘Dota2，但是技术还是那样</li>
-<li>会常常去关注下房价，开始为买房发愁</li>
-</ul>
-
-
-<h2>要来的2014</h2>
-
-<p>如果2013的关键字是“变化”，“适应”的话，我希望2014的关键字是“成熟”，“责任”</p>
-
-<h3>个人能力目标</h3>
-
-<ul>
-<li>每周至少写一篇技术Blog，长短不限，但是必须是自己收到的干货</li>
-<li>每月至少在gitHub提交一份代码，可以是小工程，也可以是组件，但必须是自己原创</li>
-<li>看两本iOS中高级开发的书籍</li>
-<li>上半年业余时间完成Web开发的基础学习，目标是完成一个小型网站的搭建</li>
-<li>下半年业余时间完成Android开发的基础学习，目标是给女友手机装一个自己开发的App</li>
-<li>能参与至少一个企业级App的开发过程</li>
-<li>遇到难解决的问题主动找冬哥、景雲、张玺讨论，力求改变自己在技术上不太Open的性格</li>
-</ul>
-
-
-<h3>个人生活目标</h3>
-
-<ul>
-<li>完成自己终生大事，和晓莉同学结婚</li>
-<li>坚持定期锻炼身体</li>
-<li>继续看房，争取上半年买房</li>
-<li>给女朋友买新版iPad，要她不再怨恨我的土豪金</li>
-<li>出去旅行一次</li>
-<li>每天最多玩两盘Dota</li>
-</ul>
-
-
-<p>最后，希望今年的目标能全部实现吧！2013，谢谢父母的支持，女朋友的陪伴，朋友们的帮助，也谢谢同事们对我这个职场新人的包容和悉心指导，真心希望2014能和大家共同实现各自的目标，谢谢大家！</p>
-]]></content>
-  </entry>
   
-</feed>
+  
+  
+    <style>
+    .flash-video{display:none;}
+</style>
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <span class="jiathis_txt">分享到：</span>
+  <a class="jiathis_button_qzone">QQ空间</a>
+  <a class="jiathis_button_tsina">新浪微博</a>
+  <a class="jiathis_button_tqq">腾讯微博</a>
+  <a class="jiathis_button_renren">人人网</a>
+  <a class="jiathis_button_douban">豆瓣</a>
+  <a class="jiathis_button_weixin">微信</a>
+  <a href="http://www.jiathis.com/share?uid=1885095" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript">
+var jiathis_config = {data_track_clickback:'true'};
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1885095" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+
+<br />
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1885095"></script>
+<!-- UY END -->
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/03/03/diao-shi-li-qi-ponydebugger/" title="Previous Post: 调试利器-PonyDebugger">&laquo; 调试利器-PonyDebugger</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/04/09/raywenderlich-dot-comdai-ma-feng-ge-gui-fan/">raywenderlich.com代码风格规范</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/03/03/diao-shi-li-qi-ponydebugger/">调试利器-PonyDebugger</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/25/qiang-li-de-ri-zhi-fen-xi-gong-ju-nslogger/">强力的日志分析工具-NSLogger</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/14/markdownru-men-ji-jiao-cheng/">Markdown入门级教程</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/13/hello-world-octopressfa-bu-wen-zhang-bu-zou/">基于Octopress搭建自己的博客网站</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/02/2013-summary-and-2014-plan/">2013总结&2014规划</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>About Me</h1>
+    <p> iOS开发, 菜鸟程序猿, Dotar<br/>
+      <br/>我的经历:
+      <br/>2007.9 进入吉大学习高端大气的电子信息工程
+      <br/>2011.9 考研失利,转投中传计算机专业,接触iOS
+      <br/>2013.8 入职盘古,以iOS程序员的身份开始职业生涯<br/>
+      <br/>我的微博: <a href="http://weibo.com/u/2638849461" target="_blank">JamesRaynor-刘毅</a>
+      <br/>
+      <br/><span id="wb_follow_btn"></span>
+  </p>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - 刘毅 -
+  <span class="credit">Powered by <a href="http://octopress.org" target="_blank">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=3350288267" type="text/javascript" charset="utf-8"></script>
+<script>
+    WB2.anyWhere(function(W){
+        W.widget.followButton({
+            'uid': 2638849461,
+            'nick_name': 'JamesRaynor-刘毅',
+            'id': "wb_follow_btn",
+            'show_head' : true, 
+            'show_name' : true, 
+            'show_cancel': false
+        });
+    });
+</script>
+6vvqnj09Z6
+
+</body>
+</html>
