@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2014-04-11T15:27:23+08:00</updated>
+  <updated>2014-04-11T15:40:01+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -18,7 +18,9 @@
     <link href="http://lucifer1988.github.io/blog/2014/04/09/raywenderlich-dot-comdai-ma-feng-ge-gui-fan/"/>
     <updated>2014-04-09T14:36:55+08:00</updated>
     <id>http://lucifer1988.github.io/blog/2014/04/09/raywenderlich-dot-comdai-ma-feng-ge-gui-fan</id>
-    <content type="html"><![CDATA[<p><a href="http://www.raywenderlich.com">raywenderlich.com</a>对于搞iOS开发的人来说不会陌生（如果你经常关注一些技术博客的话），它原本只是Ray Wenderlich的个人博客，但通过不断聚集优秀的开发者参与到其站点的技术博客撰写，包括了应用开发和游戏开发的各个方面，同时将这些技术博客整理成书，作为开发教程出售（貌似最近还出视频教程了，又想法圈钱了···），这样raywenderlich.com渐渐发展成了一个iOS开发社区，其优质的文章和对文章本地化的重视，使得其影响力逐渐向全球扩展。本文是对其最近公布的自家的Objective-C代码风格规范的一些整理，原文地址在<a href="https://github.com/raywenderlich/objective-c-style-guide">这里</a>。</p>
+    <content type="html"><![CDATA[<p><img src="http://lucifer1988.github.io/images/rayWenderlich_icon.png"></p>
+
+<p><a href="http://www.raywenderlich.com">raywenderlich.com</a>对于搞iOS开发的人来说不会陌生（如果你经常关注一些技术博客的话），它原本只是Ray Wenderlich的个人博客，但通过不断聚集优秀的开发者参与到其站点的技术博客撰写，包括了应用开发和游戏开发的各个方面，同时将这些技术博客整理成书，作为开发教程出售（貌似最近还出视频教程了，又想法圈钱了···），这样raywenderlich.com渐渐发展成了一个iOS开发社区，其优质的文章和对文章本地化的重视，使得其影响力逐渐向全球扩展。本文是对其最近公布的自家的Objective-C代码风格规范的一些整理，原文地址在<a href="https://github.com/raywenderlich/objective-c-style-guide">这里</a>。</p>
 
 <!--more-->
 
