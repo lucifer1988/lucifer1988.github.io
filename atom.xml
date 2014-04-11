@@ -4,7 +4,7 @@
   <title><![CDATA[刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2014-04-11T15:40:01+08:00</updated>
+  <updated>2014-04-11T15:52:19+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -647,9 +647,9 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h2><a name="私有变量"></a>私有变量</h2>
+<h2><a name="私有属性"></a>私有属性</h2>
 
-<p>私有变量应该定义到<code>.m</code>文件中的类扩展（匿名分类）中，命名的分类（如<code>RWTPrivate</code>，<code>private</code>）是不允许使用的，除非是在做另一个类的拓展。匿名分类可以暴露和共享于与<code>+Private.h</code>文件的命名惯例测试中。</p>
+<p>私有属性应该定义到<code>.m</code>文件中的类扩展（匿名分类）中，命名的分类（如<code>RWTPrivate</code>，<code>private</code>）是不允许使用的，除非是在做另一个类的拓展。匿名分类可以暴露和共享于与<code>+Private.h</code>文件的命名惯例测试中。</p>
 
 <p><strong>例如：</strong></p>
 
