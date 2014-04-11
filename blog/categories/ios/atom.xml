@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2014-04-11T14:48:18+08:00</updated>
+  <updated>2014-04-11T15:05:51+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -27,7 +27,6 @@
 
 <ul>
 <li><a href="#%E8%AF%AD%E8%A8%80">语言</a></li>
-<li><a href="#Language">Language</a></li>
 <li><a href="#%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84">代码结构</a></li>
 <li><a href="#%E7%A9%BA%E6%A0%BC">空格</a></li>
 <li><a href="#%E6%B3%A8%E9%87%8A">注释</a></li>
@@ -52,14 +51,12 @@
 <li><a href="#%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86">异常处理</a></li>
 <li><a href="#%E5%8D%95%E4%BE%8B">单例</a></li>
 <li><a href="#%E6%8D%A2%E8%A1%8C">换行</a></li>
-<li><a href="#%E7%AC%91%E8%84%B8">笑脸（囧，这也有规范）</a></li>
+<li><a href="#%E7%AC%91%E8%84%B8">笑脸（你没看错，这也有规范）</a></li>
 <li><a href="#Xcode%E5%B7%A5%E7%A8%8B">Xcode工程</a></li>
 </ul>
 
 
-<h2><a name="tith"></a>语言</h2>
-
-<h2>Language</h2>
+<h2><a name="语言"></a>语言</h2>
 
 <p>推荐使用美英，主要体现在命名时使用美英单词。</p>
 
@@ -75,7 +72,7 @@ UIColor *myColor = [UIColor whiteColor];
 UIColor *myColour = [UIColor whiteColor];
 </code></p>
 
-<h2>代码结构</h2>
+<h2><a name="代码结构"></a>代码结构</h2>
 
 <p>统一使用<code>#pragma mark -</code>组织代码结构。</p>
 
@@ -144,7 +141,7 @@ UIColor *myColour = [UIColor whiteColor];
 </ul>
 
 
-<h2>空格</h2>
+<h2><a name="空格"></a>空格</h2>
 
 <ul>
 <li>使用2个空格缩进（理由是可以在保持打印空白的基础上，尽量减少换行的可能性），不要使用tab缩进，可以在Xcode的preference下进行修改（默认是4个空格）；</li>
@@ -214,13 +211,13 @@ else {</p>
 
 <p>```</p>
 
-<h2>注释</h2>
+<h2><a name="注释"></a>注释</h2>
 
 <p>注释主要用来解释这段代码为什么存在于此，注意所有注释需要及时更新或删除。</p>
 
 <p>大段的注释要避免，有必要可以加到单独的文档，注释需要一些简短的说明。PS：不包括那些为生成文档而做的注释（一些工具可以通过代码中的注释生成文档）。</p>
 
-<h2>命名</h2>
+<h2><a name="命名"></a>命名</h2>
 
 <p>Apple的命名习惯是尽可能详细，尤其是和内存管理相关的。</p>
 
@@ -268,7 +265,7 @@ static NSTimeInterval const fadetime = 1.7;
 id varnm;
 </code></p>
 
-<h2>下划线</h2>
+<h2><a name="下划线"></a>下划线</h2>
 
 <p>当使用property时，实例变量的读写要使用<code>self.</code>，这样的话所有的property可以清楚地区分出来。</p>
 
@@ -276,7 +273,7 @@ id varnm;
 
 <p>临时变量不能使用下划线。</p>
 
-<h2>方法</h2>
+<h2><a name="方法"></a>方法</h2>
 
 <p>在方法声明时，方法类型（-/+）后要有一个空格。方法段之间也要有一个空格。在每个变量前要加一个描述性的词语用来描述这个变量。</p>
 
@@ -301,7 +298,7 @@ id varnm;
 - (instancetype)initWith:(int)width and:(int)height;  // Never do this.
 </code></p>
 
-<h2>变量</h2>
+<h2><a name="变量"></a>变量</h2>
 
 <p>变量命名尽量使用描述性的词语。单个字母的命名除了在<code>for()</code>循环中，其他地方都是不允许的。</p>
 
@@ -329,7 +326,7 @@ id varnm;
 }
 </code></p>
 
-<h2>属性</h2>
+<h2><a name="属性"></a>属性</h2>
 
 <p>属性需要清楚地列出，属性的property类型顺序应该是先内存相关，再原子性相关，这与从IB中自动关联的属性的顺序是一致的。</p>
 
@@ -361,7 +358,7 @@ id varnm;
 @property (strong, nonatomic) NSString *tutorialName;
 </code></p>
 
-<h2>点表达式</h2>
+<h2><a name="点表达式"></a>点表达式</h2>
 
 <p>读写property时应一直使用点表达式，这使代码变得简洁，而<code>[]</code>表达式用于其他所有的实例中。</p>
 
@@ -381,7 +378,7 @@ NSInteger arrayCount = self.array.count;
 UIApplication.sharedApplication.delegate;
 </code></p>
 
-<h2>文字量</h2>
+<h2><a name="文字量"></a>文字量</h2>
 
 <p><code>NSString</code>，<code>NSDictionary</code>，<code>NSArry</code>，<code>NSNumber</code>如果可能的话，尽量使用它们的不可变实例。<code>NSArray</code>和<code>NSDictionary</code>不能存在<code>nil</code>值，否则会引起崩溃。</p>
 
@@ -403,7 +400,7 @@ NSNumber *shouldUseLiterals = [NSNumber numberWithBool:YES];
 NSNumber *buildingStreetNumber = [NSNumber numberWithInteger:10018];
 </code></p>
 
-<h2>常量</h2>
+<h2><a name="常量"></a>常量</h2>
 
 <p>常量推荐内联的字符串或数字，推荐定义为<code>static</code>变量，除非要作为宏，不然不要使用<code>#define</code>。</p>
 
@@ -425,7 +422,7 @@ static NSString * const RWTAboutViewControllerCompanyName = @&ldquo;RayWenderlic
 
 <p>```</p>
 
-<h2>枚举类型</h2>
+<h2><a name="枚举类型"></a>枚举类型</h2>
 
 <p>当使用枚举型时，推荐使用新的固定基础类型定义，理由是有更强的类型检查和代码完成功能。SDK现在包含了一个宏来确保和推广使用固定基础类型：<code>NS_ENUM()</code>。</p>
 
@@ -461,7 +458,7 @@ enum GlobalConstants {
 };
 </code></p>
 
-<h2>分支语句</h2>
+<h2><a name="分支语句"></a>分支语句</h2>
 
 <p>花括号对于分支语句并不是必须的，除非编译器强制使用。
 当一个分支包含多于一条语句，花括号需要添加。</p>
@@ -547,7 +544,7 @@ break;
 <p>}
 ```</p>
 
-<h2>私有变量</h2>
+<h2><a name="私有变量"></a>私有变量</h2>
 
 <p>私有变量应该定义到<code>.m</code>文件中的类扩展（匿名分类）中，命名的分类（如<code>RWTPrivate</code>，<code>private</code>）是不允许使用的，除非是在做另一个类的拓展。匿名分类可以暴露和共享于与<code>+Private.h</code>文件的命名惯例测试中。</p>
 
@@ -563,7 +560,7 @@ break;
 <p>@end
 ```</p>
 
-<h2>布尔型</h2>
+<h2><a name="布尔型"></a>布尔型</h2>
 
 <p>Objective-C使用<code>YES</code>和<code>NO</code>。因此<code>true</code>和<code>false</code>只用于CoreFoundation，C和C++中。由于<code>nil</code>意味着<code>NO</code>，拿<code>nil</code>来做比较条件是不允许的，永远不要直接拿<code>YES</code>来比较，因为<code>YES</code>被定义为1，而一个布尔型可以支持到8比特。</p>
 
@@ -593,7 +590,7 @@ if (isAwesome == true) {} // Never do this.
 
 <p>这一部分来自<a href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CodingGuidelines/Articles/NamingIvarsAndTypes.html#//apple_ref/doc/uid/20001284-BAJGIIJE">Cocoa Naming Guidelines</a>。</p>
 
-<h2>条件语句</h2>
+<h2><a name="条件语句"></a>条件语句</h2>
 
 <p>条件语句主体任何时候都要使用花括号，即使是只有一条语句也需要。这是为了避免错误。这些错误包括添加下一条语句，以为这条语句位于if主体中。另一个更危险的缺点是，if主体内的语句被注释掉，这时下一条语句无意中成为了if语句中的一部分。除此之外，这样的风格与其他条件语句格式保持了一致，便于查找。</p>
 
@@ -618,7 +615,7 @@ if (!error)
 if (!error) return success;
 </code></p>
 
-<h2>三元运算符</h2>
+<h2><a name="三元运算符"></a>三元运算符</h2>
 
 <p>三元运算符<code>?:</code>，只有在可以提高可读性和简洁性时才可使。单一的判断条件一般可以使用，当执行多个判断条件时推荐使用<code>if</code>语句提高可读性，或者将条件重构为实例变量。总的来说，使用三元运算符的最好时机是决定如何给一个变量赋值的时候。</p>
 
@@ -640,7 +637,7 @@ result = isHorizontal ? x : y;
 result = a &gt; b ? x = c &gt; d ? c : d : y;
 </code></p>
 
-<h2>Init方法</h2>
+<h2><a name="Init方法"></a>Init方法</h2>
 
 <p>Init方法遵守Apple生成的代码模板，<code>instancetype</code>应取代<code>id</code>作为返回值。</p>
 
@@ -659,7 +656,7 @@ result = a &gt; b ? x = c &gt; d ? c : d : y;
 
 <p>关于<code>instancetype</code>参照<a href="#class-constructor-methods">Class Constructor Methods</a>。</p>
 
-<h2>构造类方法</h2>
+<h2><a name="构造类方法"></a>构造类方法</h2>
 
 <p>当类构造方法使用时，同样需要注意返回值使用<code>instancetype</code>，而不是<code>id</code>，这样可确保编译器得知正确的结果类型。</p>
 
@@ -671,7 +668,7 @@ result = a &gt; b ? x = c &gt; d ? c : d : y;
 
 <p>更多关于<code>instancetype</code>在<a href="http://nshipster.com/instancetype/">NSHipster.com</a>。</p>
 
-<h2>CGRect相关函数</h2>
+<h2><a name="CGRect相关函数"></a>CGRect相关函数</h2>
 
 <p>当读取一个<code>CGRect</code>的<code>x</code>、<code>y</code>、<code>width</code>、<code>height</code>时，要使用<code>CGGeometry</code>相关的函数，而不是直接读取结构体。参照Apple的相关文档：</p>
 
@@ -701,7 +698,7 @@ CGFloat height = frame.size.height;
 CGRect frame = (CGRect){ .origin = CGPointZero, .size = frame.size };
 ```</p>
 
-<h2>愉快路径</h2>
+<h2><a name="愉快路径"></a>愉快路径</h2>
 
 <p>进行条件编程时，左边缘的代码应该是愉快路径。也就是说，不要嵌套<code>if</code>语句。多个<code>return</code>是允许的。</p>
 
@@ -733,7 +730,7 @@ CGRect frame = (CGRect){ .origin = CGPointZero, .size = frame.size };
 }
 ```</p>
 
-<h2>异常处理</h2>
+<h2><a name="异常处理"></a>异常处理</h2>
 
 <p>当方法通过引用的方式返回一个错误参数，使用返回值进行判断，而不是那个错误参数。</p>
 
@@ -758,7 +755,7 @@ if (error) {
 
 <p>一些Apple的API在成功的情况下向错误参数写入一些垃圾值，所以通过错误参数来判断会带来不良的影响。</p>
 
-<h2>单例</h2>
+<h2><a name="单例"></a>单例</h2>
 
 <p>单例对象生成共享实例时要注意线程安全。</p>
 
@@ -780,7 +777,7 @@ if (error) {
 
 <p>这将避免一些<a href="http://cocoasamurai.blogspot.com/2011/04/singletons-your-doing-them-wrong.html">多线程下的应用崩溃</a>。</p>
 
-<h2>换行</h2>
+<h2><a name="换行"></a>换行</h2>
 
 <p>换行是一个重要的部分，本代码风格规则着重打印和在线的可读性。</p>
 
@@ -797,7 +794,7 @@ self.productsRequest = [[SKProductsRequest alloc]
   initWithProductIdentifiers:productIdentifiers];
 </code></p>
 
-<h2>笑脸</h2>
+<h2><a name="笑脸"></a>笑脸</h2>
 
 <p>笑脸是raywenderlich.com站点代码风格的显著特征。使用正确的笑脸表现编程时巨大的喜悦和激动是很重要的。使用方括号笑脸，是因为它是使用ASCII能获得的最大的笑脸···。使用以圆括号结尾的笑脸会出现一个半心形，所以不被推荐···。</p>
 
@@ -813,7 +810,7 @@ self.productsRequest = [[SKProductsRequest alloc]
 :)
 </code></p>
 
-<h2>Xcode工程</h2>
+<h2><a name="Xcode工程"></a>Xcode工程</h2>
 
 <p>物理文件结构和Xcode工程文件结构要保持一致。Xcode项目中的新建分组都要对应文件系统中的文件夹。代码不但要按类型，也要按特征来分组，保证结构更清晰。</p>
 
