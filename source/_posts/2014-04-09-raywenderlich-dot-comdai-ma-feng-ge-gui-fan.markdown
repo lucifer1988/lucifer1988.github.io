@@ -8,6 +8,9 @@ description: "raywenderlich.com代码风格规范"
 keywords: objective-c,raywenderlich.com,
 published: true
 ---
+
+<img src="/images/rayWenderlich_icon.png">
+
 [raywenderlich.com](http://www.raywenderlich.com)对于搞iOS开发的人来说不会陌生（如果你经常关注一些技术博客的话），它原本只是Ray Wenderlich的个人博客，但通过不断聚集优秀的开发者参与到其站点的技术博客撰写，包括了应用开发和游戏开发的各个方面，同时将这些技术博客整理成书，作为开发教程出售（貌似最近还出视频教程了，又想法圈钱了···），这样raywenderlich.com渐渐发展成了一个iOS开发社区，其优质的文章和对文章本地化的重视，使得其影响力逐渐向全球扩展。本文是对其最近公布的自家的Objective-C代码风格规范的一些整理，原文地址在[这里](https://github.com/raywenderlich/objective-c-style-guide)。
 
 <!--more-->
