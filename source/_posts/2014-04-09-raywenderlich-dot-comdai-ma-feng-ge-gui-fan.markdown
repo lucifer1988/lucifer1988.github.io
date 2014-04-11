@@ -39,10 +39,11 @@ published: true
 * [异常处理](#异常处理)
 * [单例](#单例)
 * [换行](#换行)
-* [笑脸（囧，这也有规范）](#笑脸)
+* [笑脸（你没看错，这也有规范）](#笑脸)
 * [Xcode工程](#Xcode工程)
 
-##语言
+## <a name="语言"></a>语言
+
 推荐使用美英，主要体现在命名时使用美英单词。
 
 **推荐：**
@@ -57,7 +58,7 @@ UIColor *myColor = [UIColor whiteColor];
 UIColor *myColour = [UIColor whiteColor];
 ```
 
-##代码结构
+## <a name="代码结构"></a>代码结构
 统一使用`#pragma mark -`组织代码结构。
 
 ```objc
@@ -100,7 +101,7 @@ UIColor *myColour = [UIColor whiteColor];
 - (NSString *)description {}
 ```
 
-##空格
+## <a name="空格"></a>空格
 * 使用2个空格缩进（理由是可以在保持打印空白的基础上，尽量减少换行的可能性），不要使用tab缩进，可以在Xcode的preference下进行修改（默认是4个空格）；
 * 方法中的`{}`和在`if`/`else`/`switch`/`while`等语法中出现的`{}`在本行开始，而结束于新一行。
 
@@ -154,12 +155,12 @@ else {
                  }];
 ```
 
-##注释
+## <a name="注释"></a>注释
 注释主要用来解释这段代码为什么存在于此，注意所有注释需要及时更新或删除。
 
 大段的注释要避免，有必要可以加到单独的文档，注释需要一些简短的说明。PS：不包括那些为生成文档而做的注释（一些工具可以通过代码中的注释生成文档）。
 
-##命名
+## <a name="命名"></a>命名
 Apple的命名习惯是尽可能详细，尤其是和内存管理相关的。
 
 长的，描述性的方法和变量名命名是被推荐的。
@@ -206,7 +207,7 @@ property使用驼峰形命名，保证开头单词小写，且使用Apple的自�
 id varnm;
 ```
 
-##下划线
+## <a name="下划线"></a>下划线
 
 当使用property时，实例变量的读写要使用`self.`，这样的话所有的property可以清楚地区分出来。
 
@@ -214,7 +215,7 @@ id varnm;
 
 临时变量不能使用下划线。
 
-##方法
+## <a name="方法"></a>方法
 
 在方法声明时，方法类型（-/+）后要有一个空格。方法段之间也要有一个空格。在每个变量前要加一个描述性的词语用来描述这个变量。
 
@@ -239,7 +240,7 @@ id varnm;
 - (instancetype)initWith:(int)width and:(int)height;  // Never do this.
 ```
 
-##变量
+## <a name="变量"></a>变量
 
 变量命名尽量使用描述性的词语。单个字母的命名除了在`for()`循环中，其他地方都是不允许的。
 
@@ -267,7 +268,7 @@ id varnm;
 }
 ```
 
-##属性
+## <a name="属性"></a>属性
 
 属性需要清楚地列出，属性的property类型顺序应该是先内存相关，再原子性相关，这与从IB中自动关联的属性的顺序是一致的。
 
@@ -299,7 +300,7 @@ id varnm;
 @property (strong, nonatomic) NSString *tutorialName;
 ```
 
-##点表达式
+## <a name="点表达式"></a>点表达式
 
 读写property时应一直使用点表达式，这使代码变得简洁，而`[]`表达式用于其他所有的实例中。
 
@@ -319,7 +320,7 @@ NSInteger arrayCount = self.array.count;
 UIApplication.sharedApplication.delegate;
 ```
 
-##文字量
+## <a name="文字量"></a>文字量
 
 `NSString`，`NSDictionary`，`NSArry`，`NSNumber`如果可能的话，尽量使用它们的不可变实例。`NSArray`和`NSDictionary`不能存在`nil`值，否则会引起崩溃。
 
@@ -341,7 +342,7 @@ NSNumber *shouldUseLiterals = [NSNumber numberWithBool:YES];
 NSNumber *buildingStreetNumber = [NSNumber numberWithInteger:10018];
 ```
 
-##常量
+## <a name="常量"></a>常量
 
 常量推荐内联的字符串或数字，推荐定义为`static`变量，除非要作为宏，不然不要使用`#define`。
 
@@ -361,7 +362,7 @@ static CGFloat const RWTImageThumbnailHeight = 50.0;
 #define thumbnailHeight 2
 ```
 
-##枚举类型
+## <a name="枚举类型"></a>枚举类型
 
 当使用枚举型时，推荐使用新的固定基础类型定义，理由是有更强的类型检查和代码完成功能。SDK现在包含了一个宏来确保和推广使用固定基础类型：`NS_ENUM()`。
 
@@ -397,7 +398,7 @@ enum GlobalConstants {
 };
 ```
 
-##分支语句
+## <a name="分支语句"></a>分支语句
 
 花括号对于分支语句并不是必须的，除非编译器强制使用。
 当一个分支包含多于一条语句，花括号需要添加。
@@ -453,7 +454,7 @@ switch (menuType) {
 }
 ```
 
-##私有变量
+## <a name="私有变量"></a>私有变量
 
 私有变量应该定义到`.m`文件中的类扩展（匿名分类）中，命名的分类（如`RWTPrivate`，`private`）是不允许使用的，除非是在做另一个类的拓展。匿名分类可以暴露和共享于与`+Private.h`文件的命名惯例测试中。
 
@@ -469,7 +470,7 @@ switch (menuType) {
 @end
 ```
 
-##布尔型
+## <a name="布尔型"></a>布尔型
 
 Objective-C使用`YES`和`NO`。因此`true`和`false`只用于CoreFoundation，C和C++中。由于`nil`意味着`NO`，拿`nil`来做比较条件是不允许的，永远不要直接拿`YES`来比较，因为`YES`被定义为1，而一个布尔型可以支持到8比特。
 
@@ -499,7 +500,7 @@ if (isAwesome == true) {} // Never do this.
 
 这一部分来自[Cocoa Naming Guidelines](https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CodingGuidelines/Articles/NamingIvarsAndTypes.html#//apple_ref/doc/uid/20001284-BAJGIIJE)。
 
-##条件语句
+## <a name="条件语句"></a>条件语句
 
 条件语句主体任何时候都要使用花括号，即使是只有一条语句也需要。这是为了避免错误。这些错误包括添加下一条语句，以为这条语句位于if主体中。另一个更危险的缺点是，if主体内的语句被注释掉，这时下一条语句无意中成为了if语句中的一部分。除此之外，这样的风格与其他条件语句格式保持了一致，便于查找。
 
@@ -524,7 +525,7 @@ if (!error)
 if (!error) return success;
 ```
 
-##三元运算符
+## <a name="三元运算符"></a>三元运算符
 
 三元运算符`?:`，只有在可以提高可读性和简洁性时才可使。单一的判断条件一般可以使用，当执行多个判断条件时推荐使用`if`语句提高可读性，或者将条件重构为实例变量。总的来说，使用三元运算符的最好时机是决定如何给一个变量赋值的时候。
 
@@ -546,7 +547,7 @@ result = isHorizontal ? x : y;
 result = a > b ? x = c > d ? c : d : y;
 ```
 
-##Init方法
+## <a name="Init方法"></a>Init方法
 
 Init方法遵守Apple生成的代码模板，`instancetype`应取代`id`作为返回值。
 
@@ -562,7 +563,7 @@ Init方法遵守Apple生成的代码模板，`instancetype`应取代`id`作为�
 
 关于`instancetype`参照[Class Constructor Methods](#class-constructor-methods)。
 
-##构造类方法
+## <a name="构造类方法"></a>构造类方法
 
 当类构造方法使用时，同样需要注意返回值使用`instancetype`，而不是`id`，这样可确保编译器得知正确的结果类型。
 
@@ -574,7 +575,7 @@ Init方法遵守Apple生成的代码模板，`instancetype`应取代`id`作为�
 
 更多关于`instancetype`在[NSHipster.com](http://nshipster.com/instancetype/)。
 
-##CGRect相关函数
+## <a name="CGRect相关函数"></a>CGRect相关函数
 
 当读取一个`CGRect`的`x`、`y`、`width`、`height`时，要使用`CGGeometry`相关的函数，而不是直接读取结构体。参照Apple的相关文档：
 
@@ -604,7 +605,7 @@ CGFloat height = frame.size.height;
 CGRect frame = (CGRect){ .origin = CGPointZero, .size = frame.size };
 ```
 
-##愉快路径
+## <a name="愉快路径"></a>愉快路径
 
 进行条件编程时，左边缘的代码应该是愉快路径。也就是说，不要嵌套`if`语句。多个`return`是允许的。
 
@@ -630,7 +631,7 @@ CGRect frame = (CGRect){ .origin = CGPointZero, .size = frame.size };
 }
 ```
 
-##异常处理
+## <a name="异常处理"></a>异常处理
 
 当方法通过引用的方式返回一个错误参数，使用返回值进行判断，而不是那个错误参数。
 
@@ -655,7 +656,7 @@ if (error) {
 
 一些Apple的API在成功的情况下向错误参数写入一些垃圾值，所以通过错误参数来判断会带来不良的影响。
 
-##单例
+## <a name="单例"></a>单例
 
 单例对象生成共享实例时要注意线程安全。
 
@@ -674,7 +675,7 @@ if (error) {
 
 这将避免一些[多线程下的应用崩溃](http://cocoasamurai.blogspot.com/2011/04/singletons-your-doing-them-wrong.html)。
 
-##换行
+## <a name="换行"></a>换行
 
 换行是一个重要的部分，本代码风格规则着重打印和在线的可读性。
 
@@ -691,7 +692,7 @@ self.productsRequest = [[SKProductsRequest alloc]
   initWithProductIdentifiers:productIdentifiers];
 ```
 
-##笑脸
+## <a name="笑脸"></a>笑脸
 
 笑脸是raywenderlich.com站点代码风格的显著特征。使用正确的笑脸表现编程时巨大的喜悦和激动是很重要的。使用方括号笑脸，是因为它是使用ASCII能获得的最大的笑脸···。使用以圆括号结尾的笑脸会出现一个半心形，所以不被推荐···。
 
@@ -707,13 +708,13 @@ self.productsRequest = [[SKProductsRequest alloc]
 :)
 ``` 
 
-##Xcode工程
+## <a name="Xcode工程"></a>Xcode工程
 
 物理文件结构和Xcode工程文件结构要保持一致。Xcode项目中的新建分组都要对应文件系统中的文件夹。代码不但要按类型，也要按特征来分组，保证结构更清晰。
 
 可能的话，尽量打开"Treat Warnings as Errors"选项，如果你想忽略一个类型的警告，请查看[这里](http://clang.llvm.org/docs/UsersManual.html#controlling-diagnostics-via-pragmas)。
 
-##其他Objective-C的代码风格规范
+## 其他Objective-C的代码风格规范
 
 * [Robots & Pencils](https://github.com/RobotsAndPencils/objective-c-style-guide)
 * [New York Times](https://github.com/NYTimes/objective-c-style-guide)
