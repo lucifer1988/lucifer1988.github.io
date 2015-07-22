@@ -11,7 +11,7 @@ published: true
 
 <!--more-->
 
-###Item1 Familiarize Yourself with Objective-C's Roots
+##Item1 Familiarize Yourself with Objective-C's Roots
 
 1. OC采用消息传递而非函数调用的基本结构，二者最大区别是消息传递中运行时才决定执行的代码，而函数调用中编译器会决定执行的代码。所以运行期承担了OC运作的大部分工作，所以每当运行期更新时你的应用都会从中受益，而不需等到重新编译（最后这段，不是太明白）。
 2. 学好C会让你更好理解OC，诸如内存模型和引用计数这些概念。所有OC对象的内存都是[开辟在堆上的，不在栈上](http://mobile.51cto.com/iphone-394484.htm)，栈是编译器控制的，堆是程序员控制的，而这些对象的指针是存放在栈上的，所以当指针不存在，而程序员又没有释放堆上的对象，就导致了内存泄露。
@@ -20,15 +20,15 @@ published: true
 
 <!--more-->
 
-###Item2 Minimize Importing Headers in Headers
+##Item2 Minimize Importing Headers in Headers
 
 1. 尽量避免在类的头文件直接#import其他class的头文件，能使用@class尽量使用，有俩个好处：1、避免引用头文件的连锁效应，增加编译时间；2、避免了互相#import头文件而出现的循环导入的特殊情况。
 2. 一些需要导入头文件到.h文件的请款：1、class所继承的父类；2、使用protocol类型。
-3. 遵从protocol可以放在匿名分类中。
+3. 遵从的protocol可以放在匿名分类中#import。
 
 <!--more-->
 
-###Item3 Prefer Literal Syntax over the Equivalent Methods
+##Item3 Prefer Literal Syntax over the Equivalent Methods
 
 1. 尽量多去使用文字型语法，这样可减少代码量，增加可读性。
 2. 关于NSArray的文字型创建语法，如果其中一个对象为nil，则会立即抛出异常，而使用传统的*arrayWithObjects:*则会在加入nil对象时停下，并不会报错，这使得我们更难发现这一问题。
@@ -36,7 +36,7 @@ published: true
 
 <!--more-->
 
-###Item4 Prefer Typed Constants to Preprocessor #define
+##Item4 Prefer Typed Constants to Preprocessor #define
 
 1. 尽量多使用静态常量，而不是预编译常量。原因只要是预编译常量是代码整体进行替换，容易被重赋值，常量的范围不好控制。类似*static const NSTimeInterval kAnimationDuration = 0.3*
 2. 而如果要使用全局常量（比如注册和接受通知的名称），采用以下方式
@@ -59,7 +59,7 @@ const NSTimeInterval EOCAnimatedViewAnimationDuration = 0.3;
  
 <!--more-->
     
-###Item5 Use Enumerations for States, Options, and Status Codes
+##Item5 Use Enumerations for States, Options, and Status Codes
 
 1.使用枚举类型主要是用于定义状态和选项，可读性好是它最大的优点，c++11后OC开始支持自定义枚举类型所用的数据类型。  
 2.用枚举做选项时，可用位移的方式实现多个选项合并使用，这种方式广泛用于UIKit。
