@@ -5,12 +5,12 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>2013总结&2014规划 - 刘毅的技术博客</title>
+  <title>Effective Objective-C读书笔记1 - 刘毅的技术博客</title>
   <meta name="author" content="刘毅">
 
   
-  <meta name="description" content="2013总结&2014规划">
-  <meta name="keywords" content="2013总结,2014规划">
+  <meta name="description" content="关于书不多做介绍了，很有名的一本书，是Mattt Thompson大神写的，他是AFNetworking的主要作者，同时维护了NSHipster，这本书之前看了一次，但是没那么细致，打算再看一次，同时做做笔记。 Item1 Familiarize Yourself with Objective-C &hellip;">
+  
 
   <!-- http://t.co/dKP3o1e -->
   <meta name="HandheldFriendly" content="True">
@@ -18,7 +18,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://lucifer1988.github.io/blog/2014/01/02/2013-summary-and-2014-plan">
+  <link rel="canonical" href="http://lucifer1988.github.io/blog/2015/07/20/effective-objective-cdu-shu-bi-ji-1">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="刘毅的技术博客" type="application/atom+xml">
@@ -86,7 +86,7 @@ $(document).bind('DOMNodeInserted', function(event) {
   
   <header>
     
-      <h1 class="entry-title">2013总结&2014规划</h1>
+      <h1 class="entry-title">Effective Objective-C读书笔记1</h1>
     
     
       <p class="meta">
@@ -102,91 +102,93 @@ $(document).bind('DOMNodeInserted', function(event) {
   
 
 
-<time datetime="2014-01-02T11:40:00+08:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+<time datetime="2015-07-20T14:47:04+08:00" pubdate data-updated="true">Jul 20<span>th</span>, 2015</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><blockquote><p>2013可以说是自己人生的一个转折点，经历了很多，也成长了很多。过去的终究会过去，人生还得继续向前，希望从这一刻起开始记录自己的工作和生活，并能一直坚持下去！</p></blockquote>
+<div class="entry-content"><p>关于书不多做介绍了，很有名的一本书，是Mattt Thompson大神写的，他是AFNetworking的主要作者，同时维护了<a href="http://nshipster.com">NSHipster</a>，这本书之前看了一次，但是没那么细致，打算再看一次，同时做做笔记。</p>
 
-<h2>过去的2013</h2>
-
-<p>2013的我正式步出校园，走向了社会，但这第一步走的就异常坎坷。</p>
-
-<h3>时间轴</h3>
-
-<ul>
-<li>1月份进入盘古实习，认识了新的同事并开始接触企业级的App的开发流程</li>
-<li>3月份会学校写论文，5月答辩，之后和女朋友去了上海、杭州毕业旅行</li>
-<li>6月份回到公司，得知公司欲与即刻合并，开始纠结去留</li>
-<li>7月份和女朋友订婚，双方父母都来京了，虽然闹了些不愉快，自己还是决定和她一直走下去</li>
-<li>8月份终于入职，自己决定留下，但是户口没有解决</li>
-<li>9月份女朋友从百度跳到了人寿研发，解决了户口，两个人还是安心了些</li>
-<li>10月份起开始经历公司各种变化，折腾到最后自己还是选择了老本行，选择了移动搜索事业部</li>
-<li>十一回了趟家，感觉见父母的时间明显少了好多</li>
-<li>11月开始和女朋友看房，见识到了帝都的房价</li>
-<li>期间做了一些组件和工具类app的开发，但是由于公司变故，没有参与大型的企业级App，很遗憾</li>
-<li>12月底说好的新公司仍没成立</li>
-</ul>
+<!--more-->
 
 
-<h3>关于工作</h3>
+<h3>Item1 Familiarize Yourself with Objective-C&rsquo;s Roots</h3>
 
-<ul>
-<li>开始经常使用git，遇到问题会去stackOverflow看看</li>
-<li>开始学习CocoaTouch SDK的机制运行的原理</li>
-<li>写代码的时候开始注意实现和效率两方面</li>
-<li>对设计模式开始关注</li>
-<li>开始记录自己积累的一些开发经验，但没有自己的总结</li>
-<li>接触了一些Web开发的皮毛</li>
-<li>完成了两个iOS的小型项目</li>
-<li>从实验室赶工式的开发思维开始向企业级的开发思维转变</li>
-</ul>
+<ol>
+<li>OC采用消息传递而非函数调用的基本结构，二者最大区别是消息传递中运行时才决定执行的代码，而函数调用中编译器会决定执行的代码。所以运行期承担了OC运作的大部分工作，所以每当运行期更新时你的应用都会从中受益，而不需等到重新编译（最后这段，不是太明白）。</li>
+<li>学好C会让你更好理解OC，诸如内存模型和引用计数这些概念。所有OC对象的内存都是<a href="http://mobile.51cto.com/iphone-394484.htm">开辟在堆上的，不在栈上</a>，栈是编译器控制的，堆是程序员控制的，而这些对象的指针是存放在栈上的，所以当指针不存在，而程序员又没有释放堆上的对象，就导致了内存泄露。</li>
+<li>OC是通过引用计数来模拟内存的开辟与释放。</li>
+<li>有些变量是直接开辟在栈上的，如CGRect，他是一个结构体，不同于对象，他们的使用不会影响性能。</li>
+</ol>
 
 
-<h3>关于生活</h3>
+<h3>Item2 Minimize Importing Headers in Headers</h3>
 
-<ul>
-<li>和晓莉同学结束1年的爱情短跑，两人订婚</li>
-<li>买了土豪金，买了小米2S（给女友），买了高配台式机，挣得第一桶金做了这些</li>
-<li>中午时间和同事打乒乓球，重拾儿时爱好</li>
-<li>每天会玩几盘Dota2，但是技术还是那样</li>
-<li>会常常去关注下房价，开始为买房发愁</li>
-</ul>
+<ol>
+<li>尽量避免在类的头文件直接#import其他class的头文件，能使用@class尽量使用，有俩个好处：1、避免引用头文件的连锁效应，增加编译时间；2、避免了互相#import头文件而出现的循环导入的特殊情况。</li>
+<li>一些需要导入头文件到.h文件的请款：1、class所继承的父类；2、使用protocol类型。</li>
+<li>遵从protocol可以放在匿名分类中。</li>
+</ol>
 
 
-<h2>要来的2014</h2>
+<h3>Item3 Prefer Literal Syntax over the Equivalent Methods</h3>
 
-<p>如果2013的关键字是“变化”，“适应”的话，我希望2014的关键字是“成熟”，“责任”</p>
-
-<h3>个人能力目标</h3>
-
-<ul>
-<li>每周至少写一篇技术Blog，长短不限，但是必须是自己收到的干货</li>
-<li>每月至少在gitHub提交一份代码，可以是小工程，也可以是组件，但必须是自己原创</li>
-<li>看两本iOS中高级开发的书籍</li>
-<li>上半年业余时间完成Web开发的基础学习，目标是完成一个小型网站的搭建</li>
-<li>下半年业余时间完成Android开发的基础学习，目标是给女友手机装一个自己开发的App</li>
-<li>能参与至少一个企业级App的开发过程</li>
-<li>遇到难解决的问题主动找冬哥、景雲、张玺讨论，力求改变自己在技术上不太Open的性格</li>
-</ul>
+<ol>
+<li>尽量多去使用文字型语法，这样可减少代码量，增加可读性。</li>
+<li>关于NSArray的文字型创建语法，如果其中一个对象为nil，则会立即抛出异常，而使用传统的<em>arrayWithObjects:</em>则会在加入nil对象时停下，并不会报错，这使得我们更难发现这一问题。</li>
+<li>唯一一个不足是文字型语法只接受Foundation框架的对象，而不接受自定义对象。</li>
+</ol>
 
 
-<h3>个人生活目标</h3>
+<h3>Item4 Prefer Typed Constants to Preprocessor #define</h3>
 
-<ul>
-<li>完成自己终生大事，和晓莉同学结婚</li>
-<li>坚持定期锻炼身体</li>
-<li>继续看房，争取上半年买房</li>
-<li>给女朋友买新版iPad，要她不再怨恨我的土豪金</li>
-<li>出去旅行一次</li>
-<li>每天最多玩两盘Dota</li>
-</ul>
+<ol>
+<li>尽量多使用静态常量，而不是预编译常量。原因只要是预编译常量是代码整体进行替换，容易被重赋值，常量的范围不好控制。类似<em>static const NSTimeInterval kAnimationDuration = 0.3</em></li>
+<li><p>而如果要使用全局常量（比如注册和接受通知的名称），采用以下方式</p>
+
+<p> &#8220;`
+ //in the header file
+ extern NSString *const EOCStringConstant;</p>
+
+<p> //in the implementation file
+ NSString *const EOCStringConstant = @&ldquo;VALUE&rdquo;;</p>
+
+<p> //基本类型常量
+ //EOCAnimatedView.h
+ extern const NSTimeInterval EOCAnimatedViewAnimationDuration;</p>
+
+<p> //EOCAnimatedView.m
+ const NSTimeInterval EOCAnimatedViewAnimationDuration = 0.3;</p>
+
+<p> &#8220;`</p></li>
+</ol>
 
 
-<p>最后，希望今年的目标能全部实现吧！2013，谢谢父母的支持，女朋友的陪伴，朋友们的帮助，也谢谢同事们对我这个职场新人的包容和悉心指导，真心希望2014能和大家共同实现各自的目标，谢谢大家！</p>
+<h3>Item5 Use Enumerations for States, Options, and Status Codes</h3>
+
+<ol>
+<li>使用枚举类型主要是用于定义状态和选项，可读性好是它最大的优点，c++11后OC开始支持自定义枚举类型所用的数据类型。</li>
+<li><p>用枚举做选项时，可用位移的方式实现多个选项合并使用，这种方式广泛用于UIKit。</p>
+
+<p>&#8220;`
+typedef NS_OPTIONS(NSUInteger, EOCPermittedDirection) {
+  EOCPermittedDirectionUp = 1&lt;&lt;0,
+  EOCPermittedDirectionDown = 1&lt;&lt;1,
+  EOCPermittedDirectionLeft = 1&lt;&lt;2,
+  EOCPermittedDirectionRight = 1&lt;&lt;3,
+}</p>
+
+<p>EOCPermittedDirection permittedDirection = EOCPermittedDirectionUp | EOCPermittedDirectionDown;
+if(permittedDirection &amp; EOCPermittedDirectionUp) {
+  //EOCPermittedDirectionUp is set
+}
+&#8220;`</p></li>
+<li><p>OC定义了专门定义枚举的宏，NS_ENUM和NS_OPTIONS，他们对兼容新旧编译器做了自动判断，推荐使用，如想使用可合并的枚举，必须使用NS_OPTIONS来定义。</p></li>
+<li>最后一点，对枚举型值执行switch语句时，不要添加default处理。</li>
+</ol>
+
 </div>
 
 
@@ -209,12 +211,12 @@ $(document).bind('DOMNodeInserted', function(event) {
   
 
 
-<time datetime="2014-01-02T11:40:00+08:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
+<time datetime="2015-07-20T14:47:04+08:00" pubdate data-updated="true">Jul 20<span>th</span>, 2015</time>
       
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/summary/'>summary</a>
+    <a class='category' href='/blog/categories/ios/'>iOS</a>
   
 </span>
 
@@ -259,8 +261,8 @@ var jiathis_config = {data_track_clickback:'true'};
     
     <p class="meta">
       
+        <a class="basic-alignment left" href="/blog/2014/08/20/ios8xin-te-xing-zhi-extensionsxue-xi-bi-ji-1/" title="Previous Post: iOS8新特性之Extensions学习笔记1-SharingExtension">&laquo; iOS8新特性之Extensions学习笔记1-SharingExtension</a>
       
-        <a class="basic-alignment right" href="/blog/2014/02/13/hello-world-octopressfa-bu-wen-zhang-bu-zou/" title="Next Post: 基于Octopress搭建自己的博客网站">基于Octopress搭建自己的博客网站 &raquo;</a>
       
     </p>
   </footer>
