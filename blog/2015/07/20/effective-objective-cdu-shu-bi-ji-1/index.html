@@ -124,6 +124,9 @@ $(document).bind('DOMNodeInserted', function(event) {
 </ol>
 
 
+<!--more-->
+
+
 <h3>Item2 Minimize Importing Headers in Headers</h3>
 
 <ol>
@@ -131,6 +134,9 @@ $(document).bind('DOMNodeInserted', function(event) {
 <li>一些需要导入头文件到.h文件的请款：1、class所继承的父类；2、使用protocol类型。</li>
 <li>遵从protocol可以放在匿名分类中。</li>
 </ol>
+
+
+<!--more-->
 
 
 <h3>Item3 Prefer Literal Syntax over the Equivalent Methods</h3>
@@ -142,53 +148,86 @@ $(document).bind('DOMNodeInserted', function(event) {
 </ol>
 
 
+<!--more-->
+
+
 <h3>Item4 Prefer Typed Constants to Preprocessor #define</h3>
 
 <ol>
 <li>尽量多使用静态常量，而不是预编译常量。原因只要是预编译常量是代码整体进行替换，容易被重赋值，常量的范围不好控制。类似<em>static const NSTimeInterval kAnimationDuration = 0.3</em></li>
-<li><p>而如果要使用全局常量（比如注册和接受通知的名称），采用以下方式</p>
-
-<p> &#8220;`
- //in the header file
- extern NSString *const EOCStringConstant;</p>
-
-<p> //in the implementation file
- NSString *const EOCStringConstant = @&ldquo;VALUE&rdquo;;</p>
-
-<p> //基本类型常量
- //EOCAnimatedView.h
- extern const NSTimeInterval EOCAnimatedViewAnimationDuration;</p>
-
-<p> //EOCAnimatedView.m
- const NSTimeInterval EOCAnimatedViewAnimationDuration = 0.3;</p>
-
-<p> &#8220;`</p></li>
+<li>而如果要使用全局常量（比如注册和接受通知的名称），采用以下方式</li>
 </ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//in the header file</span>
+</span><span class='line'><span class="k">extern</span> <span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">EOCStringConstant</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//in the implementation file</span>
+</span><span class='line'><span class="n">NSString</span> <span class="o">*</span><span class="k">const</span> <span class="n">EOCStringConstant</span> <span class="o">=</span> <span class="s">@&quot;VALUE&quot;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//基本类型常量</span>
+</span><span class='line'><span class="c1">//EOCAnimatedView.h</span>
+</span><span class='line'><span class="k">extern</span> <span class="k">const</span> <span class="n">NSTimeInterval</span> <span class="n">EOCAnimatedViewAnimationDuration</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//EOCAnimatedView.m</span>
+</span><span class='line'><span class="k">const</span> <span class="n">NSTimeInterval</span> <span class="n">EOCAnimatedViewAnimationDuration</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
 
 
 <h3>Item5 Use Enumerations for States, Options, and Status Codes</h3>
 
-<ol>
-<li>使用枚举类型主要是用于定义状态和选项，可读性好是它最大的优点，c++11后OC开始支持自定义枚举类型所用的数据类型。</li>
-<li><p>用枚举做选项时，可用位移的方式实现多个选项合并使用，这种方式广泛用于UIKit。</p>
+<p>1.使用枚举类型主要是用于定义状态和选项，可读性好是它最大的优点，c++11后OC开始支持自定义枚举类型所用的数据类型。<br/>
+2.用枚举做选项时，可用位移的方式实现多个选项合并使用，这种方式广泛用于UIKit。</p>
 
-<p>&#8220;`
-typedef NS_OPTIONS(NSUInteger, EOCPermittedDirection) {
-  EOCPermittedDirectionUp = 1&lt;&lt;0,
-  EOCPermittedDirectionDown = 1&lt;&lt;1,
-  EOCPermittedDirectionLeft = 1&lt;&lt;2,
-  EOCPermittedDirectionRight = 1&lt;&lt;3,
-}</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">typedef</span> <span class="nf">NS_OPTIONS</span><span class="p">(</span><span class="n">NSUInteger</span><span class="p">,</span> <span class="n">EOCPermittedDirection</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">EOCPermittedDirectionUp</span> <span class="o">=</span> <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">0</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">EOCPermittedDirectionDown</span> <span class="o">=</span> <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">1</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">EOCPermittedDirectionLeft</span> <span class="o">=</span> <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">2</span><span class="p">,</span>
+</span><span class='line'>  <span class="n">EOCPermittedDirectionRight</span> <span class="o">=</span> <span class="mi">1</span><span class="o">&lt;&lt;</span><span class="mi">3</span><span class="p">,</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">EOCPermittedDirection</span> <span class="n">permittedDirection</span> <span class="o">=</span> <span class="n">EOCPermittedDirectionUp</span> <span class="o">|</span> <span class="n">EOCPermittedDirectionDown</span><span class="p">;</span>
+</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="n">permittedDirection</span> <span class="o">&amp;</span> <span class="n">EOCPermittedDirectionUp</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">//EOCPermittedDirectionUp is set</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
 
-<p>EOCPermittedDirection permittedDirection = EOCPermittedDirectionUp | EOCPermittedDirectionDown;
-if(permittedDirection &amp; EOCPermittedDirectionUp) {
-  //EOCPermittedDirectionUp is set
-}
-&#8220;`</p></li>
-<li><p>OC定义了专门定义枚举的宏，NS_ENUM和NS_OPTIONS，他们对兼容新旧编译器做了自动判断，推荐使用，如想使用可合并的枚举，必须使用NS_OPTIONS来定义。</p></li>
-<li>最后一点，对枚举型值执行switch语句时，不要添加default处理。</li>
-</ol>
 
+<p>3.OC定义了专门定义枚举的宏，NS_ENUM和NS_OPTIONS，他们对兼容新旧编译器做了自动判断，推荐使用，如想使用可合并的枚举，必须使用NS_OPTIONS来定义。<br/>
+4. 最后一点，对枚举型值执行switch语句时，不要添加default处理。</p>
+
+<!--more-->
+
+
+<p></p>
 </div>
 
 
@@ -261,7 +300,7 @@ var jiathis_config = {data_track_clickback:'true'};
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2014/08/20/ios8xin-te-xing-zhi-extensionsxue-xi-bi-ji-1/" title="Previous Post: iOS8新特性之Extensions学习笔记1-SharingExtension">&laquo; iOS8新特性之Extensions学习笔记1-SharingExtension</a>
+        <a class="basic-alignment left" href="/blog/2014/04/09/raywenderlich-dot-comdai-ma-feng-ge-gui-fan/" title="Previous Post: raywenderlich.com代码风格规范">&laquo; raywenderlich.com代码风格规范</a>
       
       
     </p>
@@ -278,10 +317,6 @@ var jiathis_config = {data_track_clickback:'true'};
     
       <li class="post">
         <a href="/blog/2015/07/20/effective-objective-cdu-shu-bi-ji-1/">Effective Objective-C读书笔记1</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/08/20/ios8xin-te-xing-zhi-extensionsxue-xi-bi-ji-1/">iOS8新特性之Extensions学习笔记1-SharingExtension</a>
       </li>
     
       <li class="post">

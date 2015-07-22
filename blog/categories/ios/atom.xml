@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-07-22T16:00:35+08:00</updated>
+  <updated>2015-07-22T16:33:50+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -33,6 +33,9 @@
 </ol>
 
 
+<!--more-->
+
+
 <h3>Item2 Minimize Importing Headers in Headers</h3>
 
 <ol>
@@ -40,6 +43,9 @@
 <li>一些需要导入头文件到.h文件的请款：1、class所继承的父类；2、使用protocol类型。</li>
 <li>遵从protocol可以放在匿名分类中。</li>
 </ol>
+
+
+<!--more-->
 
 
 <h3>Item3 Prefer Literal Syntax over the Equivalent Methods</h3>
@@ -51,37 +57,42 @@
 </ol>
 
 
+<!--more-->
+
+
 <h3>Item4 Prefer Typed Constants to Preprocessor #define</h3>
 
 <ol>
 <li>尽量多使用静态常量，而不是预编译常量。原因只要是预编译常量是代码整体进行替换，容易被重赋值，常量的范围不好控制。类似<em>static const NSTimeInterval kAnimationDuration = 0.3</em></li>
-<li><p>而如果要使用全局常量（比如注册和接受通知的名称），采用以下方式</p>
-
-<p> ```
- //in the header file
- extern NSString *const EOCStringConstant;</p>
-
-<p> //in the implementation file
- NSString *const EOCStringConstant = @&ldquo;VALUE&rdquo;;</p>
-
-<p> //基本类型常量
- //EOCAnimatedView.h
- extern const NSTimeInterval EOCAnimatedViewAnimationDuration;</p>
-
-<p> //EOCAnimatedView.m
- const NSTimeInterval EOCAnimatedViewAnimationDuration = 0.3;</p>
-
-<p> ```</p></li>
+<li>而如果要使用全局常量（比如注册和接受通知的名称），采用以下方式</li>
 </ol>
+
+
+<p>```objectivec
+//in the header file
+extern NSString *const EOCStringConstant;</p>
+
+<p>//in the implementation file
+NSString *const EOCStringConstant = @&ldquo;VALUE&rdquo;;</p>
+
+<p>//基本类型常量
+//EOCAnimatedView.h
+extern const NSTimeInterval EOCAnimatedViewAnimationDuration;</p>
+
+<p>//EOCAnimatedView.m
+const NSTimeInterval EOCAnimatedViewAnimationDuration = 0.3;</p>
+
+<p>```</p>
+
+<!--more-->
 
 
 <h3>Item5 Use Enumerations for States, Options, and Status Codes</h3>
 
-<ol>
-<li>使用枚举类型主要是用于定义状态和选项，可读性好是它最大的优点，c++11后OC开始支持自定义枚举类型所用的数据类型。</li>
-<li><p>用枚举做选项时，可用位移的方式实现多个选项合并使用，这种方式广泛用于UIKit。</p>
+<p>1.使用枚举类型主要是用于定义状态和选项，可读性好是它最大的优点，c++11后OC开始支持自定义枚举类型所用的数据类型。<br/>
+2.用枚举做选项时，可用位移的方式实现多个选项合并使用，这种方式广泛用于UIKit。</p>
 
-<p>```
+<p>```objectivec
 typedef NS_OPTIONS(NSUInteger, EOCPermittedDirection) {
   EOCPermittedDirectionUp = 1&lt;&lt;0,
   EOCPermittedDirectionDown = 1&lt;&lt;1,
@@ -93,95 +104,15 @@ typedef NS_OPTIONS(NSUInteger, EOCPermittedDirection) {
 if(permittedDirection &amp; EOCPermittedDirectionUp) {
   //EOCPermittedDirectionUp is set
 }
-```</p></li>
-<li><p>OC定义了专门定义枚举的宏，NS_ENUM和NS_OPTIONS，他们对兼容新旧编译器做了自动判断，推荐使用，如想使用可合并的枚举，必须使用NS_OPTIONS来定义。</p></li>
-<li>最后一点，对枚举型值执行switch语句时，不要添加default处理。</li>
-</ol>
+```</p>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[iOS8新特性之Extensions学习笔记1-SharingExtension]]></title>
-    <link href="http://lucifer1988.github.io/blog/2014/08/20/ios8xin-te-xing-zhi-extensionsxue-xi-bi-ji-1/"/>
-    <updated>2014-08-20T09:56:53+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2014/08/20/ios8xin-te-xing-zhi-extensionsxue-xi-bi-ji-1</id>
-    <content type="html"><![CDATA[<p><img src="http://lucifer1988.github.io/images/Extensions_Sample.png"></p>
-
-<p>Extensions是iOS8一个重要的新特性，可以理解为iOS系统中的插件功能吧，但是在iOS大的封闭环境下，它只能完成一些受限的App间交互，在一定程度上弥补iOS沙盒机制对应用间通信的限制，但是总的来说对开发者还是好事，毕竟这能使我们的产品给用户带来更多样的服务和体验。</p>
+<p>3.OC定义了专门定义枚举的宏，NS_ENUM和NS_OPTIONS，他们对兼容新旧编译器做了自动判断，推荐使用，如想使用可合并的枚举，必须使用NS_OPTIONS来定义。<br/>
+4. 最后一点，对枚举型值执行switch语句时，不要添加default处理。</p>
 
 <!--more-->
 
 
-<p>iOS目前公布支持的Extension类型有：</p>
-
-<ul>
-<li>Today screen widgets：在通知中心的今日栏目里展示小工具（widget），可以自定义一些快捷操作；</li>
-<li>Share extensions：自定义内容分享组件供其他应用使用；</li>
-<li>Actions：在另一个应用里执行应用插件操作，如直接打开一个应用；</li>
-<li>Photo editing：使用第三方应用插件在苹果自带的照片应用里编辑照片或视频；</li>
-<li>Storage providers：应用间共享部分存储控件，如协作修改同一份文档；</li>
-<li>Custom keyboards：自定义键盘输入法，替代系统输入法。</li>
-</ul>
-
-
-<p>这篇博客将主要介绍Share extensions的构建方法，其他的Extension将会在之后陆续介绍。</p>
-
-<!--more-->
-
-
-<h2>创建ShareExtension</h2>
-
-<p>Extension是需要包含在一个已有app当中的编译二进制文件，它不能脱离宿主app而独立存在，Xcode会提供相应extension类型的模板，如下图，我们为app新建了一个ShareExtension：</p>
-
-<p><img src="http://lucifer1988.github.io/images/SetupShareExtension.png"></p>
-
-<p>新的ShareExtension主要是一个storyboard和一个<code>SLComposeServiceViewController</code>的子类，这些会提供默认的分享UI，包括字数统计、图片、文字输入，取消和发送按钮，当然你可以自己重新去定义UI。这里选择使用默认UI，来看下<code>SLComposeServiceViewController</code>提供的一些新方法：</p>
-
-<ul>
-<li><code>presentationAnimationDidFinish()</code>是一个用于完成繁琐任务的钩子方法，我们这里用来取出待分享的图片；</li>
-<li><code>contentText</code>用户输入的文字；</li>
-<li><code>didSelectPost()</code>用户点击<strong>Post</strong>按钮，我们在这儿加入发送任务；</li>
-<li><code>didSelectCancel()</code>用户点击<strong>Cancel</strong>按钮；</li>
-<li><code>isContentValid()</code>用户输入内容发生变化时调用，返回布尔值告诉系统是否超出规定字数，我们在这儿做了剩余可字数统计的方法；</li>
-<li><code>charactersRemaining</code>剩余可输入字数，会显示在编辑框下；</li>
-</ul>
-
-
-<p>在我们进一步开始完成Extension前，先了解下如何调试Extension，方便下面的开发。</p>
-
-<h2>调试ShareExtension</h2>
-
-<p>理论上说，你要测试你的Extension，你要通过另外一个app来调现在这个app的Extension，不过Xcode提供的调试app只能是自己开发的app，不能调系统自带的app（如果可以的话，可直接调用<code>photos</code>来测试），这样的话，我们只能采用下面的方法来调试：</p>
-
-<ol>
-<li><p>直接在该Extension的宿主app下加入以下代码，这样宿主app会提供一张图片和一个按钮来弹出一个通用的分享表单，里面会有我们Extension的入口；</p>
-
-<p> ```objc
- @IBAction func handleShareSampleTapped(sender: AnyObject) {
-   shareContent(sharingText: &ldquo;Highland Cow&rdquo;,
-                        sharingImage: sharingContentImageView.image)
- }</p>
-
-<p> // Utility methods
- func shareContent(#sharingText: String?, sharingImage: UIImage?) {
-   var itemsToShare = <a href="">AnyObject</a></p>
-
-<p>   if let text = sharingText {
-     itemsToShare.append(text)
-   }
-   if let image = sharingImage {
-     itemsToShare.append(image)
-   }</p>
-
-<p>   let activityViewController = UIActivityViewController(activityItems: itemsToShare, applicationActivities: nil)
-   presentViewController(activityViewController, animated: true, completion: nil)
- }
- ```</p></li>
-<li><p>点击我们自己的Extension，会运行我们开发的Extension进程；</p></li>
-<li>你也可以在你的其他app中进行类似的测试。或者也可以保持你的app运行的基础上，自己打开<code>photos</code>应用，也可进行同样的测试。</li>
-</ol>
-
+<p></p>
 ]]></content>
   </entry>
   
