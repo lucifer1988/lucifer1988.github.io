@@ -114,7 +114,7 @@ $(document).bind('DOMNodeInserted', function(event) {
 <!--more-->
 
 
-<h3>Item1 Familiarize Yourself with Objective-C&rsquo;s Roots</h3>
+<h2>Item1 Familiarize Yourself with Objective-C&rsquo;s Roots</h2>
 
 <ol>
 <li>OC采用消息传递而非函数调用的基本结构，二者最大区别是消息传递中运行时才决定执行的代码，而函数调用中编译器会决定执行的代码。所以运行期承担了OC运作的大部分工作，所以每当运行期更新时你的应用都会从中受益，而不需等到重新编译（最后这段，不是太明白）。</li>
@@ -127,19 +127,19 @@ $(document).bind('DOMNodeInserted', function(event) {
 <!--more-->
 
 
-<h3>Item2 Minimize Importing Headers in Headers</h3>
+<h2>Item2 Minimize Importing Headers in Headers</h2>
 
 <ol>
 <li>尽量避免在类的头文件直接#import其他class的头文件，能使用@class尽量使用，有俩个好处：1、避免引用头文件的连锁效应，增加编译时间；2、避免了互相#import头文件而出现的循环导入的特殊情况。</li>
 <li>一些需要导入头文件到.h文件的请款：1、class所继承的父类；2、使用protocol类型。</li>
-<li>遵从protocol可以放在匿名分类中。</li>
+<li>遵从的protocol可以放在匿名分类中#import。</li>
 </ol>
 
 
 <!--more-->
 
 
-<h3>Item3 Prefer Literal Syntax over the Equivalent Methods</h3>
+<h2>Item3 Prefer Literal Syntax over the Equivalent Methods</h2>
 
 <ol>
 <li>尽量多去使用文字型语法，这样可减少代码量，增加可读性。</li>
@@ -151,7 +151,7 @@ $(document).bind('DOMNodeInserted', function(event) {
 <!--more-->
 
 
-<h3>Item4 Prefer Typed Constants to Preprocessor #define</h3>
+<h2>Item4 Prefer Typed Constants to Preprocessor #define</h2>
 
 <ol>
 <li>尽量多使用静态常量，而不是预编译常量。原因只要是预编译常量是代码整体进行替换，容易被重赋值，常量的范围不好控制。类似<em>static const NSTimeInterval kAnimationDuration = 0.3</em></li>
@@ -191,7 +191,7 @@ $(document).bind('DOMNodeInserted', function(event) {
 <!--more-->
 
 
-<h3>Item5 Use Enumerations for States, Options, and Status Codes</h3>
+<h2>Item5 Use Enumerations for States, Options, and Status Codes</h2>
 
 <p>1.使用枚举类型主要是用于定义状态和选项，可读性好是它最大的优点，c++11后OC开始支持自定义枚举类型所用的数据类型。<br/>
 2.用枚举做选项时，可用位移的方式实现多个选项合并使用，这种方式广泛用于UIKit。</p>
