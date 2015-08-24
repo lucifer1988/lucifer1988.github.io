@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-08-28T11:03:56+08:00</updated>
+  <updated>2015-08-24T11:41:57+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -14,21 +14,9 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Effective Objective-C读书笔记5]]></title>
-    <link href="http://lucifer1988.github.io/blog/2015/08/28/effective-objective-cdu-shu-bi-ji-5/"/>
-    <updated>2015-08-28T10:07:04+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2015/08/28/effective-objective-cdu-shu-bi-ji-5</id>
-    <content type="html"><![CDATA[<p>第五篇</p>
-
-<!--more-->
-
-]]></content>
-  </entry>
-  
-  <entry>
     <title type="html"><![CDATA[Effective Objective-C读书笔记4]]></title>
     <link href="http://lucifer1988.github.io/blog/2015/08/24/effective-objective-cdu-shu-bi-ji-4/"/>
-    <updated>2015-08-24T14:58:20+08:00</updated>
+    <updated>2015-08-24T11:35:10+08:00</updated>
     <id>http://lucifer1988.github.io/blog/2015/08/24/effective-objective-cdu-shu-bi-ji-4</id>
     <content type="html"><![CDATA[<p>第四部分开始讨论OC的两大重要特性，Protocols和Categories。Protocols类似Java中的interfaces，弥补了OC没有多继承的缺点，常被用于实现OC委托模式，但还有很多其他方面的用途。Categories则是提供了不继承而向类添加拓展的方法，这要归功于OC动态语言特性，但同时了解它使用时的常见问题也非常重要。</p>
 
@@ -148,8 +136,9 @@ if(_delegateFlags.didUpdateProgressTo) {</p>
 </code></pre>
 
 <p>}
-//Method implemenations here
-@end
+//Method implemenations here</p>
+
+<p>@end
 ```</p>
 
 <p>3.一般OC代码中使用C++一般两种情况：一些游戏相关的后端代码需要用C++，使用的第三方库使用了C++，而你作为使用者除非特殊情况，一定要使用匿名分类来使用C++，这样其他类使用你的类时，不用再因为C++的原因，将.m文件命名为.mm，而使编译器将其编为Objective-C++。Cocoa的web browser framework和CoreAnimation使用了这一模式。<br/>
@@ -714,6 +703,828 @@ if(permittedDirection &amp; EOCPermittedDirectionUp) {
 
 
 <p></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[raywenderlich.com代码风格规范]]></title>
+    <link href="http://lucifer1988.github.io/blog/2014/04/09/raywenderlich-dot-comdai-ma-feng-ge-gui-fan/"/>
+    <updated>2014-04-09T14:36:55+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2014/04/09/raywenderlich-dot-comdai-ma-feng-ge-gui-fan</id>
+    <content type="html"><![CDATA[<p><img src="http://lucifer1988.github.io/images/rayWenderlich_icon.png"></p>
+
+<p><a href="http://www.raywenderlich.com">raywenderlich.com</a>对于搞iOS开发的人来说不会陌生（如果你经常关注一些技术博客的话），它原本只是Ray Wenderlich的个人博客，但通过不断聚集优秀的开发者参与到其站点的技术博客撰写，包括了应用开发和游戏开发的各个方面，同时将这些技术博客整理成书，作为开发教程出售（貌似最近还出视频教程了，又想法圈钱了···），这样raywenderlich.com渐渐发展成了一个iOS开发社区，其优质的文章和对文章本地化的重视，使得其影响力逐渐向全球扩展。本文是对其最近公布的自家的Objective-C代码风格规范的一些整理，原文地址在<a href="https://github.com/raywenderlich/objective-c-style-guide">这里</a>。</p>
+
+<!--more-->
+
+
+<h2>目录</h2>
+
+<ul>
+<li><a href="#%E8%AF%AD%E8%A8%80">语言</a></li>
+<li><a href="#%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84">代码结构</a></li>
+<li><a href="#%E7%A9%BA%E6%A0%BC">空格</a></li>
+<li><a href="#%E6%B3%A8%E9%87%8A">注释</a></li>
+<li><a href="#%E5%91%BD%E5%90%8D">命名</a></li>
+<li><a href="#%E4%B8%8B%E5%88%92%E7%BA%BF">下划线</a></li>
+<li><a href="#%E6%96%B9%E6%B3%95">方法</a></li>
+<li><a href="#%E5%8F%98%E9%87%8F">变量</a></li>
+<li><a href="#%E5%B1%9E%E6%80%A7">属性</a></li>
+<li><a href="#%E7%82%B9%E8%A1%A8%E8%BE%BE%E5%BC%8F">点表达式</a></li>
+<li><a href="#%E6%96%87%E5%AD%97%E9%87%8F">文字量</a></li>
+<li><a href="#%E5%B8%B8%E9%87%8F">常量</a></li>
+<li><a href="#%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B">枚举类型</a></li>
+<li><a href="#%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5">分支语句</a></li>
+<li><a href="#%E7%A7%81%E6%9C%89%E5%B1%9E%E6%80%A7">私有属性</a></li>
+<li><a href="#%E5%B8%83%E5%B0%94%E5%9E%8B">布尔型</a></li>
+<li><a href="#%E6%9D%A1%E4%BB%B6%E8%AF%AD%E5%8F%A5">条件语句</a></li>
+<li><a href="#%E4%B8%89%E5%85%83%E8%BF%90%E7%AE%97%E7%AC%A6">三元运算符</a></li>
+<li><a href="#Init%E6%96%B9%E6%B3%95">Init方法</a></li>
+<li><a href="#%E6%9E%84%E9%80%A0%E7%B1%BB%E6%96%B9%E6%B3%95">构造类方法</a></li>
+<li><a href="#CGRect%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0">CGRect相关函数</a></li>
+<li><a href="#%E6%84%89%E5%BF%AB%E8%B7%AF%E5%BE%84">愉快路径</a></li>
+<li><a href="#%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86">异常处理</a></li>
+<li><a href="#%E5%8D%95%E4%BE%8B">单例</a></li>
+<li><a href="#%E6%8D%A2%E8%A1%8C">换行</a></li>
+<li><a href="#%E7%AC%91%E8%84%B8">笑脸（你没看错，这也有规范）</a></li>
+<li><a href="#Xcode%E5%B7%A5%E7%A8%8B">Xcode工程</a></li>
+</ul>
+
+
+<h2><a name="语言"></a>语言</h2>
+
+<p>推荐使用美英，主要体现在命名时使用美英单词。</p>
+
+<p><strong>推荐：</strong></p>
+
+<p><code>objc
+UIColor *myColor = [UIColor whiteColor];
+</code></p>
+
+<p><strong>不推荐：</strong></p>
+
+<p><code>objc
+UIColor *myColour = [UIColor whiteColor];
+</code></p>
+
+<h2><a name="代码结构"></a>代码结构</h2>
+
+<p>统一使用<code>#pragma mark -</code>组织代码结构。</p>
+
+<p>```objc</p>
+
+<h1>pragma mark &ndash; Lifecycle</h1>
+
+<ul>
+<li>(instancetype)init {}</li>
+<li>(void)dealloc {}</li>
+<li>(void)viewDidLoad {}</li>
+<li>(void)viewWillAppear:(BOOL)animated {}</li>
+<li>(void)didReceiveMemoryWarning {}</li>
+</ul>
+
+
+<h1>pragma mark &ndash; Custom Accessors</h1>
+
+<ul>
+<li>(void)setCustomProperty:(id)value {}</li>
+<li>(id)customProperty {}</li>
+</ul>
+
+
+<h1>pragma mark &ndash; IBActions</h1>
+
+<ul>
+<li>(IBAction)submitData:(id)sender {}</li>
+</ul>
+
+
+<h1>pragma mark &ndash; Public</h1>
+
+<ul>
+<li>(void)publicMethod {}</li>
+</ul>
+
+
+<h1>pragma mark &ndash; Private</h1>
+
+<ul>
+<li>(void)privateMethod {}</li>
+</ul>
+
+
+<h1>pragma mark &ndash; Protocol conformance</h1>
+
+<h1>pragma mark &ndash; UITextFieldDelegate</h1>
+
+<h1>pragma mark &ndash; UITableViewDataSource</h1>
+
+<h1>pragma mark &ndash; UITableViewDelegate</h1>
+
+<h1>pragma mark &ndash; NSCopying</h1>
+
+<ul>
+<li>(id)copyWithZone:(NSZone *)zone {}</li>
+</ul>
+
+
+<h1>pragma mark &ndash; NSObject</h1>
+
+<ul>
+<li>(NSString *)description {}
+```</li>
+</ul>
+
+
+<h2><a name="空格"></a>空格</h2>
+
+<ul>
+<li>使用2个空格缩进（理由是可以在保持打印空白的基础上，尽量减少换行的可能性），不要使用tab缩进，可以在Xcode的preference下进行修改（默认是4个空格）；</li>
+<li>方法中的<code>{}</code>和在<code>if</code>/<code>else</code>/<code>switch</code>/<code>while</code>等语法中出现的<code>{}</code>在本行开始，而结束于新一行。</li>
+</ul>
+
+
+<p><strong>推荐：</strong></p>
+
+<p><code>objc
+if (user.isHappy) {
+  //Do something
+} else {
+  //Do something else
+}
+</code></p>
+
+<p><strong>不推荐：</strong></p>
+
+<p>```objc
+if (user.isHappy)
+{</p>
+
+<pre><code>//Do something
+</code></pre>
+
+<p>}
+else {</p>
+
+<pre><code>//Do something else
+</code></pre>
+
+<p>}
+```</p>
+
+<ul>
+<li>方法之间应该有且只有一空行来保持代码结构清晰，方法中的空白行用来划分功能，但是经常你可能需要将它们重构为新的方法；</li>
+<li>推荐使用自动提示的语法结构，不过<code>@sythesize</code>和<code>@dyamic</code>可以声明在新行；</li>
+<li><code>冒号对齐</code>这样的方法调用结构要避免，假如方法中出现3个以上的冒号，这样的调用结构会使代码可读性很差。千万别在含有block的方法中去对齐冒号，这样Xcode的缩进会使其非法。</li>
+</ul>
+
+
+<p><strong>推荐：</strong></p>
+
+<p><code>objc
+// blocks are easily readable
+[UIView animateWithDuration:1.0 animations:^{
+  // something
+} completion:^(BOOL finished) {
+  // something
+}];
+</code></p>
+
+<p><strong>不推荐：</strong></p>
+
+<p>```objc
+// colon-aligning makes the block indentation hard to read
+[UIView animateWithDuration:1.0</p>
+
+<pre><code>             animations:^{
+                 // something
+             }
+             completion:^(BOOL finished) {
+                 // something
+             }];
+</code></pre>
+
+<p>```</p>
+
+<h2><a name="注释"></a>注释</h2>
+
+<p>注释主要用来解释这段代码为什么存在于此，注意所有注释需要及时更新或删除。</p>
+
+<p>大段的注释要避免，有必要可以加到单独的文档，注释需要一些简短的说明。PS：不包括那些为生成文档而做的注释（一些工具可以通过代码中的注释生成文档）。</p>
+
+<h2><a name="命名"></a>命名</h2>
+
+<p>Apple的命名习惯是尽可能详细，尤其是和内存管理相关的。</p>
+
+<p>长的，描述性的方法和变量名命名是被推荐的。</p>
+
+<p><strong>推荐：</strong></p>
+
+<p><code>objc
+UIButton *settingsButton;
+</code></p>
+
+<p><strong>不推荐：</strong></p>
+
+<p><code>objc
+UIButton *setBut;
+</code></p>
+
+<p>类名和常量名必须要有三个字母的命名前缀（主要为了避免和Apple大多数两个前缀的命名冲突，比如UIButton，CAAnimation，CGRect等），不过Core Data的实体命名可以省略这些前缀。比如raywenderlich.com的命名前缀为RTW。</p>
+
+<p>常量需要驼峰型命名，所有单词首字母大写，且使用相关类名作为前缀。</p>
+
+<p><strong>推荐：</strong></p>
+
+<p><code>objc
+static NSTimeInterval const RWTTutorialViewControllerNavigationFadeAnimationDuration = 0.3;
+</code></p>
+
+<p><strong>不推荐：</strong></p>
+
+<p><code>objc
+static NSTimeInterval const fadetime = 1.7;
+</code></p>
+
+<p>property使用驼峰形命名，保证开头单词小写，且使用Apple的自动合成规则，除了特殊情况，不要手动声明<code>@synthesize</code>。</p>
+
+<p><strong>推荐：</strong></p>
+
+<p><code>objc
+@property (strong, nonatomic) NSString *descriptiveVariableName;
+</code></p>
+
+<p><strong>不推荐：</strong></p>
+
+<p><code>objc
+id varnm;
+</code></p>
+
+<h2><a name="下划线"></a>下划线</h2>
+
+<p>当使用property时，实例变量的读写要使用<code>self.</code>，这样的话所有的property可以清楚地区分出来。</p>
+
+<p>一个例外：在初始化方法中，需要的实例变量要直接使用<code>_variableName</code>型，为了避免调用getter/setter方法可能出现的循环引用。</p>
+
+<p>临时变量不能使用下划线。</p>
+
+<h2><a name="方法"></a>方法</h2>
+
+<p>在方法声明时，方法类型（-/+）后要有一个空格。方法段之间也要有一个空格。在每个变量前要加一个描述性的词语用来描述这个变量。</p>
+
+<p>不要在用于描述的词语中加入“and”，具体例子见下：</p>
+
+<p><strong>推荐：</strong></p>
+
+<p><code>objc
+- (void)setExampleText:(NSString *)text image:(UIImage *)image;
+- (void)sendAction:(SEL)aSelector to:(id)anObject forAllCells:(BOOL)flag;
+- (id)viewWithTag:(NSInteger)tag;
+- (instancetype)initWithWidth:(CGFloat)width height:(CGFloat)height;
+</code></p>
+
+<p><strong>不推荐：</strong></p>
+
+<p><code>objc
+-(void)setT:(NSString *)text i:(UIImage *)image;
+- (void)sendAction:(SEL)aSelector :(id)anObject :(BOOL)flag;
+- (id)taggedView:(NSInteger)tag;
+- (instancetype)initWithWidth:(CGFloat)width andHeight:(CGFloat)height;
+- (instancetype)initWith:(int)width and:(int)height;  // Never do this.
+</code></p>
+
+<h2><a name="变量"></a>变量</h2>
+
+<p>变量命名尽量使用描述性的词语。单个字母的命名除了在<code>for()</code>循环中，其他地方都是不允许的。</p>
+
+<p>星号声明了指向变量的指针，例如：<code>NSString *text</code>，不是<code>NSString* text</code>或<code>NSString * text</code>，除了在声明常量的时候（例如：<code>NSString *const text</code>）。</p>
+
+<p>如果可能的话，使用<a href="#%E7%A7%81%E6%9C%89%E5%B1%9E%E6%80%A7">私有属性</a>，而不是实例变量，尽管使用实例变量也是对的，不过这样的协定可以保持代码的一致性。</p>
+
+<p>只有在初始化方法（如<code>init</code>，<code>initWithCoder:</code>等），<code>dealloc</code>和setter/getter方法中使用下划线加变量名的读写方法，更多关于这一情况的说明见<a href="https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/MemoryMgmt/Articles/mmPractical.html#//apple_ref/doc/uid/TP40004447-SW6">Apple相关文档</a></p>
+
+<p><strong>推荐：</strong></p>
+
+<p>```objc
+@interface RWTTutorial : NSObject</p>
+
+<p>@property (strong, nonatomic) NSString *tutorialName;</p>
+
+<p>@end
+```</p>
+
+<p><strong>不推荐：</strong></p>
+
+<p><code>objc
+@interface RWTTutorial : NSObject {
+  NSString *tutorialName;
+}
+</code></p>
+
+<h2><a name="属性"></a>属性</h2>
+
+<p>属性需要清楚地列出，属性的property类型顺序应该是先内存相关，再原子性相关，这与从IB中自动关联的属性的顺序是一致的。</p>
+
+<p><strong>推荐：</strong></p>
+
+<p><code>objc
+@property (weak, nonatomic) IBOutlet UIView *containerView;
+@property (strong, nonatomic) NSString *tutorialName;
+</code></p>
+
+<p><strong>不推荐：</strong></p>
+
+<p><code>objc
+@property (nonatomic, weak) IBOutlet UIView *containerView;
+@property (nonatomic) NSString *tutorialName;
+</code></p>
+
+<p>带有不可变性质的属性（比如：NSString）推荐使用<code>copy</code>而不是<code>strong</code>，理由是其他人可能传入一个其对应的可变实例（比如：NSMutableString），而你可能不会注意到。</p>
+
+<p><strong>推荐：</strong></p>
+
+<p><code>objc
+@property (copy, nonatomic) NSString *tutorialName;
+</code></p>
+
+<p><strong>不推荐：</strong></p>
+
+<p><code>objc
+@property (strong, nonatomic) NSString *tutorialName;
+</code></p>
+
+<h2><a name="点表达式"></a>点表达式</h2>
+
+<p>读写property时应一直使用点表达式，这使代码变得简洁，而<code>[]</code>表达式用于其他所有的实例中。</p>
+
+<p><strong>推荐：</strong></p>
+
+<p><code>objc
+NSInteger arrayCount = [self.array count];
+view.backgroundColor = [UIColor orangeColor];
+[UIApplication sharedApplication].delegate;
+</code></p>
+
+<p><strong>不推荐：</strong></p>
+
+<p><code>objc
+NSInteger arrayCount = self.array.count;
+[view setBackgroundColor:[UIColor orangeColor]];
+UIApplication.sharedApplication.delegate;
+</code></p>
+
+<h2><a name="文字量"></a>文字量</h2>
+
+<p><code>NSString</code>，<code>NSDictionary</code>，<code>NSArry</code>，<code>NSNumber</code>如果可能的话，尽量使用它们的不可变实例。<code>NSArray</code>和<code>NSDictionary</code>不能存在<code>nil</code>值，否则会引起崩溃。</p>
+
+<p><strong>推荐：</strong></p>
+
+<p><code>objc
+NSArray *names = @[@"Brian", @"Matt", @"Chris", @"Alex", @"Steve", @"Paul"];
+NSDictionary *productManagers = @{@"iPhone": @"Kate", @"iPad": @"Kamal", @"Mobile Web": @"Bill"};
+NSNumber *shouldUseLiterals = @YES;
+NSNumber *buildingStreetNumber = @10018;
+</code></p>
+
+<p><strong>不推荐：</strong></p>
+
+<p><code>objc
+NSArray *names = [NSArray arrayWithObjects:@"Brian", @"Matt", @"Chris", @"Alex", @"Steve", @"Paul", nil];
+NSDictionary *productManagers = [NSDictionary dictionaryWithObjectsAndKeys: @"Kate", @"iPhone", @"Kamal", @"iPad", @"Bill", @"Mobile Web", nil];
+NSNumber *shouldUseLiterals = [NSNumber numberWithBool:YES];
+NSNumber *buildingStreetNumber = [NSNumber numberWithInteger:10018];
+</code></p>
+
+<h2><a name="常量"></a>常量</h2>
+
+<p>常量推荐内联的字符串或数字，推荐定义为<code>static</code>变量，除非要作为宏，不然不要使用<code>#define</code>。</p>
+
+<p><strong>推荐：</strong></p>
+
+<p>```objc
+static NSString * const RWTAboutViewControllerCompanyName = @&ldquo;RayWenderlich.com&rdquo;;</p>
+
+<p>static CGFloat const RWTImageThumbnailHeight = 50.0;
+```</p>
+
+<p><strong>不推荐：</strong></p>
+
+<p>```objc</p>
+
+<h1>define CompanyName @&ldquo;RayWenderlich.com&rdquo;</h1>
+
+<h1>define thumbnailHeight 2</h1>
+
+<p>```</p>
+
+<h2><a name="枚举类型"></a>枚举类型</h2>
+
+<p>当使用枚举型时，推荐使用新的固定基础类型定义，理由是有更强的类型检查和代码完成功能。SDK现在包含了一个宏来确保和推广使用固定基础类型：<code>NS_ENUM()</code>。</p>
+
+<p><strong>例如：</strong></p>
+
+<p><code>objc
+typedef NS_ENUM(NSInteger, RWTLeftMenuTopItemType) {
+  RWTLeftMenuTopItemMain,
+  RWTLeftMenuTopItemShows,
+  RWTLeftMenuTopItemSchedule
+};
+</code></p>
+
+<p>也可以做明确的赋值</p>
+
+<p><code>objc
+typedef NS_ENUM(NSInteger, RWTGlobalConstants) {
+  RWTPinSizeMin = 1,
+  RWTPinSizeMax = 5,
+  RWTPinCountMin = 100,
+  RWTPinCountMax = 500,
+};
+</code></p>
+
+<p>旧式的k型常量定义只被用于书写CoreFoundation的C代码中。</p>
+
+<p><strong>不推荐：</strong></p>
+
+<p><code>objc
+enum GlobalConstants {
+  kMaxPinSize = 5,
+  kMaxPinCount = 500,
+};
+</code></p>
+
+<h2><a name="分支语句"></a>分支语句</h2>
+
+<p>花括号对于分支语句并不是必须的，除非编译器强制使用。
+当一个分支包含多于一条语句，花括号需要添加。</p>
+
+<p>```objc
+switch (condition) {
+  case 1:</p>
+
+<pre><code>// ...
+break;
+</code></pre>
+
+<p>  case 2: {</p>
+
+<pre><code>// ...
+// Multi-line example using braces
+break;
+</code></pre>
+
+<p>  }
+  case 3:</p>
+
+<pre><code>// ...
+break;
+</code></pre>
+
+<p>  default:</p>
+
+<pre><code>// ...
+break;
+</code></pre>
+
+<p>}
+```</p>
+
+<p>有时会出现一段代码被多个分支使用，这时就相当于“穿过”。一个“穿过”就是移除这一分支的‘break’语句，使代码继续执行下一分支。“穿过”这种情况需要在代码中进行注释。</p>
+
+<p>```objc
+switch (condition) {
+  case 1:</p>
+
+<pre><code>// ** fall-through! **
+</code></pre>
+
+<p>  case 2:</p>
+
+<pre><code>// code executed for values 1 and 2
+break;
+</code></pre>
+
+<p>  default:</p>
+
+<pre><code>// ...
+break;
+</code></pre>
+
+<p>}
+```</p>
+
+<p>当在<code>switch</code>语句中使用枚举类型，<code>default</code>是不需要的：</p>
+
+<p>```objc
+RWTLeftMenuTopItemType menuType = RWTLeftMenuTopItemMain;
+switch (menuType) {
+  case RWTLeftMenuTopItemMain:</p>
+
+<pre><code>// ...
+break;
+</code></pre>
+
+<p>  case RWTLeftMenuTopItemShows:</p>
+
+<pre><code>// ...
+break;
+</code></pre>
+
+<p>  case RWTLeftMenuTopItemSchedule:</p>
+
+<pre><code>// ...
+break;
+</code></pre>
+
+<p>}
+```</p>
+
+<h2><a name="私有属性"></a>私有属性</h2>
+
+<p>私有属性应该定义到<code>.m</code>文件中的类扩展（匿名分类）中，命名的分类（如<code>RWTPrivate</code>，<code>private</code>）是不允许使用的，除非是在做另一个类的拓展。匿名分类可以暴露和共享于与<code>+Private.h</code>文件的命名惯例测试中。</p>
+
+<p><strong>例如：</strong></p>
+
+<p>```objc
+@interface RWTDetailViewController ()</p>
+
+<p>@property (strong, nonatomic) GADBannerView <em>googleAdView;
+@property (strong, nonatomic) ADBannerView </em>iAdView;
+@property (strong, nonatomic) UIWebView *adXWebView;</p>
+
+<p>@end
+```</p>
+
+<h2><a name="布尔型"></a>布尔型</h2>
+
+<p>Objective-C使用<code>YES</code>和<code>NO</code>。因此<code>true</code>和<code>false</code>只用于CoreFoundation，C和C++中。由于<code>nil</code>意味着<code>NO</code>，拿<code>nil</code>来做比较条件是不允许的，永远不要直接拿<code>YES</code>来比较，因为<code>YES</code>被定义为1，而一个布尔型可以支持到8比特。</p>
+
+<p>这是为了文件间更多的一致性和更好的可读性。</p>
+
+<p><strong>推荐：</strong></p>
+
+<p><code>objc
+if (someObject) {}
+if (![anotherObject boolValue]) {}
+</code></p>
+
+<p><strong>不推荐：</strong></p>
+
+<p><code>objc
+if (someObject == nil) {}
+if ([anotherObject boolValue] == NO) {}
+if (isAwesome == YES) {} // Never do this.
+if (isAwesome == true) {} // Never do this.
+</code></p>
+
+<p>如果布尔型被命名为一个形容词，属性名可以省略<code>is</code>，但是getter方法要保持这一命名。</p>
+
+<p><code>objc
+@property (assign, getter=isEditable) BOOL editable;
+</code></p>
+
+<p>这一部分来自<a href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CodingGuidelines/Articles/NamingIvarsAndTypes.html#//apple_ref/doc/uid/20001284-BAJGIIJE">Cocoa Naming Guidelines</a>。</p>
+
+<h2><a name="条件语句"></a>条件语句</h2>
+
+<p>条件语句主体任何时候都要使用花括号，即使是只有一条语句也需要。这是为了避免错误。这些错误包括添加下一条语句，以为这条语句位于if主体中。另一个更危险的缺点是，if主体内的语句被注释掉，这时下一条语句无意中成为了if语句中的一部分。除此之外，这样的风格与其他条件语句格式保持了一致，便于查找。</p>
+
+<p><strong>推荐：</strong></p>
+
+<p><code>objc
+if (!error) {
+  return success;
+}
+</code></p>
+
+<p><strong>不推荐：</strong></p>
+
+<p><code>objc
+if (!error)
+  return success;
+</code></p>
+
+<p>或</p>
+
+<p><code>objc
+if (!error) return success;
+</code></p>
+
+<h2><a name="三元运算符"></a>三元运算符</h2>
+
+<p>三元运算符<code>?:</code>，只有在可以提高可读性和简洁性时才可使。单一的判断条件一般可以使用，当执行多个判断条件时推荐使用<code>if</code>语句提高可读性，或者将条件重构为实例变量。总的来说，使用三元运算符的最好时机是决定如何给一个变量赋值的时候。</p>
+
+<p>非布尔类型变量需要比较时，要添加<code>()</code>提高可读性。如果是布尔类型，则不需要。</p>
+
+<p><strong>推荐：</strong></p>
+
+<p>```objc
+NSInteger value = 5;
+result = (value != 0) ? x : y;</p>
+
+<p>BOOL isHorizontal = YES;
+result = isHorizontal ? x : y;
+```</p>
+
+<p><strong>不推荐：</strong></p>
+
+<p><code>objc
+result = a &gt; b ? x = c &gt; d ? c : d : y;
+</code></p>
+
+<h2><a name="Init方法"></a>Init方法</h2>
+
+<p>Init方法遵守Apple生成的代码模板，<code>instancetype</code>应取代<code>id</code>作为返回值。</p>
+
+<p>```objc
+&ndash; (instancetype)init {
+  self = [super init];
+  if (self) {</p>
+
+<pre><code>// ...
+</code></pre>
+
+<p>  }
+  return self;
+}
+```</p>
+
+<p>关于<code>instancetype</code>参照<a href="#class-constructor-methods">Class Constructor Methods</a>。</p>
+
+<h2><a name="构造类方法"></a>构造类方法</h2>
+
+<p>当类构造方法使用时，同样需要注意返回值使用<code>instancetype</code>，而不是<code>id</code>，这样可确保编译器得知正确的结果类型。</p>
+
+<p><code>objc
+@interface Airplane
++ (instancetype)airplaneWithType:(RWTAirplaneType)type;
+@end
+</code></p>
+
+<p>更多关于<code>instancetype</code>在<a href="http://nshipster.com/instancetype/">NSHipster.com</a>。</p>
+
+<h2><a name="CGRect相关函数"></a>CGRect相关函数</h2>
+
+<p>当读取一个<code>CGRect</code>的<code>x</code>、<code>y</code>、<code>width</code>、<code>height</code>时，要使用<code>CGGeometry</code>相关的函数，而不是直接读取结构体。参照Apple的相关文档：</p>
+
+<blockquote><p>All functions described in this reference that take CGRect data structures as inputs implicitly standardize those rectangles before calculating their results. For this reason, your applications should avoid directly reading and writing the data stored in the CGRect data structure. Instead, use the functions described here to manipulate rectangles and to retrieve their characteristics.</p></blockquote>
+
+<p><strong>推荐：</strong></p>
+
+<p>```objc
+CGRect frame = self.view.frame;</p>
+
+<p>CGFloat x = CGRectGetMinX(frame);
+CGFloat y = CGRectGetMinY(frame);
+CGFloat width = CGRectGetWidth(frame);
+CGFloat height = CGRectGetHeight(frame);
+CGRect frame = CGRectMake(0.0, 0.0, width, height);
+```</p>
+
+<p><strong>不推荐：</strong></p>
+
+<p>```objc
+CGRect frame = self.view.frame;</p>
+
+<p>CGFloat x = frame.origin.x;
+CGFloat y = frame.origin.y;
+CGFloat width = frame.size.width;
+CGFloat height = frame.size.height;
+CGRect frame = (CGRect){ .origin = CGPointZero, .size = frame.size };
+```</p>
+
+<h2><a name="愉快路径"></a>愉快路径</h2>
+
+<p>进行条件编程时，左边缘的代码应该是愉快路径。也就是说，不要嵌套<code>if</code>语句。多个<code>return</code>是允许的。</p>
+
+<p><strong>推荐：</strong></p>
+
+<p>```objc
+&ndash; (void)someMethod {
+  if (![someOther boolValue]) {</p>
+
+<pre><code>return;
+</code></pre>
+
+<p>  }</p>
+
+<p>  //Do something important
+}
+```</p>
+
+<p><strong>不推荐：</strong></p>
+
+<p>```objc
+&ndash; (void)someMethod {
+  if ([someOther boolValue]) {</p>
+
+<pre><code>//Do something important
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<h2><a name="异常处理"></a>异常处理</h2>
+
+<p>当方法通过引用的方式返回一个错误参数，使用返回值进行判断，而不是那个错误参数。</p>
+
+<p><strong>推荐：</strong></p>
+
+<p><code>objc
+NSError *error;
+if (![self trySomethingWithError:&amp;error]) {
+  // Handle Error
+}
+</code></p>
+
+<p><strong>不推荐：</strong></p>
+
+<p><code>objc
+NSError *error;
+[self trySomethingWithError:&amp;error];
+if (error) {
+  // Handle Error
+}
+</code></p>
+
+<p>一些Apple的API在成功的情况下向错误参数写入一些垃圾值，所以通过错误参数来判断会带来不良的影响。</p>
+
+<h2><a name="单例"></a>单例</h2>
+
+<p>单例对象生成共享实例时要注意线程安全。</p>
+
+<p>```objc
++ (instancetype)sharedInstance {
+  static id sharedInstance = nil;</p>
+
+<p>  static dispatch_once_t onceToken;
+  dispatch_once(&amp;onceToken, ^{</p>
+
+<pre><code>sharedInstance = [[self alloc] init];
+</code></pre>
+
+<p>  });</p>
+
+<p>  return sharedInstance;
+}
+```</p>
+
+<p>这将避免一些<a href="http://cocoasamurai.blogspot.com/2011/04/singletons-your-doing-them-wrong.html">多线程下的应用崩溃</a>。</p>
+
+<h2><a name="换行"></a>换行</h2>
+
+<p>换行是一个重要的部分，本代码风格规则着重打印和在线的可读性。</p>
+
+<p>例如：</p>
+
+<p><code>objc
+self.productsRequest = [[SKProductsRequest alloc] initWithProductIdentifiers:productIdentifiers];
+</code></p>
+
+<p>长代码的话，可以进行换行，在第二行开头遵照“空白”一节的规定，需要空两个空格。</p>
+
+<p><code>objc
+self.productsRequest = [[SKProductsRequest alloc]
+  initWithProductIdentifiers:productIdentifiers];
+</code></p>
+
+<h2><a name="笑脸"></a>笑脸</h2>
+
+<p>笑脸是raywenderlich.com站点代码风格的显著特征。使用正确的笑脸表现编程时巨大的喜悦和激动是很重要的。使用方括号笑脸，是因为它是使用ASCII能获得的最大的笑脸···。使用以圆括号结尾的笑脸会出现一个半心形，所以不被推荐···。</p>
+
+<p><strong>推荐：</strong></p>
+
+<p><code>objc
+:]
+</code></p>
+
+<p><strong>不推荐：</strong></p>
+
+<p><code>objc
+:)
+</code></p>
+
+<h2><a name="Xcode工程"></a>Xcode工程</h2>
+
+<p>物理文件结构和Xcode工程文件结构要保持一致。Xcode项目中的新建分组都要对应文件系统中的文件夹。代码不但要按类型，也要按特征来分组，保证结构更清晰。</p>
+
+<p>可能的话，尽量打开"Treat Warnings as Errors"选项，如果你想忽略一个类型的警告，请查看<a href="http://clang.llvm.org/docs/UsersManual.html#controlling-diagnostics-via-pragmas">这里</a>。</p>
+
+<h2>其他Objective-C的代码风格规范</h2>
+
+<ul>
+<li><a href="https://github.com/RobotsAndPencils/objective-c-style-guide">Robots &amp; Pencils</a></li>
+<li><a href="https://github.com/NYTimes/objective-c-style-guide">New York Times</a></li>
+<li><a href="http://google-styleguide.googlecode.com/svn/trunk/objcguide.xml">Google</a></li>
+<li><a href="https://github.com/github/objective-c-conventions">GitHub</a></li>
+<li><a href="https://trac.adium.im/wiki/CodingStyle">Adium</a></li>
+<li><a href="https://gist.github.com/soffes/812796">Sam Soffes</a></li>
+<li><a href="http://cocoadevcentral.com/articles/000082.php">CocoaDevCentral</a></li>
+<li><a href="http://lukeredpath.co.uk/blog/my-objective-c-style-guide.html">Luke Redpath</a></li>
+<li><a href="http://www.cimgf.com/zds-code-style-guide/">Marcus Zarra</a></li>
+</ul>
+
 ]]></content>
   </entry>
   

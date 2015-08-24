@@ -1,0 +1,457 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Effective Objective-C读书笔记4 - 刘毅的技术博客</title>
+  <meta name="author" content="刘毅">
+
+  
+  <meta name="description" content="第四部分开始讨论OC的两大重要特性，Protocols和Categories。Protocols类似Java中的interfaces，弥补了OC没有多继承的缺点，常被用于实现OC委托模式，但还有很多其他方面的用途。Categories则是提供了不继承而向类添加拓展的方法，这要归功于OC动态语言特性 &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucifer1988.github.io/blog/2015/08/24/effective-objective-cdu-shu-bi-ji-4">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="刘毅的技术博客" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<script type="text/javascript">
+
+function addBlankTargetForLinks () {
+
+  $('a[href^="http"]').each(function(){
+
+      $(this).attr('target', '_blank');
+
+  });
+
+}
+
+$(document).bind('DOMNodeInserted', function(event) {
+
+  addBlankTargetForLinks();
+
+});
+
+</script>
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">刘毅的技术博客</a></h1>
+  
+    <h2>记录自己的学习生活点滴，也希望和大家交流分享！</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucifer1988.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">首页</a></li>
+  <li><a href="/blog/archives">所有文章</a></li>
+  <li><a href="/blog/categories/ios">iOS开发专题</a></li>
+  <li><a href="http://weibo.com/u/2638849461" target="_blank">我的微博</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Effective Objective-C读书笔记4</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-24T11:35:10+08:00" pubdate data-updated="true">Aug 24<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>第四部分开始讨论OC的两大重要特性，Protocols和Categories。Protocols类似Java中的interfaces，弥补了OC没有多继承的缺点，常被用于实现OC委托模式，但还有很多其他方面的用途。Categories则是提供了不继承而向类添加拓展的方法，这要归功于OC动态语言特性，但同时了解它使用时的常见问题也非常重要。</p>
+
+<!--more-->
+
+
+<h2>Item23 Use Delegate and Data Source Protocols for Interobject Communication</h2>
+
+<ol>
+<li>Delegate是用于对象之间进行数据交互的设计模式，使用它的好处是可以让不同的业务逻辑解耦，实现代码模块化。而在OC中实现这一模式，主要依靠Protocols。</li>
+<li>怎么使用Delegate不介绍了，注意点是：1）命名最好和你需要委托的类相关，例如UITableView,UITableViewDelegate；2）类的delegate property是weak属性，原因是接受委托的对象一般会持有需要委托的对象，如果delegate设置为strong，需要委托的对象也会持有接受委托的对象，这样就会出现retain cycle。</li>
+<li>Delegate一般都定义为option，除非一些方法是一定要被委托者实现的，同时对于option的方法，委托者需要在调用之前使用<em>respondsToSelector:</em>来内省，确保被委托者实现了该方法。</li>
+<li>Delegate中定义的方法一定要清楚，而且一定要包括被委托者自身作为其中一个参数，这样如果存在同类型多个实例对象时，委托者可以在同一个方法中区分这些实例变量。</li>
+<li>Protocols还可以用于DataSource模式，与Delegate模式区别是，对于一个Class来说，Delegate的信息是流出Class的，而DataSource的信息是流入Class的，设计Protocols也可以参照这一原则。</li>
+<li>对于option的方法要进行<em>respondsToSelector:</em>来检测，但是对于一些需要频繁调用的方法，采用这一方式非常影响性能，作者利用了C中的由多个1bit字段组成的结构体来标识被委托对象是否响应所有方法，这基于被委托对象一般不会动态改变对方法的响应：</li>
+</ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">@interface</span> <span class="nc">EOCNetworkFetcher</span><span class="p">(){</span>
+</span><span class='line'>  <span class="n">struc</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kt">unsigned</span> <span class="kt">int</span> <span class="nl">didReceiveData:</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>      <span class="kt">unsigned</span> <span class="kt">int</span> <span class="nl">didFailWithError:</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>      <span class="kt">unsigned</span> <span class="kt">int</span> <span class="nl">didUpdateProgressTo:</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span> <span class="n">_delegateFlags</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">@end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@implementation</span> <span class="nc">EOCNetworkFetcher</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setDelegate:</span><span class="p">(</span><span class="kt">id</span><span class="o">&lt;</span><span class="n">EOCNetworkFetcherDelegate</span><span class="o">&gt;</span><span class="n">delegate</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">_delegate</span> <span class="o">=</span> <span class="n">delegate</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">_delegateFlags</span><span class="p">.</span><span class="n">didReceiveData</span> <span class="o">=</span> <span class="p">[</span><span class="n">delegate</span> <span class="nl">respondsToSelector:</span><span class="k">@selector</span><span class="p">(</span><span class="nl">networkFetcher:</span> <span class="nl">didReceiveData:</span><span class="p">)];</span>
+</span><span class='line'>  <span class="n">_delegateFlags</span><span class="p">.</span><span class="n">didFailWithError</span> <span class="o">=</span> <span class="p">[</span><span class="n">delegate</span> <span class="nl">respondsToSelector:</span><span class="k">@selector</span><span class="p">(</span><span class="nl">networkFetcher:</span> <span class="nl">didFailWithError:</span><span class="p">)];</span>
+</span><span class='line'>  <span class="n">_delegateFlags</span><span class="p">.</span><span class="n">didUpdateProgressTo</span> <span class="o">=</span> <span class="p">[</span><span class="n">delegate</span> <span class="nl">respondsToSelector:</span><span class="k">@selector</span><span class="p">(</span><span class="nl">networkFetcher:</span> <span class="nl">didUpdateProgressTo:</span><span class="p">)];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//调用委托时</span>
+</span><span class='line'><span class="cm">/*</span>
+</span><span class='line'><span class="cm">if(_delegateFlags.didUpdateProgressTo) {</span>
+</span><span class='line'><span class="cm"> [_delegate networkFetcher:self didUpdateProgressTo:currentProgress];</span>
+</span><span class='line'><span class="cm">}</span>
+</span><span class='line'><span class="cm">*/</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<!--more-->
+
+
+<h2>Item24 Use Categories to Break Class Implementations into Manageable Segments</h2>
+
+<ol>
+<li>分类这一特性主要为了解决一个类在开发中无限膨胀的问题，将一个类的方法按照功能进行分类处理是常规做法。</li>
+<li>第二种用途是为了对代码进行分割增加可读性，例如NSURLRequest想增加专门的HTTP请求，单纯继承不是一个很好的选择，原因是NSURLRequest封装了一组针对CFURLRequest的C方法，无法通过继承获得，而直接添加这些HTTP的方法则会导致一些代码理解错误，例如开发者使用FTP协议，去发现可以调用关于HTTP的方法，所以将HTTP部分的方法做成NSHTTPURLRequest的分类是最好的选择。</li>
+<li>第三个用途是方便调试，原因是分类中的方法在日志里会显示为类似：<em>&ndash;[EOCPerson(Friendship) addFriend:]</em>，可以方便定位该方法。</li>
+<li>另外，在做一个库时，把一些私有方法用名为Private的分类封装，这样这些方法不用暴露在外，而内部又可以随意调用，而且外部万一用到了，也可以在日志中看到private的标志，起到了文档的作用。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Item25 Always Prefix Category Names on Third-Party Classes</h2>
+
+<ol>
+<li>为一个类添加分类后，运行时runtime会遍历category每个方法，顺便加入类的方法列表，如果这时category重写了类的某个方法，这将覆盖原有的方法，如果多个category都出现这个情况，那么最后被载入的那个分类的方法会被采用，这两种情况都将导致Bug，且难以定位。</li>
+<li>解决这一问题的方法只能是添加namespace，规则参考Item15，最好就是公司+项目这样的方式，而且最好将分类的名字也加namespace，这样可以避免warning。</li>
+<li>要记住添加到一个类的category中的方法，只要被添加，在所有类的示例都可以调用（这里还是需要导入这个category才可以），尤其在为Cocoa中的类添加分类时时刻注意添加命名空间，去刻意重写类中的方法是一个非常坏的习惯，它带来的问题可能比好处大得多。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Item26 Avoid Properties in Categories</h2>
+
+<ol>
+<li>category默认是不支持添加property的（匿名分类除外），虽然这一做法可以在技术上实现，但是依然不推荐这么做。</li>
+<li>category不支持property，主要是无法自动合成setter和getter方法，解决这一问题有两个方法：1）使用Item12的做法，用@dynamic声明，重写message-forwarding的方法，在runtime添加setter和getter方法；2）使用Item10，使用associated objects，自己在getter和setter进行关联。</li>
+<li>上述两个方法均可行，但作者认为这两个方法都不完美，缺点有二：1）内存管理，你很容易忘记这个property的特殊性，而只去修改property的关键字，而忘记去修改setter方法；2）如果你想让自己的property对象在内部支持mutable，可以在内部声明一个，mutable拷贝，但是这又会出现一个进入源代码的混乱路径，所以在category中定义property的代价是很高的。</li>
+<li>作者建议的方法是把所有的变量都放入原类中，而category只提供额外的方法。</li>
+<li>但有时category中可以添加只读变量，而且也不涉及读写原类的变量，但是虽然不报错，还是推荐使用一个方法来完成，因为真的没必要这么做。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Item27 Use the Class-Continuation Category to Hide Implementation Detail</h2>
+
+<p>1.OC是没有真正的私有方法的，但我们还是不希望把不需要暴露的方法和变量暴露在外，所以匿名分类就是一种隐藏这些细节的手段。<br/>
+2.你可以将实例变量声明在匿名变量或implementation中，可以完全不用暴露你要导入的头文件等一切信息，例如：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">@interface</span> <span class="nc">EOCPerson</span><span class="p">(){</span>
+</span><span class='line'>  <span class="n">NSString</span> <span class="o">*</span><span class="n">_anInstanceVariable</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c1">//Method declarations here</span>
+</span><span class='line'><span class="k">@end</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">@</span><span class="n">implemenation</span> <span class="n">EOCPerson</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">_anotherInstanceVariable</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c1">//Method implemenations here</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.一般OC代码中使用C++一般两种情况：一些游戏相关的后端代码需要用C++，使用的第三方库使用了C++，而你作为使用者除非特殊情况，一定要使用匿名分类来使用C++，这样其他类使用你的类时，不用再因为C++的原因，将.m文件命名为.mm，而使编译器将其编为Objective-C++。Cocoa的web browser framework和CoreAnimation使用了这一模式。<br/>
+4.还有一种应用就是在外部声明readonly的property，然后在匿名分类中再将其声明为readwrite，这样可以实现外部只能通过方法设置值，而内部可以正常使用该变量，可能会出现外部在访问，内部同时在赋值同步的问题，将在Item41讨论。<br/>
+5.接下来就是可以在匿名分类声明私有方法，虽然这不是必须的，而作者比较推荐先列好方法，理清思路，再开始实现，如果是比较大的项目，还是需要这么干的。<br/>
+6.最后就是可以在匿名分类添加委托。</p>
+
+<!--more-->
+
+
+<h2>Item28 Use a Protocol to Provide Anonymous Objects</h2>
+
+<ol>
+<li>利用Protocol可以实现创建一些匿名对象，例如：id<EOCDelegate> delegate。</li>
+<li>例子1：来自多个第三方类库的数据库管理对象对应不同数据库类型，现在需要提供一个统一的Manager，来返回这些不同的对象，依靠基类继承是不可能的，只能通过定义一组数据库通用的操作作为Protocol，然后分别继承这些类，而新类则遵从这一protocol，这样Manager只需返回id<Protocol>类型的对象即可，而使用者也只需要知道它们实现了这些方法也足够了。</li>
+<li>例子2：已确定只有一个类型，但其是一个内部使用的数据类型，不需要将其所有细节暴露，只需要暴露其中一部分方法即可，那么将这些方法声明为Protocol，然后返回类型定义为id<Protocol>即可，其实就是实现了对对象的大部分封装。</li>
+</ol>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">刘毅</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-24T11:35:10+08:00" pubdate data-updated="true">Aug 24<span>th</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ios/'>iOS</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <style>
+    .flash-video{display:none;}
+</style>
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <span class="jiathis_txt">分享到：</span>
+  <a class="jiathis_button_qzone">QQ空间</a>
+  <a class="jiathis_button_tsina">新浪微博</a>
+  <a class="jiathis_button_tqq">腾讯微博</a>
+  <a class="jiathis_button_renren">人人网</a>
+  <a class="jiathis_button_douban">豆瓣</a>
+  <a class="jiathis_button_weixin">微信</a>
+  <a href="http://www.jiathis.com/share?uid=1885095" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript">
+var jiathis_config = {data_track_clickback:'true'};
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1885095" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+
+<br />
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1885095"></script>
+<!-- UY END -->
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/08/17/effective-objective-cdu-shu-bi-ji-3/" title="Previous Post: Effective Objective-C读书笔记3">&laquo; Effective Objective-C读书笔记3</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/08/24/effective-objective-cdu-shu-bi-ji-4/">Effective Objective-C读书笔记4</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/08/17/effective-objective-cdu-shu-bi-ji-3/">Effective Objective-C读书笔记3</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/22/effective-objective-cdu-shu-bi-ji-2/">Effective Objective-C读书笔记2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/07/20/effective-objective-cdu-shu-bi-ji-1/">Effective Objective-C读书笔记1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/09/raywenderlich-dot-comdai-ma-feng-ge-gui-fan/">raywenderlich.com代码风格规范</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/03/03/diao-shi-li-qi-ponydebugger/">调试利器-PonyDebugger</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/25/qiang-li-de-ri-zhi-fen-xi-gong-ju-nslogger/">强力的日志分析工具-NSLogger</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/14/markdownru-men-ji-jiao-cheng/">Markdown入门级教程</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/13/hello-world-octopressfa-bu-wen-zhang-bu-zou/">基于Octopress搭建自己的博客网站</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/01/02/2013-summary-and-2014-plan/">2013总结&2014规划</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>About Me</h1>
+    <p> iOS开发, 菜鸟程序猿, Dotar<br/>
+      <br/>我的经历:
+      <br/>2007.9 进入吉大学习高端大气的电子信息工程
+      <br/>2011.9 考研失利,转投中传计算机专业,接触iOS
+      <br/>2013.8 入职盘古,以iOS程序员的身份开始职业生涯<br/>
+      <br/>我的微博: <a href="http://weibo.com/u/2638849461" target="_blank">JamesRaynor-刘毅</a>
+      <br/>我的git主页: <a href="https://github.com/lucifer1988" target="_blank">lucifer1988</a>
+      <br/>
+      <br/><span id="wb_follow_btn"></span>
+  </p>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - 刘毅 -
+  <span class="credit">Powered by <a href="http://octopress.org" target="_blank">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=3350288267" type="text/javascript" charset="utf-8"></script>
+<script>
+    WB2.anyWhere(function(W){
+        W.widget.followButton({
+            'uid': 2638849461,
+            'nick_name': 'JamesRaynor-刘毅',
+            'id': "wb_follow_btn",
+            'show_head' : true, 
+            'show_name' : true, 
+            'show_cancel': false
+        });
+    });
+</script>
+6vvqnj09Z6
+
+</body>
+</html>

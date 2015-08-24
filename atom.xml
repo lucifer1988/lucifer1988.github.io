@@ -4,7 +4,7 @@
   <title><![CDATA[刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-08-25T15:21:24+08:00</updated>
+  <updated>2015-08-24T11:41:57+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -16,7 +16,7 @@
   <entry>
     <title type="html"><![CDATA[Effective Objective-C读书笔记4]]></title>
     <link href="http://lucifer1988.github.io/blog/2015/08/24/effective-objective-cdu-shu-bi-ji-4/"/>
-    <updated>2015-08-24T14:58:20+08:00</updated>
+    <updated>2015-08-24T11:35:10+08:00</updated>
     <id>http://lucifer1988.github.io/blog/2015/08/24/effective-objective-cdu-shu-bi-ji-4</id>
     <content type="html"><![CDATA[<p>第四部分开始讨论OC的两大重要特性，Protocols和Categories。Protocols类似Java中的interfaces，弥补了OC没有多继承的缺点，常被用于实现OC委托模式，但还有很多其他方面的用途。Categories则是提供了不继承而向类添加拓展的方法，这要归功于OC动态语言特性，但同时了解它使用时的常见问题也非常重要。</p>
 
@@ -88,6 +88,99 @@
 </span><span class='line'>
 </span><span class='line'><span class="k">@end</span>
 </span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<!--more-->
+
+
+<h2>Item24 Use Categories to Break Class Implementations into Manageable Segments</h2>
+
+<ol>
+<li>分类这一特性主要为了解决一个类在开发中无限膨胀的问题，将一个类的方法按照功能进行分类处理是常规做法。</li>
+<li>第二种用途是为了对代码进行分割增加可读性，例如NSURLRequest想增加专门的HTTP请求，单纯继承不是一个很好的选择，原因是NSURLRequest封装了一组针对CFURLRequest的C方法，无法通过继承获得，而直接添加这些HTTP的方法则会导致一些代码理解错误，例如开发者使用FTP协议，去发现可以调用关于HTTP的方法，所以将HTTP部分的方法做成NSHTTPURLRequest的分类是最好的选择。</li>
+<li>第三个用途是方便调试，原因是分类中的方法在日志里会显示为类似：<em>&ndash;[EOCPerson(Friendship) addFriend:]</em>，可以方便定位该方法。</li>
+<li>另外，在做一个库时，把一些私有方法用名为Private的分类封装，这样这些方法不用暴露在外，而内部又可以随意调用，而且外部万一用到了，也可以在日志中看到private的标志，起到了文档的作用。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Item25 Always Prefix Category Names on Third-Party Classes</h2>
+
+<ol>
+<li>为一个类添加分类后，运行时runtime会遍历category每个方法，顺便加入类的方法列表，如果这时category重写了类的某个方法，这将覆盖原有的方法，如果多个category都出现这个情况，那么最后被载入的那个分类的方法会被采用，这两种情况都将导致Bug，且难以定位。</li>
+<li>解决这一问题的方法只能是添加namespace，规则参考Item15，最好就是公司+项目这样的方式，而且最好将分类的名字也加namespace，这样可以避免warning。</li>
+<li>要记住添加到一个类的category中的方法，只要被添加，在所有类的示例都可以调用（这里还是需要导入这个category才可以），尤其在为Cocoa中的类添加分类时时刻注意添加命名空间，去刻意重写类中的方法是一个非常坏的习惯，它带来的问题可能比好处大得多。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Item26 Avoid Properties in Categories</h2>
+
+<ol>
+<li>category默认是不支持添加property的（匿名分类除外），虽然这一做法可以在技术上实现，但是依然不推荐这么做。</li>
+<li>category不支持property，主要是无法自动合成setter和getter方法，解决这一问题有两个方法：1）使用Item12的做法，用@dynamic声明，重写message-forwarding的方法，在runtime添加setter和getter方法；2）使用Item10，使用associated objects，自己在getter和setter进行关联。</li>
+<li>上述两个方法均可行，但作者认为这两个方法都不完美，缺点有二：1）内存管理，你很容易忘记这个property的特殊性，而只去修改property的关键字，而忘记去修改setter方法；2）如果你想让自己的property对象在内部支持mutable，可以在内部声明一个，mutable拷贝，但是这又会出现一个进入源代码的混乱路径，所以在category中定义property的代价是很高的。</li>
+<li>作者建议的方法是把所有的变量都放入原类中，而category只提供额外的方法。</li>
+<li>但有时category中可以添加只读变量，而且也不涉及读写原类的变量，但是虽然不报错，还是推荐使用一个方法来完成，因为真的没必要这么做。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Item27 Use the Class-Continuation Category to Hide Implementation Detail</h2>
+
+<p>1.OC是没有真正的私有方法的，但我们还是不希望把不需要暴露的方法和变量暴露在外，所以匿名分类就是一种隐藏这些细节的手段。<br/>
+2.你可以将实例变量声明在匿名变量或implementation中，可以完全不用暴露你要导入的头文件等一切信息，例如：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">@interface</span> <span class="nc">EOCPerson</span><span class="p">(){</span>
+</span><span class='line'>  <span class="n">NSString</span> <span class="o">*</span><span class="n">_anInstanceVariable</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c1">//Method declarations here</span>
+</span><span class='line'><span class="k">@end</span>
+</span><span class='line'>
+</span><span class='line'><span class="err">@</span><span class="n">implemenation</span> <span class="n">EOCPerson</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kt">int</span> <span class="n">_anotherInstanceVariable</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c1">//Method implemenations here</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.一般OC代码中使用C++一般两种情况：一些游戏相关的后端代码需要用C++，使用的第三方库使用了C++，而你作为使用者除非特殊情况，一定要使用匿名分类来使用C++，这样其他类使用你的类时，不用再因为C++的原因，将.m文件命名为.mm，而使编译器将其编为Objective-C++。Cocoa的web browser framework和CoreAnimation使用了这一模式。<br/>
+4.还有一种应用就是在外部声明readonly的property，然后在匿名分类中再将其声明为readwrite，这样可以实现外部只能通过方法设置值，而内部可以正常使用该变量，可能会出现外部在访问，内部同时在赋值同步的问题，将在Item41讨论。<br/>
+5.接下来就是可以在匿名分类声明私有方法，虽然这不是必须的，而作者比较推荐先列好方法，理清思路，再开始实现，如果是比较大的项目，还是需要这么干的。<br/>
+6.最后就是可以在匿名分类添加委托。</p>
+
+<!--more-->
+
+
+<h2>Item28 Use a Protocol to Provide Anonymous Objects</h2>
+
+<ol>
+<li>利用Protocol可以实现创建一些匿名对象，例如：id<EOCDelegate> delegate。</li>
+<li>例子1：来自多个第三方类库的数据库管理对象对应不同数据库类型，现在需要提供一个统一的Manager，来返回这些不同的对象，依靠基类继承是不可能的，只能通过定义一组数据库通用的操作作为Protocol，然后分别继承这些类，而新类则遵从这一protocol，这样Manager只需返回id<Protocol>类型的对象即可，而使用者也只需要知道它们实现了这些方法也足够了。</li>
+<li>例子2：已确定只有一个类型，但其是一个内部使用的数据类型，不需要将其所有细节暴露，只需要暴露其中一部分方法即可，那么将这些方法声明为Protocol，然后返回类型定义为id<Protocol>即可，其实就是实现了对对象的大部分封装。</li>
+</ol>
 
 ]]></content>
   </entry>
@@ -692,90 +785,6 @@
 
 
 <p></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[iOS8新特性之Extensions学习笔记1-SharingExtension]]></title>
-    <link href="http://lucifer1988.github.io/blog/2014/08/20/ios8xin-te-xing-zhi-extensionsxue-xi-bi-ji-1/"/>
-    <updated>2014-08-20T09:56:53+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2014/08/20/ios8xin-te-xing-zhi-extensionsxue-xi-bi-ji-1</id>
-    <content type="html"><![CDATA[<p><img src="http://lucifer1988.github.io/images/Extensions_Sample.png"></p>
-
-<p>Extensions是iOS8一个重要的新特性，可以理解为iOS系统中的插件功能吧，但是在iOS大的封闭环境下，它只能完成一些受限的App间交互，在一定程度上弥补iOS沙盒机制对应用间通信的限制，但是总的来说对开发者还是好事，毕竟这能使我们的产品给用户带来更多样的服务和体验。</p>
-
-<!--more-->
-
-
-<p>iOS目前公布支持的Extension类型有：</p>
-
-<ul>
-<li>Today screen widgets：在通知中心的今日栏目里展示小工具（widget），可以自定义一些快捷操作；</li>
-<li>Share extensions：自定义内容分享组件供其他应用使用；</li>
-<li>Actions：在另一个应用里执行应用插件操作，如直接打开一个应用；</li>
-<li>Photo editing：使用第三方应用插件在苹果自带的照片应用里编辑照片或视频；</li>
-<li>Storage providers：应用间共享部分存储控件，如协作修改同一份文档；</li>
-<li>Custom keyboards：自定义键盘输入法，替代系统输入法。</li>
-</ul>
-
-
-<p>这篇博客将主要介绍Share extensions的构建方法，其他的Extension将会在之后陆续介绍。</p>
-
-<!--more-->
-
-
-<h2>创建ShareExtension</h2>
-
-<p>Extension是需要包含在一个已有app当中的编译二进制文件，它不能脱离宿主app而独立存在，Xcode会提供相应extension类型的模板，如下图，我们为app新建了一个ShareExtension：</p>
-
-<p><img src="http://lucifer1988.github.io/images/SetupShareExtension.png"></p>
-
-<p>新的ShareExtension主要是一个storyboard和一个<code>SLComposeServiceViewController</code>的子类，这些会提供默认的分享UI，包括字数统计、图片、文字输入，取消和发送按钮，当然你可以自己重新去定义UI。这里选择使用默认UI，来看下<code>SLComposeServiceViewController</code>提供的一些新方法：</p>
-
-<ul>
-<li><code>presentationAnimationDidFinish()</code>是一个用于完成繁琐任务的钩子方法，我们这里用来取出待分享的图片；</li>
-<li><code>contentText</code>用户输入的文字；</li>
-<li><code>didSelectPost()</code>用户点击<strong>Post</strong>按钮，我们在这儿加入发送任务；</li>
-<li><code>didSelectCancel()</code>用户点击<strong>Cancel</strong>按钮；</li>
-<li><code>isContentValid()</code>用户输入内容发生变化时调用，返回布尔值告诉系统是否超出规定字数，我们在这儿做了剩余可字数统计的方法；</li>
-<li><code>charactersRemaining</code>剩余可输入字数，会显示在编辑框下；</li>
-</ul>
-
-
-<p>在我们进一步开始完成Extension前，先了解下如何调试Extension，方便下面的开发。</p>
-
-<h2>调试ShareExtension</h2>
-
-<p>理论上说，你要测试你的Extension，你要通过另外一个app来调现在这个app的Extension，不过Xcode提供的调试app只能是自己开发的app，不能调系统自带的app（如果可以的话，可直接调用<code>photos</code>来测试），这样的话，我们只能采用下面的方法来调试：</p>
-
-<ol>
-<li><p>直接在该Extension的宿主app下加入以下代码，这样宿主app会提供一张图片和一个按钮来弹出一个通用的分享表单，里面会有我们Extension的入口；</p>
-
-<p> &#8220;`objc
- @IBAction func handleShareSampleTapped(sender: AnyObject) {
-   shareContent(sharingText: &ldquo;Highland Cow&rdquo;,
-                        sharingImage: sharingContentImageView.image)
- }</p>
-
-<p> // Utility methods
- func shareContent(#sharingText: String?, sharingImage: UIImage?) {
-   var itemsToShare = <a href="">AnyObject</a></p>
-
-<p>   if let text = sharingText {
-     itemsToShare.append(text)
-   }
-   if let image = sharingImage {
-     itemsToShare.append(image)
-   }</p>
-
-<p>   let activityViewController = UIActivityViewController(activityItems: itemsToShare, applicationActivities: nil)
-   presentViewController(activityViewController, animated: true, completion: nil)
- }
- &#8220;`</p></li>
-<li><p>点击我们自己的Extension，会运行我们开发的Extension进程；</p></li>
-<li>你也可以在你的其他app中进行类似的测试。或者也可以保持你的app运行的基础上，自己打开<code>photos</code>应用，也可进行同样的测试。</li>
-</ol>
-
 ]]></content>
   </entry>
   
