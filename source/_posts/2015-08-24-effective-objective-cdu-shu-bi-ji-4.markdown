@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Effective Objective-C读书笔记4"
-date: 2015-08-24 14:58:20 +0800
+date: 2015-08-24 11:35:10 +0800
 comments: true
 categories: iOS
 published: true
@@ -45,6 +45,7 @@ if(_delegateFlags.didUpdateProgressTo) {
 	[_delegate networkFetcher:self didUpdateProgressTo:currentProgress];
 }
 */
+
 @end
 ```  
 
@@ -93,6 +94,7 @@ if(_delegateFlags.didUpdateProgressTo) {
 	int _anotherInstanceVariable;
 }
 //Method implemenations here
+
 @end
 ```
 
@@ -108,5 +110,3 @@ if(_delegateFlags.didUpdateProgressTo) {
 1. 利用Protocol可以实现创建一些匿名对象，例如：id<EOCDelegate> delegate。
 2. 例子1：来自多个第三方类库的数据库管理对象对应不同数据库类型，现在需要提供一个统一的Manager，来返回这些不同的对象，依靠基类继承是不可能的，只能通过定义一组数据库通用的操作作为Protocol，然后分别继承这些类，而新类则遵从这一protocol，这样Manager只需返回id<Protocol>类型的对象即可，而使用者也只需要知道它们实现了这些方法也足够了。
 3. 例子2：已确定只有一个类型，但其是一个内部使用的数据类型，不需要将其所有细节暴露，只需要暴露其中一部分方法即可，那么将这些方法声明为Protocol，然后返回类型定义为id<Protocol>即可，其实就是实现了对对象的大部分封装。
-
-
