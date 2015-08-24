@@ -95,20 +95,20 @@ published: true
 ```
 
 3.而处理一般的异常OC通常使用NSError，该类包含以下信息：  
-    1.Error domain(String):表明错误发生的域，一般是自定义的全局变量，例如：*NSURLErrorDomain*。  
-	2.Error code(Integer):表明特定域的错误码，参考HTTP的状态码。  
-	3.Userinfo(Dictionary):额外的信息，包括本地化描述信息和导致该错误的原因。  
+1）Error domain(String):表明错误发生的域，一般是自定义的全局变量，例如：*NSURLErrorDomain*。
+2）Error code(Integer):表明特定域的错误码，参考HTTP的状态码。  
+3）Userinfo(Dictionary):额外的信息，包括本地化描述信息和导致该错误的原因。  
 4.NSError的一些使用场景：  
-	1.被用于Delegate中，例如：-(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error。  
-	2.用于返回型参数，参照Item19，类似：  
-	```objectivec
-	//-(BOOL)doSomething:(NSError**)error
-	NSError *error = nil;
-	BOOL ret = [object doSomething:&error];
-	if(error) {
-		//There was an error
-	}
-	```  
+1）被用于Delegate中，例如：-(void)connection:(NSURLConnection *)connection didFailWithError:(NSError *)error。  
+2）用于返回型参数，参照Item19，类似：  
+```objectivec
+//-(BOOL)doSomething:(NSError**)error
+NSError *error = nil;
+BOOL ret = [object doSomething:&error];
+if(error) {
+	//There was an error
+}
+```  
 5.上述方法传入的是NSError**类型，开启ARC时该类型会转化为NSError* __autoreleasing*类型，该对象会在方法执行后自动释放，这么做，是因为doSomething:不能确定调用者会不会对NSError释放，大部分方法return的对象也是一样会添加autorelease（除了new，alloc，copy，mutableCopy等）。  
 6.doSomething的内部实现：  
 
