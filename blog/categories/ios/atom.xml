@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-08-24T11:50:10+08:00</updated>
+  <updated>2015-08-25T15:11:42+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,67 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Effective Objective-C读书笔记4]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/08/24/effective-objective-cdu-shu-bi-ji-4/"/>
+    <updated>2015-08-24T14:58:20+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/08/24/effective-objective-cdu-shu-bi-ji-4</id>
+    <content type="html"><![CDATA[<p>第四部分开始讨论OC的两大重要特性，Protocols和Categories。Protocols类似Java中的interfaces，弥补了OC没有多继承的缺点，常被用于实现OC委托模式，但还有很多其他方面的用途。Categories则是提供了不继承而向类添加拓展的方法，这要归功于OC动态语言特性，但同时了解它使用时的常见问题也非常重要。</p>
+
+<!--more-->
+
+
+<h2>Item23 Use Delegate and Data Source Protocols for Interobject Communication</h2>
+
+<ol>
+<li>Delegate是用于对象之间进行数据交互的设计模式，使用它的好处是可以让不同的业务逻辑解耦，实现代码模块化。而在OC中实现这一模式，主要依靠Protocols。</li>
+<li>怎么使用Delegate不介绍了，注意点是：1）命名最好和你需要委托的类相关，例如UITableView,UITableViewDelegate；2）类的delegate property是weak属性，原因是接受委托的对象一般会持有需要委托的对象，如果delegate设置为strong，需要委托的对象也会持有接受委托的对象，这样就会出现retain cycle。</li>
+<li>Delegate一般都定义为option，除非一些方法是一定要被委托者实现的，同时对于option的方法，委托者需要在调用之前使用<em>respondsToSelector:</em>来内省，确保被委托者实现了该方法。</li>
+<li>Delegate中定义的方法一定要清楚，而且一定要包括被委托者自身作为其中一个参数，这样如果存在同类型多个实例对象时，委托者可以在同一个方法中区分这些实例变量。</li>
+<li>Protocols还可以用于DataSource模式，与Delegate模式区别是，对于一个Class来说，Delegate的信息是流出Class的，而DataSource的信息是流入Class的，设计Protocols也可以参照这一原则。</li>
+<li>对于option的方法要进行<em>respondsToSelector:</em>来检测，但是对于一些需要频繁调用的方法，采用这一方式非常影响性能，作者利用了C中的由多个1bit字段组成的结构体来标识被委托对象是否响应所有方法，这基于被委托对象一般不会动态改变对方法的响应：</li>
+</ol>
+
+
+<p>```objectivec
+@interface EOCNetworkFetcher(){</p>
+
+<pre><code>struc {
+    unsigned int didReceiveData :1;
+    unsigned int didFailWithError :1;
+    unsigned int didUpdateProgressTo :1;
+} _delegateFlags;
+</code></pre>
+
+<p>}
+@end</p>
+
+<p>@implementation EOCNetworkFetcher</p>
+
+<p>&ndash;(void)setDelegate:(id<EOCNetworkFetcherDelegate>delegate) {</p>
+
+<pre><code>_delegate = delegate;
+_delegateFlags.didReceiveData = [delegate respondsToSelector:@selector(networkFetcher: didReceiveData:)];
+_delegateFlags.didFailWithError = [delegate respondsToSelector:@selector(networkFetcher: didFailWithError:)];
+_delegateFlags.didUpdateProgressTo = [delegate respondsToSelector:@selector(networkFetcher: didUpdateProgressTo:)];
+</code></pre>
+
+<p>}</p>
+
+<p>/*
+if(_delegateFlags.didUpdateProgressTo) {</p>
+
+<pre><code>[_delegate networkFetcher:self didUpdateProgressTo:currentProgress];
+</code></pre>
+
+<p>}
+*/</p>
+
+<p>@end
+```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Effective Objective-C读书笔记3]]></title>
@@ -1378,134 +1439,6 @@ self.productsRequest = [[SKProductsRequest alloc]
 <li><a href="http://www.cimgf.com/zds-code-style-guide/">Marcus Zarra</a></li>
 </ul>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[调试利器-PonyDebugger]]></title>
-    <link href="http://lucifer1988.github.io/blog/2014/03/03/diao-shi-li-qi-ponydebugger/"/>
-    <updated>2014-03-03T15:12:01+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2014/03/03/diao-shi-li-qi-ponydebugger</id>
-    <content type="html"><![CDATA[<p><img src="http://lucifer1988.github.io/images/ponyDebugger_icon.png"></p>
-
-<p>PonyDebugger是git上一个利用Chrome开发者工具来进行iOS客户端远程调试的工具包，与其他远类型程调试工具相比，它有着非常IMBA且又非常实用的功能：网络活动监控、查看CoreData对象、视图层级查看等，下面让我们看看如何驾驭这只神奇的小马驹吧！</p>
-
-<!--more-->
-
-
-<h2>功能</h2>
-
-<p>PonyDebugger提供了四个特色的功能，包括：监控网络、CoreData对象查看、视图分层查看和远程日志打印。</p>
-
-<h3>监控网络</h3>
-
-<p>所有通过NSURLConnection进行的网络访问，都会被监测到，也就是说那些基于NSURLConnection的第三方网络组件，如AFNetworking，都可以被监测到，而且看以方便的查看到：访问类型、接口名、错误类型，返回类型、网络延时等信息，非常强大！</p>
-
-<p><img src="http://lucifer1988.github.io/images/ponyDebugger_Network.png"></p>
-
-<h3>CoreData对象查看</h3>
-
-<p>这个功能就不必多说了，你可能见过很多方便的sqlite工具，比如FireFox的SQLite Manager插件，但是这样直接查看CoreData对象的不多见吧？</p>
-
-<p><img src="http://lucifer1988.github.io/images/ponyDebugger_CoreData.png"></p>
-
-<h3>视图分层查看</h3>
-
-<p>这个功能对于前端开发者来说是最重要不过了，PonyDebugger将你应用的视图关系以xml的形式分层展示出来，选择相应xml，会在客户端进行对应视图的高亮响应，xml的属性信息可以在客户端进行配置，而且竟然支持直接修改xml属性值，而客户端UI会实时做出改变！</p>
-
-<p><img src="http://lucifer1988.github.io/images/ponyDebugger_ViewHierarchy.png"></p>
-
-<h3>远程日志打印</h3>
-
-<p>这个可能你觉得没什么亮点，上次介绍的NSLogger可是专门做这件事的，不过PonyDebugger的这一功能也不会让你失望，它的语句类型不多，主要分为<code>PDLog()</code>和<code>PDLogObjects()</code>，<code>PDLog()</code>负责打印字符串信息，<code>PDLogObjects()</code>负责打印对象和数组。不过正如下图所示，<code>PDLogObjects()</code>打印出的对象也是分层展示的，比如查看一个数组中自定义modal对象的一个属性的值这样的事情就非常轻松，而且不用你再回Xcode中加断点，这是不很爽啊！</p>
-
-<p><img src="http://lucifer1988.github.io/images/ponyDebugger_Console.png"></p>
-
-<h2>配置</h2>
-
-<p>配置工作包括配置服务器端和客户端。</p>
-
-<h3>配置服务器端</h3>
-
-<ul>
-<li>安装Xcode&rsquo;s Command Line Tools，在之前的版本中可直接在Xcode中安装，如果你的环境更新到10.9和Xcode5之后，不妨参考<a href="http://ourcoders.com/thread/show/1208/">这里</a>进行安装，这是之前10.9更新CocoaPods时发现的一个问题。</li>
-<li>在终端执行以下命令，进行安装</li>
-</ul>
-
-
-<p><code>
-curl -sk https://cloud.github.com/downloads/square/PonyDebugger/bootstrap-ponyd.py | \
-  python - --ponyd-symlink=/usr/local/bin/ponyd ~/Library/PonyDebugger
-</code>
-注：如果在安装过程中报出如下错误：</p>
-
-<p>```
-···
-  Running setup.py (path:/Users/user/Library/PonyDebugger/build/tornado/setup.py) egg_info for package tornado</p>
-
-<pre><code>warning: no previously-included files matching '_auto2to3*' found anywhere in distribution
-</code></pre>
-
-<p>Downloading/unpacking pybonjour (from ponydebugger)
-  Could not find any downloads that satisfy the requirement pybonjour (from ponydebugger)
-  Some externally hosted files were ignored (use &mdash;allow-external pybonjour to allow).
-Cleaning up&hellip;
-<code>
-可以参考[这里](https://github.com/square/PonyDebugger/issues/100)的解决方法，在我安装的过程中也遇到了这个问题，按照提示是</code>pip<code>安装时没有配置</code>&mdash;allow-external pybonjour &mdash;allow-unverified pybonjour```。</p>
-
-<ul>
-<li>成功安装后，在终端输入<code>ponyd serve --listen-interface=127.0.0.1</code>，打开监听。</li>
-<li>最后打开浏览器，输入地址<code>http://localhost:9000</code>，如果访问到如下结果，说明安装成功。</li>
-</ul>
-
-
-<p><img src="http://lucifer1988.github.io/images/ponyDebugger_install.png"></p>
-
-<h3>配置客户端</h3>
-
-<p>由于现在PonyDebugger支持CocoaPods安装了，可以直接在你的podfile中加入：</p>
-
-<p><code>
-pod 'PonyDebugger'
-</code>
-然后，安装一下就可以了。</p>
-
-<p><code>
-pod install
-</code>
-不了解CocoaPods的童鞋可以参考下唐巧大哥的<a href="http://blog.devtang.com/blog/2012/12/02/use-cocoapod-to-manage-ios-lib-dependency/">这篇介绍</a>，希望手动加入PonyDebugger的童鞋可以参考<a href="https://github.com/square/PonyDebugger">官方文档</a>中Manual Installation一项。</p>
-
-<h2>使用</h2>
-
-<p>相比起搭建环境，PonyDebugger的使用非常简单。你需要在你应用的<code>AppDelegate.m</code>的<code>- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {}</code>方法中加入以下代码：</p>
-
-<p>```</p>
-
-<pre><code>PDDebugger *debugger = [PDDebugger defaultInstance];
-//设置网络监控
-[debugger enableNetworkTrafficDebugging];
-[debugger forwardAllNetworkTraffic];
-//通过TCP连接至服务端
-[debugger connectToURL:[NSURL URLWithString:@"ws://localhost:9000/device"]];
-// 也可通过bonjour自动连接
-//[debugger autoConnect];
-// 或连接至指定bonjour服务
-//[debugger autoConnectToBonjourServiceNamed:@"MY PONY"];
-//设置CoreData监控
-[debugger enableCoreDataDebugging];
-[debugger addManagedObjectContext:self.managedObjectContext withName:@"TIME Test MOC"];
-//设置视图分层监控
-[debugger enableViewHierarchyDebugging];
-[debugger setDisplayedViewAttributeKeyPaths:@[@"frame", @"hidden", @"alpha", @"opaque", @"accessibilityLabel", @"text"]];
-//设置远程日志打印
-[debugger enableRemoteLogging];
-</code></pre>
-
-<p>```</p>
-
-<h2>小结</h2>
-
-<p>本文可以作为<code>PonyDebugger</code>一个入门级的文档。相比上一次介绍的<code>NSLogger</code>来说，<code>PonyDebugger</code>的展示方式和查看方式更加直观和方便，作为通用的调试工具非常不错，而<code>NSLogger</code>拥有强大的日志记录功能，但想要发挥<code>NSLogger</code>的作用，对程序员的经验和能力就有了一定的要求，所以两种工具各有千秋，大家各取所需就好。</p>
 ]]></content>
   </entry>
   
