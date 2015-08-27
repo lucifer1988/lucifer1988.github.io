@@ -4,7 +4,7 @@
   <title><![CDATA[刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-08-24T11:50:10+08:00</updated>
+  <updated>2015-08-25T15:21:24+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,85 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Effective Objective-C读书笔记4]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/08/24/effective-objective-cdu-shu-bi-ji-4/"/>
+    <updated>2015-08-24T14:58:20+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/08/24/effective-objective-cdu-shu-bi-ji-4</id>
+    <content type="html"><![CDATA[<p>第四部分开始讨论OC的两大重要特性，Protocols和Categories。Protocols类似Java中的interfaces，弥补了OC没有多继承的缺点，常被用于实现OC委托模式，但还有很多其他方面的用途。Categories则是提供了不继承而向类添加拓展的方法，这要归功于OC动态语言特性，但同时了解它使用时的常见问题也非常重要。</p>
+
+<!--more-->
+
+
+<h2>Item23 Use Delegate and Data Source Protocols for Interobject Communication</h2>
+
+<ol>
+<li>Delegate是用于对象之间进行数据交互的设计模式，使用它的好处是可以让不同的业务逻辑解耦，实现代码模块化。而在OC中实现这一模式，主要依靠Protocols。</li>
+<li>怎么使用Delegate不介绍了，注意点是：1）命名最好和你需要委托的类相关，例如UITableView,UITableViewDelegate；2）类的delegate property是weak属性，原因是接受委托的对象一般会持有需要委托的对象，如果delegate设置为strong，需要委托的对象也会持有接受委托的对象，这样就会出现retain cycle。</li>
+<li>Delegate一般都定义为option，除非一些方法是一定要被委托者实现的，同时对于option的方法，委托者需要在调用之前使用<em>respondsToSelector:</em>来内省，确保被委托者实现了该方法。</li>
+<li>Delegate中定义的方法一定要清楚，而且一定要包括被委托者自身作为其中一个参数，这样如果存在同类型多个实例对象时，委托者可以在同一个方法中区分这些实例变量。</li>
+<li>Protocols还可以用于DataSource模式，与Delegate模式区别是，对于一个Class来说，Delegate的信息是流出Class的，而DataSource的信息是流入Class的，设计Protocols也可以参照这一原则。</li>
+<li>对于option的方法要进行<em>respondsToSelector:</em>来检测，但是对于一些需要频繁调用的方法，采用这一方式非常影响性能，作者利用了C中的由多个1bit字段组成的结构体来标识被委托对象是否响应所有方法，这基于被委托对象一般不会动态改变对方法的响应：</li>
+</ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">@interface</span> <span class="nc">EOCNetworkFetcher</span><span class="p">(){</span>
+</span><span class='line'>  <span class="n">struc</span> <span class="p">{</span>
+</span><span class='line'>      <span class="kt">unsigned</span> <span class="kt">int</span> <span class="nl">didReceiveData:</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>      <span class="kt">unsigned</span> <span class="kt">int</span> <span class="nl">didFailWithError:</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>      <span class="kt">unsigned</span> <span class="kt">int</span> <span class="nl">didUpdateProgressTo:</span><span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span> <span class="n">_delegateFlags</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">@end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@implementation</span> <span class="nc">EOCNetworkFetcher</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setDelegate:</span><span class="p">(</span><span class="kt">id</span><span class="o">&lt;</span><span class="n">EOCNetworkFetcherDelegate</span><span class="o">&gt;</span><span class="n">delegate</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">_delegate</span> <span class="o">=</span> <span class="n">delegate</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">_delegateFlags</span><span class="p">.</span><span class="n">didReceiveData</span> <span class="o">=</span> <span class="p">[</span><span class="n">delegate</span> <span class="nl">respondsToSelector:</span><span class="k">@selector</span><span class="p">(</span><span class="nl">networkFetcher:</span> <span class="nl">didReceiveData:</span><span class="p">)];</span>
+</span><span class='line'>  <span class="n">_delegateFlags</span><span class="p">.</span><span class="n">didFailWithError</span> <span class="o">=</span> <span class="p">[</span><span class="n">delegate</span> <span class="nl">respondsToSelector:</span><span class="k">@selector</span><span class="p">(</span><span class="nl">networkFetcher:</span> <span class="nl">didFailWithError:</span><span class="p">)];</span>
+</span><span class='line'>  <span class="n">_delegateFlags</span><span class="p">.</span><span class="n">didUpdateProgressTo</span> <span class="o">=</span> <span class="p">[</span><span class="n">delegate</span> <span class="nl">respondsToSelector:</span><span class="k">@selector</span><span class="p">(</span><span class="nl">networkFetcher:</span> <span class="nl">didUpdateProgressTo:</span><span class="p">)];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//调用委托时</span>
+</span><span class='line'><span class="cm">/*</span>
+</span><span class='line'><span class="cm">if(_delegateFlags.didUpdateProgressTo) {</span>
+</span><span class='line'><span class="cm"> [_delegate networkFetcher:self didUpdateProgressTo:currentProgress];</span>
+</span><span class='line'><span class="cm">}</span>
+</span><span class='line'><span class="cm">*/</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Effective Objective-C读书笔记3]]></title>
@@ -613,6 +692,90 @@
 
 
 <p></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[iOS8新特性之Extensions学习笔记1-SharingExtension]]></title>
+    <link href="http://lucifer1988.github.io/blog/2014/08/20/ios8xin-te-xing-zhi-extensionsxue-xi-bi-ji-1/"/>
+    <updated>2014-08-20T09:56:53+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2014/08/20/ios8xin-te-xing-zhi-extensionsxue-xi-bi-ji-1</id>
+    <content type="html"><![CDATA[<p><img src="http://lucifer1988.github.io/images/Extensions_Sample.png"></p>
+
+<p>Extensions是iOS8一个重要的新特性，可以理解为iOS系统中的插件功能吧，但是在iOS大的封闭环境下，它只能完成一些受限的App间交互，在一定程度上弥补iOS沙盒机制对应用间通信的限制，但是总的来说对开发者还是好事，毕竟这能使我们的产品给用户带来更多样的服务和体验。</p>
+
+<!--more-->
+
+
+<p>iOS目前公布支持的Extension类型有：</p>
+
+<ul>
+<li>Today screen widgets：在通知中心的今日栏目里展示小工具（widget），可以自定义一些快捷操作；</li>
+<li>Share extensions：自定义内容分享组件供其他应用使用；</li>
+<li>Actions：在另一个应用里执行应用插件操作，如直接打开一个应用；</li>
+<li>Photo editing：使用第三方应用插件在苹果自带的照片应用里编辑照片或视频；</li>
+<li>Storage providers：应用间共享部分存储控件，如协作修改同一份文档；</li>
+<li>Custom keyboards：自定义键盘输入法，替代系统输入法。</li>
+</ul>
+
+
+<p>这篇博客将主要介绍Share extensions的构建方法，其他的Extension将会在之后陆续介绍。</p>
+
+<!--more-->
+
+
+<h2>创建ShareExtension</h2>
+
+<p>Extension是需要包含在一个已有app当中的编译二进制文件，它不能脱离宿主app而独立存在，Xcode会提供相应extension类型的模板，如下图，我们为app新建了一个ShareExtension：</p>
+
+<p><img src="http://lucifer1988.github.io/images/SetupShareExtension.png"></p>
+
+<p>新的ShareExtension主要是一个storyboard和一个<code>SLComposeServiceViewController</code>的子类，这些会提供默认的分享UI，包括字数统计、图片、文字输入，取消和发送按钮，当然你可以自己重新去定义UI。这里选择使用默认UI，来看下<code>SLComposeServiceViewController</code>提供的一些新方法：</p>
+
+<ul>
+<li><code>presentationAnimationDidFinish()</code>是一个用于完成繁琐任务的钩子方法，我们这里用来取出待分享的图片；</li>
+<li><code>contentText</code>用户输入的文字；</li>
+<li><code>didSelectPost()</code>用户点击<strong>Post</strong>按钮，我们在这儿加入发送任务；</li>
+<li><code>didSelectCancel()</code>用户点击<strong>Cancel</strong>按钮；</li>
+<li><code>isContentValid()</code>用户输入内容发生变化时调用，返回布尔值告诉系统是否超出规定字数，我们在这儿做了剩余可字数统计的方法；</li>
+<li><code>charactersRemaining</code>剩余可输入字数，会显示在编辑框下；</li>
+</ul>
+
+
+<p>在我们进一步开始完成Extension前，先了解下如何调试Extension，方便下面的开发。</p>
+
+<h2>调试ShareExtension</h2>
+
+<p>理论上说，你要测试你的Extension，你要通过另外一个app来调现在这个app的Extension，不过Xcode提供的调试app只能是自己开发的app，不能调系统自带的app（如果可以的话，可直接调用<code>photos</code>来测试），这样的话，我们只能采用下面的方法来调试：</p>
+
+<ol>
+<li><p>直接在该Extension的宿主app下加入以下代码，这样宿主app会提供一张图片和一个按钮来弹出一个通用的分享表单，里面会有我们Extension的入口；</p>
+
+<p> &#8220;`objc
+ @IBAction func handleShareSampleTapped(sender: AnyObject) {
+   shareContent(sharingText: &ldquo;Highland Cow&rdquo;,
+                        sharingImage: sharingContentImageView.image)
+ }</p>
+
+<p> // Utility methods
+ func shareContent(#sharingText: String?, sharingImage: UIImage?) {
+   var itemsToShare = <a href="">AnyObject</a></p>
+
+<p>   if let text = sharingText {
+     itemsToShare.append(text)
+   }
+   if let image = sharingImage {
+     itemsToShare.append(image)
+   }</p>
+
+<p>   let activityViewController = UIActivityViewController(activityItems: itemsToShare, applicationActivities: nil)
+   presentViewController(activityViewController, animated: true, completion: nil)
+ }
+ &#8220;`</p></li>
+<li><p>点击我们自己的Extension，会运行我们开发的Extension进程；</p></li>
+<li>你也可以在你的其他app中进行类似的测试。或者也可以保持你的app运行的基础上，自己打开<code>photos</code>应用，也可进行同样的测试。</li>
+</ol>
+
 ]]></content>
   </entry>
   
