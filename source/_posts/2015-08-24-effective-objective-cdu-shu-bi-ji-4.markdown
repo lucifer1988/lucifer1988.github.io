@@ -45,7 +45,6 @@ if(_delegateFlags.didUpdateProgressTo) {
 	[_delegate networkFetcher:self didUpdateProgressTo:currentProgress];
 }
 */
-
 @end
 ```  
 
