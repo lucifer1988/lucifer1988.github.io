@@ -4,6 +4,7 @@ title: "Effective Objective-C读书笔记4"
 date: 2015-08-24 14:58:20 +0800
 comments: true
 categories: iOS
+published: true
 ---
 
 第四部分开始讨论OC的两大重要特性，Protocols和Categories。Protocols类似Java中的interfaces，弥补了OC没有多继承的缺点，常被用于实现OC委托模式，但还有很多其他方面的用途。Categories则是提供了不继承而向类添加拓展的方法，这要归功于OC动态语言特性，但同时了解它使用时的常见问题也非常重要。
@@ -46,7 +47,7 @@ if(_delegateFlags.didUpdateProgressTo) {
 */
 
 @end
-```
+```  
 
 <!--more-->
 
