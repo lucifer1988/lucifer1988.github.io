@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-08-28T10:51:18+08:00</updated>
+  <updated>2015-08-28T11:03:56+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -80,8 +80,9 @@ if(_delegateFlags.didUpdateProgressTo) {</p>
 </code></pre>
 
 <p>}
-*/
-@end
+*/</p>
+
+<p>@end
 ```</p>
 
 <!--more-->
