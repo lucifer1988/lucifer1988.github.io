@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-08-24T11:41:57+08:00</updated>
+  <updated>2015-09-09T16:27:06+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,325 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Effective Objective-C读书笔记5]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/08/28/effective-objective-cdu-shu-bi-ji-5/"/>
+    <updated>2015-08-28T11:45:07+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/08/28/effective-objective-cdu-shu-bi-ji-5</id>
+    <content type="html"><![CDATA[<p>第五部分开始将讨论OC的核心技术，Reference Counting，也就是使用引用计数来进行内存管理，这一部分涉及到底层内存管理机制，ARC相关技术细节和在开发中涉及到内存管理需要注意的常见问题。</p>
+
+<!--more-->
+
+
+<h2>Item29 Understand Reference Counting</h2>
+
+<ol>
+<li>Reference Counting是OC管理内存的方式，当一个对象的RC为0时，将被释放，iOS没有垃圾回收机制。</li>
+</ol>
+
+
+<h3>How Reference Counting Works</h3>
+
+<ol>
+<li>在NSObject Protocol中有三个方法可以改变RC，<em>retain,release,autorelease</em>。</li>
+<li>retainCount这个方法可以查看对象当前的RC值，但是并不推荐使用，Item36会讨论。</li>
+<li>对象之间往往是互相持有的，当该持有关系是<em>strong</em>时，被持有对象的RC加1，而持有链的最顶端是根对象，Mac OSX是NSApplication，iOS是UIApplication，都是应用创建的单例。</li>
+<li>举例一个NSMutableArray添加一个NSNumber，虽然在array添加number后，释放number，number的RC还是1，调用number理论上是可以的，但是并不推荐这么做，因为如果任何其他原因使number的RC为0，这一做法会导致崩溃。</li>
+<li>对象被释放后，它的内存将进入可用内存池，如果调用发生在内存被复写之前，不会发生错误，所以之类bug有时会很难复现，所以在MRC中往往在调用release后会赋值nil。</li>
+</ol>
+
+
+<h3>Memory Management in Property Accessors</h3>
+
+<ol>
+<li>strong命名的property的setter方法，是新值retain，然后旧值release，然后赋值，这一顺序不能错，因为如果先release再retain，且正好两个对象是同一个，可能会导致对象提前释放，RC为0，成为野指针，再调用retain则会出错。想按照这个顺序来，必须判断新旧两值是否是同一对象。</li>
+</ol>
+
+
+<h3>Autorelease Pools</h3>
+
+<ol>
+<li>借助autorelease pool替代release操作的autorelease，常用于需要返回新建对象的方法，具体释放时间在下一次事件循环（Item34将讨论）。</li>
+<li>在直接调用该方法时不用额外的内存空间，直接调用即可。</li>
+<li>但是如果返回对象需要持有时，比如赋值给一个实例变量，它需要retain一次，然后使用完后手动release，所以可以将autorelease理解为延长对象的生命周期，可以至少保证到方法调用的边界。</li>
+</ol>
+
+
+<h3>Retain Cycles</h3>
+
+<ol>
+<li>循环引用一般是指两个或多个对象直接互相存在强引用，而导致RC都不能为0，所有对象都不能释放。</li>
+<li>在垃圾回收机制下，retain cycle会被定义为孤岛，而直接被全部释放，而在RC机制下，只能通过定义weak引用或者依靠外部帮助来使其中某个对象交出对其他对象的引用。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Item30 Use ARC to Make Reference Counting Easier</h2>
+
+<ol>
+<li>Clang编译器带来了一个静态分析器，可以定位出现RC问题的位置，例如没有添加release，除此之外，该分析器可以为你自动添加retain，release这些操作，这也就是ARC技术的基础。</li>
+<li>在ARC机制下，retain、release、autorelease、dealloc这些操作都是不允许的，因为这回影响编译器判断添加语句的位置。</li>
+<li>事实上，ARC并没有直接调用上述这些方法，而是调用了他们的C的替代方法，例如objc_retain，这么做的好处是，因为这些操作会频繁调用，使用C方法可以提高效率。这也是为什么不允许直接重写retain，release这些方法，因为这方法并不是直接调用的。</li>
+</ol>
+
+
+<h3>Method-Naming Rules Applied by ARC</h3>
+
+<ol>
+<li>内存管理指定方法名在OC里一直是惯例，而ARC将其加强了，含有以下名称的方法：<em>alloc、new、copy、mutableCopy</em>，所返回的对象的所有者为方法的调用者，而其他方法返回的对象为autorelease，会保持到方法调用边界。</li>
+<li>而ARC会依据方法名的开头添加响应的语句，例如上述四个关键字开头的，会直接返回，而一般方法，ARC会在返回对象前加上autorelease。</li>
+<li>而在调用这些方法时，第一类方法返回的对象，ARC会在方法结束前添加release方法，而第二类方法因为有autorelease，所以不会添加操作。</li>
+<li>ARC通过命名规范来规范内存管理，再加上之前的命名空间，OC是少有的如此强调命名的语言之一。</li>
+<li>ARC可以做一些无法手动完成的优化，比如，它将在编译期间取消多余的retain和release操作。</li>
+<li>ARC在runtime也有进行优化，举例：EOCPerson的一般初始化方法返回的值（添加了autorelease），被赋值给一个对象的strong属性实例，按照之前的原则，需要在返回的对象加retain，这里的autorelease和retain看起来是多余的，ARC确实可以为了性能，直接去掉autorelease这个方法，所有返回的对象都为RC+1，但为了兼容MRC，ARC还是需要特殊处理。</li>
+<li>ARC确实对这种现象做了处理，在返回对象之前它调用了<em>objc_autoreleaseReturnValue</em>，如果被发现该对象是需要retain的，则会添加一个flag，而不是调用autorelease。同样的，调用者也会调用<em>objc_retainAutoreleasedReturnValue</em>，而不是retain，该方法也会先检测flag，如果存在，则不会retain，这样提高了效率：</li>
+</ol>
+
+
+<p>```objectivec
+//Within EOCPerson class
++(EOCPerson<em>)personWithName:(NSString</em>)name {</p>
+
+<pre><code>EOCPerson *person = [[EOCPerson alloc] init];
+person.name = name;
+objc_autoreleaseReturnValue(person);
+</code></pre>
+
+<p>}
+//Code using EOCPerson class
+EOCPerson *tmp = [EOCPerson personWithName:@&ldquo;Matt&rdquo;];
+_myPerson = objc_retainAutoreleasedReturnValue(tmp);</p>
+
+<p>//objc_autoreleaseReturnValue
+id objc_autoreleaseReturnValue(id object) {</p>
+
+<pre><code>if(/*caller will retain object*/){
+    set_flag(object);
+    return object;//no autorelease
+} else {
+    return [object autorelease];
+}
+</code></pre>
+
+<p>}</p>
+
+<p>//objc_retainAutoreleasedReturnValue
+id objc_retainAutoreleasedReturnValue(id object) {</p>
+
+<pre><code>if(get_flag(object)){
+    clear_flag(object);
+    return object;//no retain
+} else {
+    return [object retain];
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<h3>Memory-Management Semantics of Variables</h3>
+
+<ol>
+<li>ARC也同时管理着本地变量和实例变量的内存，默认每个变量对于对象是strong引用。</li>
+<li>在setter方法中，ARC中直接对旧值赋值即可，ARC会自动添加正确的代码。</li>
+<li>声明实例变量时，也可以改变内存管理方式，<strong>strong（默认，赋值将被retain）、</strong>unsafe_retained（赋值同assign，但指针不会自动置空，可能出现野指针）、<strong>weak（赋值同assign，对象被释放时，指针会自动置为nil，所以是安全的，iOS5后可用）、</strong>autoreleasing（多用与方法的返回值）。</li>
+<li>__weak用于本地变量时，常用于避免循环引用，比如在block中：</li>
+</ol>
+
+
+<p>```objectivec
+NSURL <em>url = [NSURL URLWithString:@&ldquo;<a href="http://www.example.com/">http://www.example.com/</a>&rdquo;];
+EOCNetworkRetcher </em>fetcher = [[EOCNetworkFetcher alloc] initWithURL:url];
+EOCNetworkFetcher * __weak weakFetcher = fetcher;
+[fetcher startWithCompletion:^(BOOL success){</p>
+
+<pre><code>NSLog(@"Finished fetching from %@", weakFetcher.url);
+</code></pre>
+
+<p>}];
+```</p>
+
+<h3>ARC Handling of Instance Variables</h3>
+
+<ol>
+<li>在ARC中，你一般不需要再重写dealloc方法，ARC借用Objective-C++的特性，Objective-C++对象在释放时会调用所有持有对象的析构方法，当编译器发现对象包含C++对象时，会生成<em>.cxx_destruct</em>方法，ARC借助这个方法，在其中执行清除内存的代码。</li>
+<li>但有时你仍需要重写dealloc方法，像CoreFoundation对象和堆上开辟的内存（如malloc），以及KVO、的解除，都需要手动释放，但注意<em>在ARC中，不需要在dealloc中写[super dealloc]</em>，因为ARC在<em>.cxx_destruct</em>中已经调用了这一方法。</li>
+</ol>
+
+
+<h3>Overriding the Memory-Management Methods</h3>
+
+<ol>
+<li>在MRC中，重写内存相关方法是允许的，比如单例常常重写release方法为一个空操作，这样单例就不会被释放。</li>
+<li>但在ARC中是不允许的，一是会导致ARC对对象周期的误判，二是ARC对内存管理做了深度的优化，当需要执行retain、release、autorelease时，ARC在OC的message dispatch做了优化处理，不能重写或调用这些方法则是该优化的前提。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Item31 Release References and Clean Up Observation State Only in dealloc</h2>
+
+<p>1.dealloc方法会在对象的引用计数为0时自动调用，但什么时候调用并不能保证，即使是在MRC中，手动控制release也一样，因为很多库会在你不知道的情况下修改对象，这会导致调用dealloc的时间发生变化。所以你千万不要手动去调用dealloc，runtime会在合适的时间调用。<br/>
+2.那么在ARC下，重写dealloc的话，一是用于释放CoreFoundation的对象，二是取消NSNotificationCenter中注册该对象的监听或KVO。<br/>
+3.如果你的类中使用到了文件描述集，sockets、或者开辟了大块儿内存，由于dealloc的调用时间不明，你可能在你不需要使用的时候即可释放这些内存，而不用等到dealloc触发，这样需要自定义一个清除方法，该方法必须在dealloc之前调用，不然就算异常了。<br/>
+4.清除资源需要另一个方法的原因是创建的对象并不是都会被调用dealloc，因为一部分对象在应用退出后台时并不会释放，它们只有在应用彻底被系统回收后才会释放，这是一种优化措施，但也会导致大量的资源被无故占用，所以在-(void)applicationWillTerminate:(UIApplication*)application中调用一些对象的clean方法是必要的。<br/>
+5.有时可以在dealloc中也可以去调用clean方法，这可以避免忘记调用clean，但最好还是手动去先执行clean，所以还是要提示下或者严重的话直接直接抛出异常：</p>
+
+<p>```objectivec
+&ndash;(void)close {</p>
+
+<pre><code>/*clean up resources*/
+_close = YES;
+</code></pre>
+
+<p>}</p>
+
+<p>&ndash;(void)dealloc {</p>
+
+<pre><code>if(!_closed) {
+    NSLog(@"ERROR:close was not called before dealloc!");
+    [self close];
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>6.除了上述特例，一般是不允许在dealloc中调用类的其他实例方法，因为有可能导致方法执行前，该对象可能已经释放了。而且，dealloc方法是在导致对象最终释放的线程上执行的，所以需要在特定线程执行的方法在此调用，不能保证线程正确，即使是通过代码强制在某线程执行，也是不安全的，因为对象处于释放状态。
+7.另外dealloc中也不可调用property的setter、getter方法，尤其是被重写的accessor，也有可能触发KVO的回调，导致未知的错误。</p>
+
+<!--more-->
+
+
+<h2>Item32 Beware of Memory Management with Exception-Safe Code</h2>
+
+<ol>
+<li>Exception是OC和C++中用于处理严重异常的对象，但有时你也需要通过代码处理这些异常，例如去注销一个KVO，但之前并没有注册过的情况。</li>
+<li>在try/catch中创建对象，并需要自己释放时，需要将释放代码写到finally中，这样才能保证无论是否异常都能保证对象释放。</li>
+<li>但在ARC中可以自动添加额外的处理代码，使用<em>-fobjc-arc-exceptions</em>这个flag来控制，但默认是关闭的，因为exception出现时application直接crash，资源也会回收，所以没必要再做处理，而且会带来性能问题，只有编译器处于Objective-C++时才会开启，因为OC++添加代码带来性能损耗没有ARC添加时那么大，另外OC++中Exception是被大量使用的。</li>
+<li>如果在ARC下需要单独处理exception，那么可以开启flag，但如果你有很多exception处理，那么你该考虑NSError了，如Item21所讲。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Item33 Use Weak References to Avoid Retain Cycles</h2>
+
+<ol>
+<li>循环引用带来的问题主要是，引用环中的对象将不能再被调用，但也不能释放，从而导致内存泄露。</li>
+<li>Java会有垃圾回收来解决这类问题，但iOS和Mac OS X 10.8之后是没有垃圾回收的，所以只能开发者自己去避免。</li>
+<li>使用unsafe_unretained可以避免这一问题，它类似assign，但assign一般用于数值型，而unsafe_unretained用于对象，但如字面意思一样，它不会因为所指向的对象被释放而置为空值，所以调用unsafe_unretained的对象，可能会因为所指对象不存在而崩溃，所以是不安全的。</li>
+<li>在ARC中我们常用的是weak字段，该字段与unsafe_unretained功能一致，但是它会在所指对象释放后自动指向nil，所以是安全的。</li>
+<li>关于循环引用，总的原则就是，如果你不持有一个对象，那么你就不该retain它（数组，集合不直接持有包含的对象，但是会retain它们，是个例外）。一般场景有，controller的UI控件（一般weak属性），一个对象的delegate属性（一般为weak属性）。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Item34 Use Autorelease Pool Blocks to Reduce High-Memory Waterline</h2>
+
+<p>1.<em>@autoreleasepool{}</em>这是OC中建立autorelease pool的方法，但我们一般不必去手动创建。<br/>
+2.main函数中的autorelease pool并不是必须的，只是UIApplicationMain()函数中需要autorelease的对象没有对应的pool，但它们在程序终止时时肯定会被释放的。<br/>
+3.autorelease pool可以嵌套，autorelease的对象总是被添加最里面的pool中。<br/>
+4.利用上述特性，我们可以对一些大量循环执行一个可能产生很多autorelease对象的方法做优化，如下EOCPerson的创建可能产生大量autorelease对象，这样产生的autorelease对象会在自己建的autorelease pool结束时释放，而不是长期存在于线程自己的autorelease pool，避免了出现应用内存陡升陡降这种“瀑布现象”：</p>
+
+<p>```objectivec
+NSArray <em>databaseRecords = /</em>&hellip;<em>/;
+NSMutableArray </em>people = [NSMutableArray new];
+for(NSDictionary *record in databaseRecords){</p>
+
+<pre><code>@autoreleasepool{
+    EOCPerson *person = [[EOCPerson alloc] initWithRecord:record];
+    [people addObject:person];
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>5.autorelease pool可以被理解为放入了一个栈中，新建的pool会在最顶端，当它释放后会被移出栈，当一个对象调用了autorelease，它将被添加到最顶端的autorelease pool。<br/>
+6.使用autorelease pool来优化瀑布现象并不是必要的，这取决你的应用，如果确实导致了问题，那么去使用它，如果不必要使用，那么就不要添加多于的autorelease pool。<br/>
+7.ARC之前使用autorelease pool是使用NSAutoreleasePool，因为它属于重量级对象，所以一般是隔段时间进行释放：</p>
+
+<p>```objectivec
+NSArray <em>databaseRecords = /</em>&hellip;<em>/;
+NSMutableArray </em>people = [NSMutableArray new];
+int i=0;
+NSAutoreleasePool <em>pool = [[NSAutoreleasePool alloc] init];
+for(NSDictionary </em>record in databaseRecords){</p>
+
+<pre><code>EOCPerson *person = [[EOCPerson alloc] initWithRecord:record];
+[people addObject:person];
+//Drain the pool only every 10 cycles
+if(++i == 10){
+    [pool drain];
+}
+</code></pre>
+
+<p>}
+//Also drain at the end in case the loop is not multiple of 10
+[pool drain];
+```</p>
+
+<p>8.推荐使用新语法@autoreleasepool，更加轻量，而且一个重要特性，NSAutoreleasePool中创建的autoreleased对象在执行drain之后还能使用，这可能造成崩溃，且很多时候难以发现，而使用@autoreleasepool，这类代码不会被编过，也就及早避免了这一问题。</p>
+
+<!--more-->
+
+
+<h2>Item35 Use Zombies to Help Debug Memory-Management Problems</h2>
+
+<p>1.内存问题一般很难处理，原因是被释放的那块内存不一定就很快被重写，或者正好被一个同类的对象重写，这样有时不会导致崩溃，有时却会，所以开发者有时会无从下手。<br/>
+2.Cocoa的Zombies特性会帮助我们解决这一问题，当该模式启用，所有被释放的对象会转化为NSZombie对象，其占用过的内存也不会被重用，当该对象收到消息时，会抛出异常，告知开发者所收到的消息，原来的对象类型这些信息。</p>
+
+<p>```objectivec
+void PrintClassInfo(id obj){</p>
+
+<pre><code>Class cls = object_getClass(obj);
+Class superCls = class_getSuperclass(cls);
+NSLog(@"===%s:%s===",class_getName(cls),class_getName(superCls));
+</code></pre>
+
+<p>}
+int main(int argc, char *argv[]){</p>
+
+<pre><code>EOCClass *obj = [[EOCClass alloc] init];
+NSLog(@"Before release:");
+printClassInfo(obj);
+[obj release];
+NSLog(@"After release");
+PrintClassInfo(obj);
+</code></pre>
+
+<p>}
+//result
+//Before release:
+//===EOCClass:NSObject===
+//After release:
+//===_NSZombie_EOCClass:nil===
+```</p>
+
+<p>3.通过上述手段我们得知obj在dealloc后变为了<em>NSZombie_EOCClass，但并没有它的父类，实际上，它是通过对原类型的类名修改，然后对</em>NSZombie<em>类型执行objc_duplicateClass()，完全拷贝zombie类并使用新类名（也可使用继承，但不如copy效率），制造出obj对应的zombie类，然后用objc_setClass()修改obj的isa指针，改变其类型，这一切都是利用runtime完成的（通过method swizzles对dealloc方法替换）。<br/>
+4.由于</em>NSZombie<em>没有实现任何方法，所以向它或者它的copy类型发送任何消息，会直接进入forwarding mechanism，在寻求转发时如果发现类型名以</em>NSZombie_开头，那么直接抛出异常，并打印出message、原类型这些信息。</p>
+
+<!--more-->
+
+
+<h2>Item36 Avoid Using retainCount</h2>
+
+<ol>
+<li><em>retainCount</em>是NSObject Protocol的一个方法，用于返回对象目前的引用计数值，在ARC中已经弃用，但即使在MRC中，任然应该避免使用它。</li>
+<li>原因一是<em>retainCount</em>返回的是实时的count值，也就是说像autorelease这样将要发生的count减少的情况，不会在该方法反映出来，所以依据该值去执行一些改变count的方法，往往会出问题。</li>
+<li>有时retainCount会返回一个极大的值，这是NSString或NSNumber直接设置常量时，系统会将其作为一个单例的常量，而不是去创建一个对应的对象，这些对象的ratainCount是不会改变的，但只是对一些特例的优化。</li>
+</ol>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Effective Objective-C读书笔记4]]></title>
@@ -703,828 +1022,6 @@ if(permittedDirection &amp; EOCPermittedDirectionUp) {
 
 
 <p></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[raywenderlich.com代码风格规范]]></title>
-    <link href="http://lucifer1988.github.io/blog/2014/04/09/raywenderlich-dot-comdai-ma-feng-ge-gui-fan/"/>
-    <updated>2014-04-09T14:36:55+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2014/04/09/raywenderlich-dot-comdai-ma-feng-ge-gui-fan</id>
-    <content type="html"><![CDATA[<p><img src="http://lucifer1988.github.io/images/rayWenderlich_icon.png"></p>
-
-<p><a href="http://www.raywenderlich.com">raywenderlich.com</a>对于搞iOS开发的人来说不会陌生（如果你经常关注一些技术博客的话），它原本只是Ray Wenderlich的个人博客，但通过不断聚集优秀的开发者参与到其站点的技术博客撰写，包括了应用开发和游戏开发的各个方面，同时将这些技术博客整理成书，作为开发教程出售（貌似最近还出视频教程了，又想法圈钱了···），这样raywenderlich.com渐渐发展成了一个iOS开发社区，其优质的文章和对文章本地化的重视，使得其影响力逐渐向全球扩展。本文是对其最近公布的自家的Objective-C代码风格规范的一些整理，原文地址在<a href="https://github.com/raywenderlich/objective-c-style-guide">这里</a>。</p>
-
-<!--more-->
-
-
-<h2>目录</h2>
-
-<ul>
-<li><a href="#%E8%AF%AD%E8%A8%80">语言</a></li>
-<li><a href="#%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84">代码结构</a></li>
-<li><a href="#%E7%A9%BA%E6%A0%BC">空格</a></li>
-<li><a href="#%E6%B3%A8%E9%87%8A">注释</a></li>
-<li><a href="#%E5%91%BD%E5%90%8D">命名</a></li>
-<li><a href="#%E4%B8%8B%E5%88%92%E7%BA%BF">下划线</a></li>
-<li><a href="#%E6%96%B9%E6%B3%95">方法</a></li>
-<li><a href="#%E5%8F%98%E9%87%8F">变量</a></li>
-<li><a href="#%E5%B1%9E%E6%80%A7">属性</a></li>
-<li><a href="#%E7%82%B9%E8%A1%A8%E8%BE%BE%E5%BC%8F">点表达式</a></li>
-<li><a href="#%E6%96%87%E5%AD%97%E9%87%8F">文字量</a></li>
-<li><a href="#%E5%B8%B8%E9%87%8F">常量</a></li>
-<li><a href="#%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B">枚举类型</a></li>
-<li><a href="#%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5">分支语句</a></li>
-<li><a href="#%E7%A7%81%E6%9C%89%E5%B1%9E%E6%80%A7">私有属性</a></li>
-<li><a href="#%E5%B8%83%E5%B0%94%E5%9E%8B">布尔型</a></li>
-<li><a href="#%E6%9D%A1%E4%BB%B6%E8%AF%AD%E5%8F%A5">条件语句</a></li>
-<li><a href="#%E4%B8%89%E5%85%83%E8%BF%90%E7%AE%97%E7%AC%A6">三元运算符</a></li>
-<li><a href="#Init%E6%96%B9%E6%B3%95">Init方法</a></li>
-<li><a href="#%E6%9E%84%E9%80%A0%E7%B1%BB%E6%96%B9%E6%B3%95">构造类方法</a></li>
-<li><a href="#CGRect%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0">CGRect相关函数</a></li>
-<li><a href="#%E6%84%89%E5%BF%AB%E8%B7%AF%E5%BE%84">愉快路径</a></li>
-<li><a href="#%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86">异常处理</a></li>
-<li><a href="#%E5%8D%95%E4%BE%8B">单例</a></li>
-<li><a href="#%E6%8D%A2%E8%A1%8C">换行</a></li>
-<li><a href="#%E7%AC%91%E8%84%B8">笑脸（你没看错，这也有规范）</a></li>
-<li><a href="#Xcode%E5%B7%A5%E7%A8%8B">Xcode工程</a></li>
-</ul>
-
-
-<h2><a name="语言"></a>语言</h2>
-
-<p>推荐使用美英，主要体现在命名时使用美英单词。</p>
-
-<p><strong>推荐：</strong></p>
-
-<p><code>objc
-UIColor *myColor = [UIColor whiteColor];
-</code></p>
-
-<p><strong>不推荐：</strong></p>
-
-<p><code>objc
-UIColor *myColour = [UIColor whiteColor];
-</code></p>
-
-<h2><a name="代码结构"></a>代码结构</h2>
-
-<p>统一使用<code>#pragma mark -</code>组织代码结构。</p>
-
-<p>```objc</p>
-
-<h1>pragma mark &ndash; Lifecycle</h1>
-
-<ul>
-<li>(instancetype)init {}</li>
-<li>(void)dealloc {}</li>
-<li>(void)viewDidLoad {}</li>
-<li>(void)viewWillAppear:(BOOL)animated {}</li>
-<li>(void)didReceiveMemoryWarning {}</li>
-</ul>
-
-
-<h1>pragma mark &ndash; Custom Accessors</h1>
-
-<ul>
-<li>(void)setCustomProperty:(id)value {}</li>
-<li>(id)customProperty {}</li>
-</ul>
-
-
-<h1>pragma mark &ndash; IBActions</h1>
-
-<ul>
-<li>(IBAction)submitData:(id)sender {}</li>
-</ul>
-
-
-<h1>pragma mark &ndash; Public</h1>
-
-<ul>
-<li>(void)publicMethod {}</li>
-</ul>
-
-
-<h1>pragma mark &ndash; Private</h1>
-
-<ul>
-<li>(void)privateMethod {}</li>
-</ul>
-
-
-<h1>pragma mark &ndash; Protocol conformance</h1>
-
-<h1>pragma mark &ndash; UITextFieldDelegate</h1>
-
-<h1>pragma mark &ndash; UITableViewDataSource</h1>
-
-<h1>pragma mark &ndash; UITableViewDelegate</h1>
-
-<h1>pragma mark &ndash; NSCopying</h1>
-
-<ul>
-<li>(id)copyWithZone:(NSZone *)zone {}</li>
-</ul>
-
-
-<h1>pragma mark &ndash; NSObject</h1>
-
-<ul>
-<li>(NSString *)description {}
-```</li>
-</ul>
-
-
-<h2><a name="空格"></a>空格</h2>
-
-<ul>
-<li>使用2个空格缩进（理由是可以在保持打印空白的基础上，尽量减少换行的可能性），不要使用tab缩进，可以在Xcode的preference下进行修改（默认是4个空格）；</li>
-<li>方法中的<code>{}</code>和在<code>if</code>/<code>else</code>/<code>switch</code>/<code>while</code>等语法中出现的<code>{}</code>在本行开始，而结束于新一行。</li>
-</ul>
-
-
-<p><strong>推荐：</strong></p>
-
-<p><code>objc
-if (user.isHappy) {
-  //Do something
-} else {
-  //Do something else
-}
-</code></p>
-
-<p><strong>不推荐：</strong></p>
-
-<p>```objc
-if (user.isHappy)
-{</p>
-
-<pre><code>//Do something
-</code></pre>
-
-<p>}
-else {</p>
-
-<pre><code>//Do something else
-</code></pre>
-
-<p>}
-```</p>
-
-<ul>
-<li>方法之间应该有且只有一空行来保持代码结构清晰，方法中的空白行用来划分功能，但是经常你可能需要将它们重构为新的方法；</li>
-<li>推荐使用自动提示的语法结构，不过<code>@sythesize</code>和<code>@dyamic</code>可以声明在新行；</li>
-<li><code>冒号对齐</code>这样的方法调用结构要避免，假如方法中出现3个以上的冒号，这样的调用结构会使代码可读性很差。千万别在含有block的方法中去对齐冒号，这样Xcode的缩进会使其非法。</li>
-</ul>
-
-
-<p><strong>推荐：</strong></p>
-
-<p><code>objc
-// blocks are easily readable
-[UIView animateWithDuration:1.0 animations:^{
-  // something
-} completion:^(BOOL finished) {
-  // something
-}];
-</code></p>
-
-<p><strong>不推荐：</strong></p>
-
-<p>```objc
-// colon-aligning makes the block indentation hard to read
-[UIView animateWithDuration:1.0</p>
-
-<pre><code>             animations:^{
-                 // something
-             }
-             completion:^(BOOL finished) {
-                 // something
-             }];
-</code></pre>
-
-<p>```</p>
-
-<h2><a name="注释"></a>注释</h2>
-
-<p>注释主要用来解释这段代码为什么存在于此，注意所有注释需要及时更新或删除。</p>
-
-<p>大段的注释要避免，有必要可以加到单独的文档，注释需要一些简短的说明。PS：不包括那些为生成文档而做的注释（一些工具可以通过代码中的注释生成文档）。</p>
-
-<h2><a name="命名"></a>命名</h2>
-
-<p>Apple的命名习惯是尽可能详细，尤其是和内存管理相关的。</p>
-
-<p>长的，描述性的方法和变量名命名是被推荐的。</p>
-
-<p><strong>推荐：</strong></p>
-
-<p><code>objc
-UIButton *settingsButton;
-</code></p>
-
-<p><strong>不推荐：</strong></p>
-
-<p><code>objc
-UIButton *setBut;
-</code></p>
-
-<p>类名和常量名必须要有三个字母的命名前缀（主要为了避免和Apple大多数两个前缀的命名冲突，比如UIButton，CAAnimation，CGRect等），不过Core Data的实体命名可以省略这些前缀。比如raywenderlich.com的命名前缀为RTW。</p>
-
-<p>常量需要驼峰型命名，所有单词首字母大写，且使用相关类名作为前缀。</p>
-
-<p><strong>推荐：</strong></p>
-
-<p><code>objc
-static NSTimeInterval const RWTTutorialViewControllerNavigationFadeAnimationDuration = 0.3;
-</code></p>
-
-<p><strong>不推荐：</strong></p>
-
-<p><code>objc
-static NSTimeInterval const fadetime = 1.7;
-</code></p>
-
-<p>property使用驼峰形命名，保证开头单词小写，且使用Apple的自动合成规则，除了特殊情况，不要手动声明<code>@synthesize</code>。</p>
-
-<p><strong>推荐：</strong></p>
-
-<p><code>objc
-@property (strong, nonatomic) NSString *descriptiveVariableName;
-</code></p>
-
-<p><strong>不推荐：</strong></p>
-
-<p><code>objc
-id varnm;
-</code></p>
-
-<h2><a name="下划线"></a>下划线</h2>
-
-<p>当使用property时，实例变量的读写要使用<code>self.</code>，这样的话所有的property可以清楚地区分出来。</p>
-
-<p>一个例外：在初始化方法中，需要的实例变量要直接使用<code>_variableName</code>型，为了避免调用getter/setter方法可能出现的循环引用。</p>
-
-<p>临时变量不能使用下划线。</p>
-
-<h2><a name="方法"></a>方法</h2>
-
-<p>在方法声明时，方法类型（-/+）后要有一个空格。方法段之间也要有一个空格。在每个变量前要加一个描述性的词语用来描述这个变量。</p>
-
-<p>不要在用于描述的词语中加入“and”，具体例子见下：</p>
-
-<p><strong>推荐：</strong></p>
-
-<p><code>objc
-- (void)setExampleText:(NSString *)text image:(UIImage *)image;
-- (void)sendAction:(SEL)aSelector to:(id)anObject forAllCells:(BOOL)flag;
-- (id)viewWithTag:(NSInteger)tag;
-- (instancetype)initWithWidth:(CGFloat)width height:(CGFloat)height;
-</code></p>
-
-<p><strong>不推荐：</strong></p>
-
-<p><code>objc
--(void)setT:(NSString *)text i:(UIImage *)image;
-- (void)sendAction:(SEL)aSelector :(id)anObject :(BOOL)flag;
-- (id)taggedView:(NSInteger)tag;
-- (instancetype)initWithWidth:(CGFloat)width andHeight:(CGFloat)height;
-- (instancetype)initWith:(int)width and:(int)height;  // Never do this.
-</code></p>
-
-<h2><a name="变量"></a>变量</h2>
-
-<p>变量命名尽量使用描述性的词语。单个字母的命名除了在<code>for()</code>循环中，其他地方都是不允许的。</p>
-
-<p>星号声明了指向变量的指针，例如：<code>NSString *text</code>，不是<code>NSString* text</code>或<code>NSString * text</code>，除了在声明常量的时候（例如：<code>NSString *const text</code>）。</p>
-
-<p>如果可能的话，使用<a href="#%E7%A7%81%E6%9C%89%E5%B1%9E%E6%80%A7">私有属性</a>，而不是实例变量，尽管使用实例变量也是对的，不过这样的协定可以保持代码的一致性。</p>
-
-<p>只有在初始化方法（如<code>init</code>，<code>initWithCoder:</code>等），<code>dealloc</code>和setter/getter方法中使用下划线加变量名的读写方法，更多关于这一情况的说明见<a href="https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/MemoryMgmt/Articles/mmPractical.html#//apple_ref/doc/uid/TP40004447-SW6">Apple相关文档</a></p>
-
-<p><strong>推荐：</strong></p>
-
-<p>```objc
-@interface RWTTutorial : NSObject</p>
-
-<p>@property (strong, nonatomic) NSString *tutorialName;</p>
-
-<p>@end
-```</p>
-
-<p><strong>不推荐：</strong></p>
-
-<p><code>objc
-@interface RWTTutorial : NSObject {
-  NSString *tutorialName;
-}
-</code></p>
-
-<h2><a name="属性"></a>属性</h2>
-
-<p>属性需要清楚地列出，属性的property类型顺序应该是先内存相关，再原子性相关，这与从IB中自动关联的属性的顺序是一致的。</p>
-
-<p><strong>推荐：</strong></p>
-
-<p><code>objc
-@property (weak, nonatomic) IBOutlet UIView *containerView;
-@property (strong, nonatomic) NSString *tutorialName;
-</code></p>
-
-<p><strong>不推荐：</strong></p>
-
-<p><code>objc
-@property (nonatomic, weak) IBOutlet UIView *containerView;
-@property (nonatomic) NSString *tutorialName;
-</code></p>
-
-<p>带有不可变性质的属性（比如：NSString）推荐使用<code>copy</code>而不是<code>strong</code>，理由是其他人可能传入一个其对应的可变实例（比如：NSMutableString），而你可能不会注意到。</p>
-
-<p><strong>推荐：</strong></p>
-
-<p><code>objc
-@property (copy, nonatomic) NSString *tutorialName;
-</code></p>
-
-<p><strong>不推荐：</strong></p>
-
-<p><code>objc
-@property (strong, nonatomic) NSString *tutorialName;
-</code></p>
-
-<h2><a name="点表达式"></a>点表达式</h2>
-
-<p>读写property时应一直使用点表达式，这使代码变得简洁，而<code>[]</code>表达式用于其他所有的实例中。</p>
-
-<p><strong>推荐：</strong></p>
-
-<p><code>objc
-NSInteger arrayCount = [self.array count];
-view.backgroundColor = [UIColor orangeColor];
-[UIApplication sharedApplication].delegate;
-</code></p>
-
-<p><strong>不推荐：</strong></p>
-
-<p><code>objc
-NSInteger arrayCount = self.array.count;
-[view setBackgroundColor:[UIColor orangeColor]];
-UIApplication.sharedApplication.delegate;
-</code></p>
-
-<h2><a name="文字量"></a>文字量</h2>
-
-<p><code>NSString</code>，<code>NSDictionary</code>，<code>NSArry</code>，<code>NSNumber</code>如果可能的话，尽量使用它们的不可变实例。<code>NSArray</code>和<code>NSDictionary</code>不能存在<code>nil</code>值，否则会引起崩溃。</p>
-
-<p><strong>推荐：</strong></p>
-
-<p><code>objc
-NSArray *names = @[@"Brian", @"Matt", @"Chris", @"Alex", @"Steve", @"Paul"];
-NSDictionary *productManagers = @{@"iPhone": @"Kate", @"iPad": @"Kamal", @"Mobile Web": @"Bill"};
-NSNumber *shouldUseLiterals = @YES;
-NSNumber *buildingStreetNumber = @10018;
-</code></p>
-
-<p><strong>不推荐：</strong></p>
-
-<p><code>objc
-NSArray *names = [NSArray arrayWithObjects:@"Brian", @"Matt", @"Chris", @"Alex", @"Steve", @"Paul", nil];
-NSDictionary *productManagers = [NSDictionary dictionaryWithObjectsAndKeys: @"Kate", @"iPhone", @"Kamal", @"iPad", @"Bill", @"Mobile Web", nil];
-NSNumber *shouldUseLiterals = [NSNumber numberWithBool:YES];
-NSNumber *buildingStreetNumber = [NSNumber numberWithInteger:10018];
-</code></p>
-
-<h2><a name="常量"></a>常量</h2>
-
-<p>常量推荐内联的字符串或数字，推荐定义为<code>static</code>变量，除非要作为宏，不然不要使用<code>#define</code>。</p>
-
-<p><strong>推荐：</strong></p>
-
-<p>```objc
-static NSString * const RWTAboutViewControllerCompanyName = @&ldquo;RayWenderlich.com&rdquo;;</p>
-
-<p>static CGFloat const RWTImageThumbnailHeight = 50.0;
-```</p>
-
-<p><strong>不推荐：</strong></p>
-
-<p>```objc</p>
-
-<h1>define CompanyName @&ldquo;RayWenderlich.com&rdquo;</h1>
-
-<h1>define thumbnailHeight 2</h1>
-
-<p>```</p>
-
-<h2><a name="枚举类型"></a>枚举类型</h2>
-
-<p>当使用枚举型时，推荐使用新的固定基础类型定义，理由是有更强的类型检查和代码完成功能。SDK现在包含了一个宏来确保和推广使用固定基础类型：<code>NS_ENUM()</code>。</p>
-
-<p><strong>例如：</strong></p>
-
-<p><code>objc
-typedef NS_ENUM(NSInteger, RWTLeftMenuTopItemType) {
-  RWTLeftMenuTopItemMain,
-  RWTLeftMenuTopItemShows,
-  RWTLeftMenuTopItemSchedule
-};
-</code></p>
-
-<p>也可以做明确的赋值</p>
-
-<p><code>objc
-typedef NS_ENUM(NSInteger, RWTGlobalConstants) {
-  RWTPinSizeMin = 1,
-  RWTPinSizeMax = 5,
-  RWTPinCountMin = 100,
-  RWTPinCountMax = 500,
-};
-</code></p>
-
-<p>旧式的k型常量定义只被用于书写CoreFoundation的C代码中。</p>
-
-<p><strong>不推荐：</strong></p>
-
-<p><code>objc
-enum GlobalConstants {
-  kMaxPinSize = 5,
-  kMaxPinCount = 500,
-};
-</code></p>
-
-<h2><a name="分支语句"></a>分支语句</h2>
-
-<p>花括号对于分支语句并不是必须的，除非编译器强制使用。
-当一个分支包含多于一条语句，花括号需要添加。</p>
-
-<p>```objc
-switch (condition) {
-  case 1:</p>
-
-<pre><code>// ...
-break;
-</code></pre>
-
-<p>  case 2: {</p>
-
-<pre><code>// ...
-// Multi-line example using braces
-break;
-</code></pre>
-
-<p>  }
-  case 3:</p>
-
-<pre><code>// ...
-break;
-</code></pre>
-
-<p>  default:</p>
-
-<pre><code>// ...
-break;
-</code></pre>
-
-<p>}
-```</p>
-
-<p>有时会出现一段代码被多个分支使用，这时就相当于“穿过”。一个“穿过”就是移除这一分支的‘break’语句，使代码继续执行下一分支。“穿过”这种情况需要在代码中进行注释。</p>
-
-<p>```objc
-switch (condition) {
-  case 1:</p>
-
-<pre><code>// ** fall-through! **
-</code></pre>
-
-<p>  case 2:</p>
-
-<pre><code>// code executed for values 1 and 2
-break;
-</code></pre>
-
-<p>  default:</p>
-
-<pre><code>// ...
-break;
-</code></pre>
-
-<p>}
-```</p>
-
-<p>当在<code>switch</code>语句中使用枚举类型，<code>default</code>是不需要的：</p>
-
-<p>```objc
-RWTLeftMenuTopItemType menuType = RWTLeftMenuTopItemMain;
-switch (menuType) {
-  case RWTLeftMenuTopItemMain:</p>
-
-<pre><code>// ...
-break;
-</code></pre>
-
-<p>  case RWTLeftMenuTopItemShows:</p>
-
-<pre><code>// ...
-break;
-</code></pre>
-
-<p>  case RWTLeftMenuTopItemSchedule:</p>
-
-<pre><code>// ...
-break;
-</code></pre>
-
-<p>}
-```</p>
-
-<h2><a name="私有属性"></a>私有属性</h2>
-
-<p>私有属性应该定义到<code>.m</code>文件中的类扩展（匿名分类）中，命名的分类（如<code>RWTPrivate</code>，<code>private</code>）是不允许使用的，除非是在做另一个类的拓展。匿名分类可以暴露和共享于与<code>+Private.h</code>文件的命名惯例测试中。</p>
-
-<p><strong>例如：</strong></p>
-
-<p>```objc
-@interface RWTDetailViewController ()</p>
-
-<p>@property (strong, nonatomic) GADBannerView <em>googleAdView;
-@property (strong, nonatomic) ADBannerView </em>iAdView;
-@property (strong, nonatomic) UIWebView *adXWebView;</p>
-
-<p>@end
-```</p>
-
-<h2><a name="布尔型"></a>布尔型</h2>
-
-<p>Objective-C使用<code>YES</code>和<code>NO</code>。因此<code>true</code>和<code>false</code>只用于CoreFoundation，C和C++中。由于<code>nil</code>意味着<code>NO</code>，拿<code>nil</code>来做比较条件是不允许的，永远不要直接拿<code>YES</code>来比较，因为<code>YES</code>被定义为1，而一个布尔型可以支持到8比特。</p>
-
-<p>这是为了文件间更多的一致性和更好的可读性。</p>
-
-<p><strong>推荐：</strong></p>
-
-<p><code>objc
-if (someObject) {}
-if (![anotherObject boolValue]) {}
-</code></p>
-
-<p><strong>不推荐：</strong></p>
-
-<p><code>objc
-if (someObject == nil) {}
-if ([anotherObject boolValue] == NO) {}
-if (isAwesome == YES) {} // Never do this.
-if (isAwesome == true) {} // Never do this.
-</code></p>
-
-<p>如果布尔型被命名为一个形容词，属性名可以省略<code>is</code>，但是getter方法要保持这一命名。</p>
-
-<p><code>objc
-@property (assign, getter=isEditable) BOOL editable;
-</code></p>
-
-<p>这一部分来自<a href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CodingGuidelines/Articles/NamingIvarsAndTypes.html#//apple_ref/doc/uid/20001284-BAJGIIJE">Cocoa Naming Guidelines</a>。</p>
-
-<h2><a name="条件语句"></a>条件语句</h2>
-
-<p>条件语句主体任何时候都要使用花括号，即使是只有一条语句也需要。这是为了避免错误。这些错误包括添加下一条语句，以为这条语句位于if主体中。另一个更危险的缺点是，if主体内的语句被注释掉，这时下一条语句无意中成为了if语句中的一部分。除此之外，这样的风格与其他条件语句格式保持了一致，便于查找。</p>
-
-<p><strong>推荐：</strong></p>
-
-<p><code>objc
-if (!error) {
-  return success;
-}
-</code></p>
-
-<p><strong>不推荐：</strong></p>
-
-<p><code>objc
-if (!error)
-  return success;
-</code></p>
-
-<p>或</p>
-
-<p><code>objc
-if (!error) return success;
-</code></p>
-
-<h2><a name="三元运算符"></a>三元运算符</h2>
-
-<p>三元运算符<code>?:</code>，只有在可以提高可读性和简洁性时才可使。单一的判断条件一般可以使用，当执行多个判断条件时推荐使用<code>if</code>语句提高可读性，或者将条件重构为实例变量。总的来说，使用三元运算符的最好时机是决定如何给一个变量赋值的时候。</p>
-
-<p>非布尔类型变量需要比较时，要添加<code>()</code>提高可读性。如果是布尔类型，则不需要。</p>
-
-<p><strong>推荐：</strong></p>
-
-<p>```objc
-NSInteger value = 5;
-result = (value != 0) ? x : y;</p>
-
-<p>BOOL isHorizontal = YES;
-result = isHorizontal ? x : y;
-```</p>
-
-<p><strong>不推荐：</strong></p>
-
-<p><code>objc
-result = a &gt; b ? x = c &gt; d ? c : d : y;
-</code></p>
-
-<h2><a name="Init方法"></a>Init方法</h2>
-
-<p>Init方法遵守Apple生成的代码模板，<code>instancetype</code>应取代<code>id</code>作为返回值。</p>
-
-<p>```objc
-&ndash; (instancetype)init {
-  self = [super init];
-  if (self) {</p>
-
-<pre><code>// ...
-</code></pre>
-
-<p>  }
-  return self;
-}
-```</p>
-
-<p>关于<code>instancetype</code>参照<a href="#class-constructor-methods">Class Constructor Methods</a>。</p>
-
-<h2><a name="构造类方法"></a>构造类方法</h2>
-
-<p>当类构造方法使用时，同样需要注意返回值使用<code>instancetype</code>，而不是<code>id</code>，这样可确保编译器得知正确的结果类型。</p>
-
-<p><code>objc
-@interface Airplane
-+ (instancetype)airplaneWithType:(RWTAirplaneType)type;
-@end
-</code></p>
-
-<p>更多关于<code>instancetype</code>在<a href="http://nshipster.com/instancetype/">NSHipster.com</a>。</p>
-
-<h2><a name="CGRect相关函数"></a>CGRect相关函数</h2>
-
-<p>当读取一个<code>CGRect</code>的<code>x</code>、<code>y</code>、<code>width</code>、<code>height</code>时，要使用<code>CGGeometry</code>相关的函数，而不是直接读取结构体。参照Apple的相关文档：</p>
-
-<blockquote><p>All functions described in this reference that take CGRect data structures as inputs implicitly standardize those rectangles before calculating their results. For this reason, your applications should avoid directly reading and writing the data stored in the CGRect data structure. Instead, use the functions described here to manipulate rectangles and to retrieve their characteristics.</p></blockquote>
-
-<p><strong>推荐：</strong></p>
-
-<p>```objc
-CGRect frame = self.view.frame;</p>
-
-<p>CGFloat x = CGRectGetMinX(frame);
-CGFloat y = CGRectGetMinY(frame);
-CGFloat width = CGRectGetWidth(frame);
-CGFloat height = CGRectGetHeight(frame);
-CGRect frame = CGRectMake(0.0, 0.0, width, height);
-```</p>
-
-<p><strong>不推荐：</strong></p>
-
-<p>```objc
-CGRect frame = self.view.frame;</p>
-
-<p>CGFloat x = frame.origin.x;
-CGFloat y = frame.origin.y;
-CGFloat width = frame.size.width;
-CGFloat height = frame.size.height;
-CGRect frame = (CGRect){ .origin = CGPointZero, .size = frame.size };
-```</p>
-
-<h2><a name="愉快路径"></a>愉快路径</h2>
-
-<p>进行条件编程时，左边缘的代码应该是愉快路径。也就是说，不要嵌套<code>if</code>语句。多个<code>return</code>是允许的。</p>
-
-<p><strong>推荐：</strong></p>
-
-<p>```objc
-&ndash; (void)someMethod {
-  if (![someOther boolValue]) {</p>
-
-<pre><code>return;
-</code></pre>
-
-<p>  }</p>
-
-<p>  //Do something important
-}
-```</p>
-
-<p><strong>不推荐：</strong></p>
-
-<p>```objc
-&ndash; (void)someMethod {
-  if ([someOther boolValue]) {</p>
-
-<pre><code>//Do something important
-</code></pre>
-
-<p>  }
-}
-```</p>
-
-<h2><a name="异常处理"></a>异常处理</h2>
-
-<p>当方法通过引用的方式返回一个错误参数，使用返回值进行判断，而不是那个错误参数。</p>
-
-<p><strong>推荐：</strong></p>
-
-<p><code>objc
-NSError *error;
-if (![self trySomethingWithError:&amp;error]) {
-  // Handle Error
-}
-</code></p>
-
-<p><strong>不推荐：</strong></p>
-
-<p><code>objc
-NSError *error;
-[self trySomethingWithError:&amp;error];
-if (error) {
-  // Handle Error
-}
-</code></p>
-
-<p>一些Apple的API在成功的情况下向错误参数写入一些垃圾值，所以通过错误参数来判断会带来不良的影响。</p>
-
-<h2><a name="单例"></a>单例</h2>
-
-<p>单例对象生成共享实例时要注意线程安全。</p>
-
-<p>```objc
-+ (instancetype)sharedInstance {
-  static id sharedInstance = nil;</p>
-
-<p>  static dispatch_once_t onceToken;
-  dispatch_once(&amp;onceToken, ^{</p>
-
-<pre><code>sharedInstance = [[self alloc] init];
-</code></pre>
-
-<p>  });</p>
-
-<p>  return sharedInstance;
-}
-```</p>
-
-<p>这将避免一些<a href="http://cocoasamurai.blogspot.com/2011/04/singletons-your-doing-them-wrong.html">多线程下的应用崩溃</a>。</p>
-
-<h2><a name="换行"></a>换行</h2>
-
-<p>换行是一个重要的部分，本代码风格规则着重打印和在线的可读性。</p>
-
-<p>例如：</p>
-
-<p><code>objc
-self.productsRequest = [[SKProductsRequest alloc] initWithProductIdentifiers:productIdentifiers];
-</code></p>
-
-<p>长代码的话，可以进行换行，在第二行开头遵照“空白”一节的规定，需要空两个空格。</p>
-
-<p><code>objc
-self.productsRequest = [[SKProductsRequest alloc]
-  initWithProductIdentifiers:productIdentifiers];
-</code></p>
-
-<h2><a name="笑脸"></a>笑脸</h2>
-
-<p>笑脸是raywenderlich.com站点代码风格的显著特征。使用正确的笑脸表现编程时巨大的喜悦和激动是很重要的。使用方括号笑脸，是因为它是使用ASCII能获得的最大的笑脸···。使用以圆括号结尾的笑脸会出现一个半心形，所以不被推荐···。</p>
-
-<p><strong>推荐：</strong></p>
-
-<p><code>objc
-:]
-</code></p>
-
-<p><strong>不推荐：</strong></p>
-
-<p><code>objc
-:)
-</code></p>
-
-<h2><a name="Xcode工程"></a>Xcode工程</h2>
-
-<p>物理文件结构和Xcode工程文件结构要保持一致。Xcode项目中的新建分组都要对应文件系统中的文件夹。代码不但要按类型，也要按特征来分组，保证结构更清晰。</p>
-
-<p>可能的话，尽量打开"Treat Warnings as Errors"选项，如果你想忽略一个类型的警告，请查看<a href="http://clang.llvm.org/docs/UsersManual.html#controlling-diagnostics-via-pragmas">这里</a>。</p>
-
-<h2>其他Objective-C的代码风格规范</h2>
-
-<ul>
-<li><a href="https://github.com/RobotsAndPencils/objective-c-style-guide">Robots &amp; Pencils</a></li>
-<li><a href="https://github.com/NYTimes/objective-c-style-guide">New York Times</a></li>
-<li><a href="http://google-styleguide.googlecode.com/svn/trunk/objcguide.xml">Google</a></li>
-<li><a href="https://github.com/github/objective-c-conventions">GitHub</a></li>
-<li><a href="https://trac.adium.im/wiki/CodingStyle">Adium</a></li>
-<li><a href="https://gist.github.com/soffes/812796">Sam Soffes</a></li>
-<li><a href="http://cocoadevcentral.com/articles/000082.php">CocoaDevCentral</a></li>
-<li><a href="http://lukeredpath.co.uk/blog/my-objective-c-style-guide.html">Luke Redpath</a></li>
-<li><a href="http://www.cimgf.com/zds-code-style-guide/">Marcus Zarra</a></li>
-</ul>
-
 ]]></content>
   </entry>
   

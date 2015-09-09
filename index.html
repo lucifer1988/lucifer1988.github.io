@@ -9,7 +9,7 @@
   <meta name="author" content="刘毅">
 
   
-  <meta name="description" content="第四部分开始讨论OC的两大重要特性，Protocols和Categories。Protocols类似Java中的interfaces，弥补了OC没有多继承的缺点，常被用于实现OC委托模式，但还有很多其他方面的用途。Categories则是提供了不继承而向类添加拓展的方法，这要归功于OC动态语言特性 &hellip;">
+  <meta name="description" content="第五部分开始将讨论OC的核心技术，Reference Counting，也就是使用引用计数来进行内存管理，这一部分涉及到底层内存管理机制，ARC相关技术细节和在开发中涉及到内存管理需要注意的常见问题。 ">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -83,6 +83,47 @@ $(document).bind('DOMNodeInserted', function(event) {
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/08/28/effective-objective-cdu-shu-bi-ji-5/">Effective Objective-C读书笔记5</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-08-28T11:45:07+08:00" pubdate data-updated="true">Aug 28<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>第五部分开始将讨论OC的核心技术，Reference Counting，也就是使用引用计数来进行内存管理，这一部分涉及到底层内存管理机制，ARC相关技术细节和在开发中涉及到内存管理需要注意的常见问题。</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/08/28/effective-objective-cdu-shu-bi-ji-5/">阅读 &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -462,120 +503,9 @@ $(document).bind('DOMNodeInserted', function(event) {
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2014/01/02/2013-summary-and-2014-plan/">2013总结&2014规划</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2014-01-02T11:40:00+08:00" pubdate data-updated="true">Jan 2<span>nd</span>, 2014</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><blockquote><p>2013可以说是自己人生的一个转折点，经历了很多，也成长了很多。过去的终究会过去，人生还得继续向前，希望从这一刻起开始记录自己的工作和生活，并能一直坚持下去！</p></blockquote>
-
-<h2>过去的2013</h2>
-
-<p>2013的我正式步出校园，走向了社会，但这第一步走的就异常坎坷。</p>
-
-<h3>时间轴</h3>
-
-<ul>
-<li>1月份进入盘古实习，认识了新的同事并开始接触企业级的App的开发流程</li>
-<li>3月份会学校写论文，5月答辩，之后和女朋友去了上海、杭州毕业旅行</li>
-<li>6月份回到公司，得知公司欲与即刻合并，开始纠结去留</li>
-<li>7月份和女朋友订婚，双方父母都来京了，虽然闹了些不愉快，自己还是决定和她一直走下去</li>
-<li>8月份终于入职，自己决定留下，但是户口没有解决</li>
-<li>9月份女朋友从百度跳到了人寿研发，解决了户口，两个人还是安心了些</li>
-<li>10月份起开始经历公司各种变化，折腾到最后自己还是选择了老本行，选择了移动搜索事业部</li>
-<li>十一回了趟家，感觉见父母的时间明显少了好多</li>
-<li>11月开始和女朋友看房，见识到了帝都的房价</li>
-<li>期间做了一些组件和工具类app的开发，但是由于公司变故，没有参与大型的企业级App，很遗憾</li>
-<li>12月底说好的新公司仍没成立</li>
-</ul>
-
-
-<h3>关于工作</h3>
-
-<ul>
-<li>开始经常使用git，遇到问题会去stackOverflow看看</li>
-<li>开始学习CocoaTouch SDK的机制运行的原理</li>
-<li>写代码的时候开始注意实现和效率两方面</li>
-<li>对设计模式开始关注</li>
-<li>开始记录自己积累的一些开发经验，但没有自己的总结</li>
-<li>接触了一些Web开发的皮毛</li>
-<li>完成了两个iOS的小型项目</li>
-<li>从实验室赶工式的开发思维开始向企业级的开发思维转变</li>
-</ul>
-
-
-<h3>关于生活</h3>
-
-<ul>
-<li>和晓莉同学结束1年的爱情短跑，两人订婚</li>
-<li>买了土豪金，买了小米2S（给女友），买了高配台式机，挣得第一桶金做了这些</li>
-<li>中午时间和同事打乒乓球，重拾儿时爱好</li>
-<li>每天会玩几盘Dota2，但是技术还是那样</li>
-<li>会常常去关注下房价，开始为买房发愁</li>
-</ul>
-
-
-<h2>要来的2014</h2>
-
-<p>如果2013的关键字是“变化”，“适应”的话，我希望2014的关键字是“成熟”，“责任”</p>
-
-<h3>个人能力目标</h3>
-
-<ul>
-<li>每周至少写一篇技术Blog，长短不限，但是必须是自己收到的干货</li>
-<li>每月至少在gitHub提交一份代码，可以是小工程，也可以是组件，但必须是自己原创</li>
-<li>看两本iOS中高级开发的书籍</li>
-<li>上半年业余时间完成Web开发的基础学习，目标是完成一个小型网站的搭建</li>
-<li>下半年业余时间完成Android开发的基础学习，目标是给女友手机装一个自己开发的App</li>
-<li>能参与至少一个企业级App的开发过程</li>
-<li>遇到难解决的问题主动找冬哥、景雲、张玺讨论，力求改变自己在技术上不太Open的性格</li>
-</ul>
-
-
-<h3>个人生活目标</h3>
-
-<ul>
-<li>完成自己终生大事，和晓莉同学结婚</li>
-<li>坚持定期锻炼身体</li>
-<li>继续看房，争取上半年买房</li>
-<li>给女朋友买新版iPad，要她不再怨恨我的土豪金</li>
-<li>出去旅行一次</li>
-<li>每天最多玩两盘Dota</li>
-</ul>
-
-
-<p>最后，希望今年的目标能全部实现吧！2013，谢谢父母的支持，女朋友的陪伴，朋友们的帮助，也谢谢同事们对我这个职场新人的包容和悉心指导，真心希望2014能和大家共同实现各自的目标，谢谢大家！</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
+    
+      <a class="prev" href="/blog/page/2/">&larr; Older</a>
     
     <a href="/blog/archives">Blog Archives</a>
     
@@ -586,6 +516,10 @@ $(document).bind('DOMNodeInserted', function(event) {
     <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/08/28/effective-objective-cdu-shu-bi-ji-5/">Effective Objective-C读书笔记5</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2015/08/24/effective-objective-cdu-shu-bi-ji-4/">Effective Objective-C读书笔记4</a>
@@ -621,10 +555,6 @@ $(document).bind('DOMNodeInserted', function(event) {
     
       <li class="post">
         <a href="/blog/2014/02/13/hello-world-octopressfa-bu-wen-zhang-bu-zou/">基于Octopress搭建自己的博客网站</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/01/02/2013-summary-and-2014-plan/">2013总结&2014规划</a>
       </li>
     
   </ul>
