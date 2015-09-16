@@ -89,7 +89,7 @@ void(^block)() = ^{
 
 <!--more-->
 
-###Item38 Create typedefs for Common Block Types
+##Item38 Create typedefs for Common Block Types
 
 1.由于Block的类型像函数指针一样，参数多的话会很长，而且类型名又在中间，很难使用和记住，所以我们可以使用C语言的typedef来做类型定义，这么做也方便将来可能的修改：  
 
@@ -294,7 +294,7 @@ long dispatch_group_wait(dispatch_group_t group, dispatch_time_t timeout);
 void dispatch_group_notify(dispatch_group_t group, dispatch_queue_t queue, dispatch_block_t block);
 ```
 
-6.下面是一个对一个数组中的对象并发执行相同操作，并在全部完成后进行后续操作的实例，如果不希望阻塞主线程，那么要把wait换为notify，[stackoverflow另一实例](http://stackoverflow.com/questions/10643797/wait-until-multiple-networking-requests-have-all-executed-including-their-comp/10644282#comment13830651_10644282)。  
+6.下面是一个对一个数组中的对象并发执行相同操作，并在全部完成后进行后续操作的实例，如果不希望阻塞主线程，那么要把wait换为notify，[StackOverflow另一实例](http://stackoverflow.com/questions/10643797/wait-until-multiple-networking-requests-have-all-executed-including-their-comp/10644282#comment13830651_10644282)。  
 
 ```objectivec
 dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0);
