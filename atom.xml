@@ -4,7 +4,7 @@
   <title><![CDATA[刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-09-09T16:27:06+08:00</updated>
+  <updated>2015-09-16T15:32:33+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,675 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Effective Objective-C读书笔记6]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/09/09/effective-objective-cdu-shu-bi-ji-6/"/>
+    <updated>2015-09-09T16:29:01+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/09/09/effective-objective-cdu-shu-bi-ji-6</id>
+    <content type="html"><![CDATA[<p>第六章的主要内容是Blocks和GCD，这可以说是Morden OC当中的三驾马车的其余两架，它们和ARC的出现，彻底改变了OC的开发模式。多线程是现代编程中任何语言都不可或缺的技术，在iOS中阻塞UI主线程往往是应用崩溃或用户体验差的重要原因，多线程就是解决这一问题的良方，而Blocks和GCD就是Apple给开发者带来的多线程解决方案。Blocks即OC中的闭包，它可以被当做一个对象，可以运行于其他上下文中。GCD基于dispatch queues提供了对线程的抽象，它会根据系统资源自动开辟、复用、销毁后台线程，同时GCD也对一些常见编程提供了简化方案，比如：创建单例、并发任务等等。</p>
+
+<!--more-->
+
+
+<h2>Item37 Understand Blocks</h2>
+
+<p>1.Blocks作为了GCC的拓展，也存在于Clang的所有版本中。Blocks的runtime component在Mac OS X 10.4和iOS4被加入。由于是C级别的语言特性，所以可以被用于C,C++,OC当中。</p>
+
+<h3>Block Basics</h3>
+
+<p>1.Blcoks的类型写法类似函数指针，也可以直接当做函数来执行：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="kt">int</span><span class="p">(</span><span class="o">^</span><span class="n">addBlcok</span><span class="p">)(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span><span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="o">=</span> <span class="o">^</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">){</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">add</span> <span class="o">=</span> <span class="n">addBlcok</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">);</span><span class="c1">//&lt;add=7</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.Blocks最重要的特性，它可以将它包含的所有内容进行复制，也就意味着范围内的任何变量都可以使用：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="kt">int</span> <span class="n">additional</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+</span><span class='line'><span class="kt">int</span><span class="p">(</span><span class="o">^</span><span class="n">addBlcok</span><span class="p">)(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span><span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="o">=</span> <span class="o">^</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">){</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="o">+</span><span class="n">additional</span><span class="p">;</span>
+</span><span class='line'><span class="p">};</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">add</span> <span class="o">=</span> <span class="n">addBlcok</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">5</span><span class="p">);</span><span class="c1">//&lt;add=12</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.默认Blocks是不能改变外部变量的，但是可以通过添加__blcok关键字，来声明变量可以改变。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">NSArray</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="err">@</span><span class="p">[</span><span class="err">@</span><span class="mi">0</span><span class="p">,</span><span class="err">@</span><span class="mi">1</span><span class="p">,</span><span class="err">@</span><span class="mi">2</span><span class="p">,</span><span class="err">@</span><span class="mi">3</span><span class="p">,</span><span class="err">@</span><span class="mi">4</span><span class="p">,</span><span class="err">@</span><span class="mi">5</span><span class="p">];</span>
+</span><span class='line'><span class="n">__blcok</span> <span class="n">NSInteger</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'><span class="p">[</span><span class="n">array</span> <span class="nl">enumerateObjectsUsingBlock:</span><span class="o">^</span><span class="p">(</span><span class="n">NSNumber</span> <span class="o">*</span><span class="n">number</span><span class="p">,</span> <span class="n">NSUInteger</span> <span class="n">idx</span><span class="p">,</span> <span class="kt">BOOL</span> <span class="o">*</span><span class="n">stop</span><span class="p">){</span>
+</span><span class='line'>  <span class="k">if</span><span class="p">([</span><span class="n">number</span> <span class="nl">compare:</span><span class="err">@</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">NSOrderedAscending</span><span class="p">){</span>
+</span><span class='line'>      <span class="n">count</span><span class="o">++</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}];</span>
+</span><span class='line'><span class="c1">//count = 2</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>4.上例也说明了Block作为内联参数的使用，这也是它的重要用法，取代了之前传selector name这样的方式，增加了代码可读性。<br/>
+5.Block内部引用的变量会被隐性添加retain，然后在block release时再调用一次release，所以blcok可以被理解为一个一般的OC对象，它也是有retain count的。<br/>
+6.那么在一个类中的实例方法中声明使用block，然后在block中使用了类的实例变量，那么其实是对self进行了一次retain，如果这时这个block被self的变量再retain一次，那么就会形成循环引用，解决方法在Item40会详细说，其实就是声明一个self的__weak替代对象就好了。</p>
+
+<h3>The Guts of Block</h3>
+
+<ol>
+<li>Block的实质，除了包含通常的isa（block的Class为void*），flags等，block的三个主要组成为：invoke、descriptor、Captured variables。</li>
+<li>invoke是一个函数指针，类型为void(<em>)(void </em>,&hellip;)，至少包含的void *其实就是block自身，因为block的Captured variables包含了所有据有变量的copy，invoke指向的就是block的实现部分，所以也证明了block实质上就是Apple对函数指针的一次高级封装，便于开发者使用。</li>
+<li>descriptor指向一个结构体，包含了：size（blcok总大小），copy和dispose（都是函数指针，copy在blcok被拷贝时执行，dispose在block retain或release据有的对象时执行）。</li>
+<li>Captured variables就是block据有的所有变量的copy，注意这里的copy是指针拷贝。</li>
+</ol>
+
+
+<h3>Global，Stack，and Heap Blocks</h3>
+
+<p>1.Block声明的时候是存在于stack上的，类似下面的代码是不安全的，因为if/else中声明的blcok是存在于stack上的，在if/else结束时，系统可能会收回这些内存重用，而且这个问题在编译中不会报出：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="kt">void</span><span class="p">(</span><span class="o">^</span><span class="n">blcok</span><span class="p">)();</span>
+</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="cm">/*some condition*/</span><span class="p">){</span>
+</span><span class='line'>  <span class="n">blcok</span> <span class="o">=</span> <span class="o">^</span><span class="p">{</span>
+</span><span class='line'>      <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;Block A&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">blcok</span> <span class="o">=</span> <span class="o">^</span><span class="p">{</span>
+</span><span class='line'>      <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;Block B&quot;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">};</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">block</span><span class="p">();</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p></p>
+
+<p>2.解决这一问题的方法，就是对声明的block进行copy，这样的话，block被copy到了heap上，这样的block和其他一般对象就一样了，也不会出现上述问题，使用ARC的话，block会在之后自动释放，而MRC将要自己去添加release方法，这也是类在为block类型的property添加属性时，一般都是copy类型的。<br/>
+3.所谓的global Block就是类似于之前说的NSString和NSNumber的常量声明，如果Block内部没有任何状态变化，也不依赖于外部的状态变化，在编译期间就可以知道其所需要的空间大小，系统就会对其做优化，生成一个global block，它是被声明在global memory上，而不是stack上，而且copy对于它也是一个空操作，也不会被释放，实际就是一个单例，类似：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="kt">void</span><span class="p">(</span><span class="o">^</span><span class="n">block</span><span class="p">)()</span> <span class="o">=</span> <span class="o">^</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;This is a global blcok!&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<h3>Item38 Create typedefs for Common Block Types</h3>
+
+<p>1.由于Block的类型像函数指针一样，参数多的话会很长，而且类型名又在中间，很难使用和记住，所以我们可以使用C语言的typedef来做类型定义，这么做也方便将来可能的修改：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">typedef</span> <span class="nf">int</span><span class="p">(</span><span class="o">^</span><span class="n">EOCSomeBlock</span><span class="p">)(</span><span class="kt">BOOL</span> <span class="n">flag</span><span class="p">,</span><span class="kt">int</span> <span class="n">value</span><span class="p">);</span>
+</span><span class='line'><span class="n">EOCSomeBlock</span> <span class="n">block</span> <span class="o">=</span> <span class="o">^</span><span class="p">(</span><span class="kt">BOOL</span> <span class="n">flag</span><span class="p">,</span><span class="kt">int</span> <span class="n">value</span><span class="p">){</span>
+</span><span class='line'>  <span class="c1">//Implementation</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.对block命名时还是要遵循OC的命名习惯，使用命名空间，也不要还害怕对相同类型使用多个命名，有时候这是必须的，一是命名更加清楚，二是方便将来重构。</p>
+
+<!--more-->
+
+
+<h2>Item39 Use Handler Blocks to Reduce Code Separation</h2>
+
+<ol>
+<li>异步多线程执行任务，之前一直是采用Delegate模式，但现在我们可以通过定义block作为handler来完成同样的任务，而且代码简洁，可读性强。</li>
+<li>尤其出现一个类中同时使用多个同种类型的实例，采用一套回调时，那么使用Delegate则会大大增加代码的复杂度，会在很多地方出现switch的判断，而使用block则能避免这一问题。</li>
+<li>作者列举了两个例子使用这一模式的场景，都是针对网络请求回调，一是，使用两个block分别处理失败和成功，二是使用一个block，使用error来判断失败和成功（这两种写法都在作者的AFNetworking里出现过）。</li>
+<li>方案一的好处是，代码清晰，使用者只需对不同情况填空即可；方案二的好处是，可以更灵活的处理这一问题，如出现一些数据异常、下载中断这些情况，业务端也可以自行按失败来进行处理。</li>
+<li>在设计API时，有时会出现，需要在特定线程执行代码的需求，这时我们可以在接口中加入(NSOperationQueue*)queue这样的参数，可以是缺省的。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Item40 Avoid Retain Cycles Introduced by Blocks Referencing the Object Owning Them</h2>
+
+<ol>
+<li>block出现循环引用一般是因为ClassA使用了ClassB的实例，ClassB有block的实例，而ClassA在block中使用了自己的其他实例，造成了block retain了ClassA，ClassA retain了ClassB，ClassB retain了block，这样循环引用就形成了。</li>
+<li>解决方案一是在block中完成所有操作时，将ClassB的实例置为nil，这样retain环就断裂了，但这么做也有问题，如果这段block代码没有被执行，那么retain环还存在。</li>
+<li>还有一种更隐蔽的情况，ClassA不在把ClassB当做实例变量，只是用做局部变量，但在block中使用了ClassB的局部变量，这样会出现，block retain了ClassB，ClassB ratain了block，所以形成了二元retain环，不过解决很简单，在ClassB中完成对block的最终调用后，将它的block实例置为nil。</li>
+<li>这样也凸显了不将block作为外部property的好处（使用者只能通过初始化方法赋值），如果block直接暴露给使用者，你只能要求使用者去清除block property，但这通常是不合理的设计。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Item41 Prefer Dispatch Queues to Locks for Synchronization</h2>
+
+<p>1.OC大部分线程操作都是默认多线程的，但如果有些情况需要单线程，就需要开发者自己实现，GCD之前有两种方式。<br/>
+2.一是synchronization block，它将包含的代码进行加锁操作，参数是self，这可以实现类的不同实例可以分别运行这个方法，但缺点是如果过度使用，会导致性能问题，也会出现代码被不知名的锁所阻塞的问题。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">synchronizedMethod</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">@synchronized</span><span class="p">(</span><span class="n">self</span><span class="p">){</span>
+</span><span class='line'>      <span class="c1">//Safe</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.二是NSLock，而且也有专门为递归设计的NSRecursiveLock，但是NSLock一个最大的问题是会出现死锁问题，所以二者都不是最佳方案。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">_lock</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSLock</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">synchronizedMethod</span> <span class="p">{</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">_lock</span> <span class="n">lock</span><span class="p">];</span>
+</span><span class='line'>  <span class="c1">//Safe</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">_lock</span> <span class="n">unlock</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>4.那么对比使用atomic属性的property，Item6也说过，我们手动实现时，可以利用synchronization block来实现，但是问题就是当多个property这么做时，会出现propertys之间出现阻塞，而且在多次频繁访问一个property时，其他线程可能会对其修改，会造成返回值不同。<br/>
+5.替代方案就是GCD的serial synchronization queue，它可以使读写property在一个队列中执行，也就避免了上述问题，代码更加简化，而且利用了GCD底层的优化，而且你不用担心对象之间的相互阻塞。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">_syncQueue</span> <span class="o">=</span> <span class="n">dispatch_queue_creat</span><span class="p">(</span><span class="s">&quot;com.EOC.syncQueue&quot;</span><span class="p">,</span> <span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span><span class="nf">someString</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">__block</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">localSomeString</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">dispatch_sync</span><span class="p">(</span><span class="n">_syncQueue</span><span class="p">,</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>      <span class="n">localSomeString</span> <span class="o">=</span> <span class="n">_someString</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">localSomeString</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setSomeString:</span><span class="p">(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span><span class="nv">someString</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">dispatch_sync</span><span class="p">(</span><span class="n">_syncQueue</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
+</span><span class='line'>      <span class="n">_someString</span> <span class="o">=</span> <span class="n">someString</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>6.对于这一方案还有优化，优化一是可以将setter方法使用异步执行，因为setter方法不会有返回值，而且由于和getter还是在一个队列执行，还是能保持读取的同步，但是涉及到一个问题，异步需要将block copy到异步线程，那么如果block内容很简单，可能copy的时间和执行的时间差不多，也就达不到优化的效果，但是当block内容比较复杂时，这一手段还是有效地。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setSomeString:</span><span class="p">(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span><span class="nv">someString</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">dispatch_async</span><span class="p">(</span><span class="n">_syncQueue</span><span class="p">,</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>      <span class="n">_someString</span> <span class="o">=</span> <span class="n">someString</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>7.第二种优化想实现，可以同时并发执行多个getter，但同步执行setter，且它们还要在同一线程，这对于synchronization block或NSLock来说，都是极难实现的，但是我们利用GCD的特性dispatch_barrier_sync()可以轻松实现，getter可以并行执行，如果出现barrier的setter，那么线程会等之前的所有getter都执行完，然后单独执行setter，执行完之后照常并行执行getter操作。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">_syncQueue</span> <span class="o">=</span> <span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span><span class="nf">someString</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">__block</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">localSomeString</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">dispatch_sync</span><span class="p">(</span><span class="n">_syncQueue</span><span class="p">,</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>      <span class="n">localSomeString</span> <span class="o">=</span> <span class="n">_someString</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">localSomeString</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setSomeString:</span><span class="p">(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span><span class="nv">someString</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">dispatch_barrier_async</span><span class="p">(</span><span class="n">_syncQueue</span><span class="p">,</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>      <span class="n">_someString</span> <span class="o">=</span> <span class="n">someString</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<h2>Item42 Prefer GCD to performSelector and Friends</h2>
+
+<ol>
+<li>&ndash;(id)performSelector:(SEL)selector，曾作为延时执行方法和在特定线程执行方法这些场景中的主要手段，利用runtime，可以改变selector的名称，在运行时再决定执行那个方法，但使用这一方法是有风险的。</li>
+<li>如果你使用if/else来决定赋值不同的selector，然后再执行，这样的话，ARC模式下会报内存泄露的警告，原因是编译器不知道那个方法会执行，所以也没办法确定有没有返回值，返回值是autoreleased还是caller自己释放，所以ARC会保守的添加autoreleased，如果这时返回值是caller自己释放的，那么就出现了内存泄露，这一警告MRC不会报出，但也更难发现，且静态分析器也检查不出，所以这是需要注意的一点。</li>
+<li>&ndash;(id)performSelector:(SEL)selector以及它的族函数，它们的返回类型都是id类型，也就是说必须是一个指针，如果返回值是void、C结构体、或数值型，那么就有可能出问题，然后最多只能添加两个参数，而且也必须是id类型，超过两个参数或类型不对的也不能用，所以说局限性是非常大的。</li>
+<li>&ndash;(id)performSelector:(SEL)selector的延时执行和在特定线程执行的族函数也是一样，缺陷很明显，只支持一个参数，所以使用者必选把所有参数打包，才能使用。</li>
+<li>而结合使用Blocks和GCD，你可以实现上述所有的功能，且不会有约束，代码还简洁。</li>
+</ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//Using dispatch_after</span>
+</span><span class='line'><span class="n">dispatch_time_t</span> <span class="n">time</span> <span class="o">=</span> <span class="n">dispatch_time</span><span class="p">(</span><span class="n">DISPATCH_TIME_NOW</span><span class="p">,(</span><span class="n">INT64_t</span><span class="p">)(</span><span class="mf">5.0</span><span class="o">*</span><span class="n">NSEC_PER_SEC</span><span class="p">));</span>
+</span><span class='line'><span class="n">dispatch_after</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="n">dispatch_get_main_queue</span><span class="p">(),</span><span class="o">^</span><span class="p">(</span><span class="kt">void</span><span class="p">){</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">self</span> <span class="n">doSomething</span><span class="p">];</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'><span class="c1">//Using dispatch_async(or if waitUntileDone is YES,then dispatch_sync)</span>
+</span><span class='line'><span class="n">dispatch_async</span><span class="p">(</span><span class="n">dispatch_get_main_queue</span><span class="p">(),</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">self</span> <span class="n">doSomething</span><span class="p">];</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<h2>Item43 Know When to Use GCD and When to Use Operation Queues</h2>
+
+<ol>
+<li>上面介绍了很多GCD的优点，GCD在的同步机制（Item41）和单例机制（Item45）是非常优秀的，但并不是说GCD就是所有OC线程问题的最优解，在它之前的NSOperationQueue有时更为合适。</li>
+<li>GCD是C类型的Api，而operation queues则是OC对象；GCD中的任务是一个block，比较轻量，而operation queues中的任务是NSOperation的子类，比较重量；但这不意味着GCD一直是最优解，有时作为对象的优势也是非常明显的。</li>
+<li>使用NSBlockOperation或NSOperationQueue的addOperationWithBlock:方法，可以使operation queues非常像GCD，下面是它的一些优势。</li>
+</ol>
+
+
+<h3>Cancelling operations</h3>
+
+<ol>
+<li>NSOperation很容易就可以实现cancel，执行它的cancel方法即可，但已经执行的operation就不能cancel了，但是对于GCD也一样，不能cancel一个已经在执行的block，这类机制就是“fire and forget”，但在GCD上实现cancel，需要自己去实现，而这需要很多工作。</li>
+</ol>
+
+
+<h3>Operation dependencies</h3>
+
+<ol>
+<li>operation可以实现依赖，这样开发者可以自己组织执行的优先顺序，例如下载一些文件之前需要先下载验证文件，下验证文件的operation就是其他下载operation的依赖，如果其他下载是并发的，那么它们会等下载完验证文件后再并发执行。</li>
+</ol>
+
+
+<h3>Key-Value Observing of operation properties</h3>
+
+<ol>
+<li>Operation的很多property是很适合KVO的，比如：<em>isCancelled，isFinished</em>去监测operation是否取消或完成，如果你的代码需要对operation做到如此细粒度的控制的话，那么更应该使用operation。</li>
+</ol>
+
+
+<h3>Operation priorities</h3>
+
+<ol>
+<li>operation可以设置优先级（即queuePriority，从verylow到veryhigh五个枚举值），高优先级的operation会先执行，GCD无法设置每个block的执行优先级，而只能设置整个queue的优先级，所以这也是operation的一大特性。另外，operation还有一个相关的线程优先级（即threadPriority，从0.0到1.0），可以指定operation执行时线程分配的优先级，我理解它和前者一个是时间上的优先级，一个是空间上的优先级，这两者均可通过operation的property直接设置。</li>
+</ol>
+
+
+<h3>Reuse of operation</h3>
+
+<ol>
+<li>除非你使用内建的NSOperation的子类，比如NSBlockOperation，你一般都需要自己继承NSOperation，所以这就意味着你可以添加实例和方法，和进行复用。</li>
+<li>综上operation有这很多的优点，主要集中于你可以对单个operation进行更加细粒度的操作，而不用自己去组织相关代码，这是对比GCD的block的优势之处。</li>
+<li>Apple的NSNotificationCenter有一个方法，如下，其中的NSOperationQueue可以换成dispatch queue的，但是开发者不想对GCD产生无谓的依赖，在这个实例中，两者是没什么区别的。总之，GCD和Operation queue都是视情况使用，而不是一味遵从使用高级接口或底层接口，各有好处。</li>
+</ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nf">addObserverForName:</span><span class="p">(</span><span class="n">NSString</span><span class="o">*</span><span class="p">)</span><span class="nv">name</span> <span class="nf">object:</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nv">object</span> <span class="nf">queue:</span><span class="p">(</span><span class="n">NSOperationQueue</span><span class="o">*</span><span class="p">)</span><span class="nv">queue</span> <span class="nf">usingBlock:</span><span class="p">(</span><span class="kt">void</span><span class="p">(</span><span class="o">^</span><span class="p">)(</span><span class="n">NSNotification</span><span class="o">*</span><span class="p">))</span><span class="nv">block</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<h2>Item44 Use Dispatch Groups to Take Advantage of Platform Scaling</h2>
+
+<p>1.Dispatch Groups是GCD的一个特性，为了方便开发者对任务进行分组，你可以等待一组任务完成或者通过回调来被通知一组任务完成了。当你想让一组方法并行执行，但同时希望在它们完成时得到通知，那么你该使用这一特性。例如批量压缩文件。<br/>
+2.一个group是一个简单的结构体，也没有标识，下面是group的类型和将task和group关联的方法，其实只是在正常的dipatch执行方法上关联了group而已：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">dispatch_group_t</span> <span class="nf">dispatch_group_creat</span><span class="p">();</span>
+</span><span class='line'><span class="kt">void</span> <span class="nf">dispatch_group_async</span><span class="p">(</span><span class="n">dispatch_group_t</span> <span class="n">group</span><span class="p">,</span> <span class="n">dispatch_queue_t</span> <span class="n">queue</span><span class="p">,</span> <span class="n">dispatch_block_t</span> <span class="n">block</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.另一个方法是使用下面这对方法，enter和leave要配合使用，类似retain和release，必须保持平衡，如果缺少一个leave，那么这个group就永远不会结束了。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="kt">void</span> <span class="nf">dispatch_group_enter</span><span class="p">(</span><span class="n">dispatch_group_t</span> <span class="n">group</span><span class="p">);</span>
+</span><span class='line'><span class="kt">void</span> <span class="nf">dispatch_group_leave</span><span class="p">(</span><span class="n">dispatch_group_t</span> <span class="n">group</span><span class="p">);</span>
+</span><span class='line'><span class="c1">//Example</span>
+</span><span class='line'><span class="n">dispatch_group_t</span> <span class="n">group</span> <span class="o">=</span> <span class="n">dispatch_group_create</span><span class="p">();</span>
+</span><span class='line'><span class="n">dispatch_queue_t</span> <span class="n">queue</span> <span class="o">=</span> <span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="c1">//A</span>
+</span><span class='line'><span class="n">dispatch_group_async</span><span class="p">(</span><span class="n">group</span><span class="p">,</span><span class="n">queue</span><span class="p">,</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>  <span class="c1">//...</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'><span class="c1">//B</span>
+</span><span class='line'><span class="n">dispatch_group_enter</span><span class="p">(</span><span class="n">group</span><span class="p">);</span>
+</span><span class='line'><span class="n">dispatch_async</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>  <span class="c1">//...</span>
+</span><span class='line'>  <span class="n">dispatch_group_leave</span><span class="p">(</span><span class="n">group</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>4.下面的方法可以阻塞目前线程，等待group中的task全部完成，timeout可以设置为一个固定值，也可以设置为DISPATCH_TIME_FOREVER，如果group在timeout内完成，返回值为0，反之则会返回非0值。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="kt">long</span> <span class="nf">dispatch_group_wait</span><span class="p">(</span><span class="n">dispatch_group_t</span> <span class="n">group</span><span class="p">,</span> <span class="n">dispatch_time_t</span> <span class="n">timeout</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>5.这个方法则是wait方法的替代，该方法不会阻塞当前线程，而是允许你为group完成添加一个通知回调block，而且可以指定线程，一般在主线程中，肯定是不希望阻塞的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="kt">void</span> <span class="nf">dispatch_group_notify</span><span class="p">(</span><span class="n">dispatch_group_t</span> <span class="n">group</span><span class="p">,</span> <span class="n">dispatch_queue_t</span> <span class="n">queue</span><span class="p">,</span> <span class="n">dispatch_block_t</span> <span class="n">block</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>6.下面是一个对一个数组中的对象并发执行相同操作，并在全部完成后进行后续操作的实例，如果不希望阻塞主线程，那么要把wait换为notify，<a href="http://stackoverflow.com/questions/10643797/wait-until-multiple-networking-requests-have-all-executed-including-their-comp/10644282#comment13830651_10644282">stackoverflow另一实例</a>。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">dispatch_queue_t</span> <span class="n">queue</span> <span class="o">=</span> <span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="n">dispatch_group_t</span> <span class="n">group</span> <span class="o">=</span> <span class="n">dispatch_group_create</span><span class="p">();</span>
+</span><span class='line'><span class="c1">//Plan A, block main queue</span>
+</span><span class='line'><span class="k">for</span><span class="p">(</span><span class="kt">id</span> <span class="n">object</span> <span class="k">in</span> <span class="n">collection</span><span class="p">){</span>
+</span><span class='line'>  <span class="n">dispatch_group_async</span><span class="p">(</span><span class="n">group</span><span class="p">,</span><span class="n">queue</span><span class="p">,</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">object</span> <span class="n">performTask</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">dispatch_group_wait</span><span class="p">(</span><span class="n">group</span><span class="p">,</span><span class="n">DISPATCH_TIME_FOREVER</span><span class="p">);</span>
+</span><span class='line'><span class="c1">//Continue processing after copleting tasks</span>
+</span><span class='line'><span class="n">dispatch_release</span><span class="p">(</span><span class="n">group</span><span class="p">);</span>
+</span><span class='line'><span class="c1">//Plan B, not block main queue</span>
+</span><span class='line'><span class="k">for</span><span class="p">(</span><span class="kt">id</span> <span class="n">object</span> <span class="k">in</span> <span class="n">collection</span><span class="p">){</span>
+</span><span class='line'>  <span class="n">dispatch_group_enter</span><span class="p">(</span><span class="n">group</span><span class="p">);</span>
+</span><span class='line'>  <span class="n">dispatch_async</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">object</span> <span class="n">performTask</span><span class="p">];</span>
+</span><span class='line'>      <span class="n">dispatch_group_leave</span><span class="p">(</span><span class="n">group</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">dispatch_queue_t</span> <span class="n">notifyQueue</span> <span class="o">=</span> <span class="n">dispatch_get_main_queue</span><span class="p">();</span>
+</span><span class='line'><span class="n">dispatch_group_notify</span><span class="p">(</span><span class="n">group</span><span class="p">,</span><span class="n">notifyQueue</span><span class="p">,</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>  <span class="c1">//Continue processing after completing tasks</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>7.可以通过创建不同优先级的dispatch_queue，来实现task进行优先级分类，但是依然并发执行，并在全部完成后统一处理。<br/>
+8.如果你在一个串行的queue中加入多个任务，那么group其实是不起作用的，因为本来这些任务就会串行执行，你只需要继续添加一个block，就可以实现所有任务完成后统一处理。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">dispatch_queue_t</span> <span class="n">queue</span> <span class="o">=</span> <span class="n">dispatch_queue_create</span><span class="p">(</span><span class="s">&quot;com.EOC.queue&quot;</span><span class="p">,</span><span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'><span class="k">for</span><span class="p">(</span><span class="kt">id</span> <span class="n">object</span> <span class="k">in</span> <span class="n">collection</span><span class="p">){</span>
+</span><span class='line'>  <span class="n">dispatch_async</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">object</span> <span class="n">performTask</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">dispatch_async</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>  <span class="c1">//Continue processing after completing tasks</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>9.如果你不是自己创建queue，而是使用系统方法返回的queue，那么加入的task，系统会根据系统资源开辟一定数量的线程，来执行这些task，再配合group特性，你只需要关注你的业务逻辑即可，而不用去在如何安排和控制它们的线程开辟和同步上面花费精力。<br/>
+10.类似上面多次执行相同的任务，还有一个专门的方法来实现它，如下，传入的iterations类似for循环的最大值，i会从0循环到最大值减一。但dispatch_apply的缺点是会阻塞当前线程，如果你希望在后台线程运行，那么还要使用group的notify方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="kt">void</span> <span class="nf">dispatch_apply</span><span class="p">(</span><span class="n">size_t</span> <span class="n">iterations</span><span class="p">,</span> <span class="n">dispatch_queue_t</span> <span class="n">queue</span><span class="p">,</span><span class="kt">void</span><span class="p">(</span><span class="o">^</span><span class="n">block</span><span class="p">)(</span><span class="n">size_t</span><span class="p">));</span>
+</span><span class='line'><span class="c1">//A serial</span>
+</span><span class='line'><span class="n">dispatch_queue_t</span> <span class="n">queue</span> <span class="o">=</span> <span class="n">dispatch_queue_create</span><span class="p">(</span><span class="s">&quot;com.EOC.queue&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="n">dispatch_apple</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="n">queue</span><span class="p">,</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>  <span class="c1">//perform task</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'><span class="c1">//B concurrent</span>
+</span><span class='line'><span class="n">dispatch_queue_t</span> <span class="n">queue</span> <span class="o">=</span> <span class="n">dispatch_get_global_queue</span><span class="p">(</span><span class="n">DISPATCH_QUEUE_PRIORITY_DEFAULT</span><span class="p">,</span><span class="mi">0</span><span class="p">);</span>
+</span><span class='line'><span class="n">dispatch_apply</span><span class="p">(</span><span class="n">array</span><span class="p">.</span><span class="n">count</span><span class="p">,</span><span class="n">queue</span><span class="p">,</span><span class="o">^</span><span class="p">(</span><span class="n">size_t</span> <span class="n">i</span><span class="p">){</span>
+</span><span class='line'>  <span class="kt">id</span> <span class="n">object</span> <span class="o">=</span> <span class="n">array</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">object</span> <span class="n">peformTask</span><span class="p">];</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<h2>Item45 Use dispatch_once for Thread-Safe Single-Time Code Execution</h2>
+
+<p>1.GCD之前的单例模式实现，使用了synchronization block是为了线程安全：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">+</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nf">sharedInstance</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">static</span> <span class="n">EOCClass</span> <span class="o">*</span><span class="n">sharedInstance</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">@synchronized</span><span class="p">(</span><span class="n">self</span><span class="p">){</span>
+</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="n">sharedInstance</span><span class="p">){</span>
+</span><span class='line'>          <span class="n">sharedInstance</span> <span class="o">=</span> <span class="p">[[</span><span class="n">self</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">sharedInstance</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.这是GCD之后的版本，使用了dispatch_once，新类型dispatch_once_t保证了，对于每一个该类型的token，dispatch_once只会执行它对应的block一次，而且是线程安全的，为了保证token的唯一性，token也必须声明为static或global类型。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="kt">void</span> <span class="nf">dispatch_once</span><span class="p">(</span><span class="n">dispatch_once_t</span> <span class="o">*</span><span class="n">token</span><span class="p">,</span><span class="n">dispatch_block_t</span> <span class="n">block</span><span class="p">);</span>
+</span><span class='line'><span class="c1">//singleton</span>
+</span><span class='line'><span class="k">+</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nf">sharedInstance</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">static</span> <span class="n">EOCClass</span> <span class="o">*</span><span class="n">sharedInstance</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">static</span> <span class="n">dispatch_once_t</span> <span class="n">onceToken</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">dispatch_once</span><span class="p">(</span><span class="o">&amp;</span><span class="n">onceToken</span><span class="p">,</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>      <span class="n">sharedInstance</span> <span class="o">=</span> <span class="p">[[</span><span class="n">self</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">sharedInstance</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.相比较synchronization block的版本，dispatch_once版本效率更高，因为前者在每次运行这段代码时都会进行加锁操作，它对dispatch token进行了原子型的访问来确定代码是否执行过，作者测试使用dispatch_once较synchronization block快将近两倍。</p>
+
+<!--more-->
+
+
+<h2>Item46 Avoid dispatch_get_current_queue</h2>
+
+<ol>
+<li>使用GCD时，获得当前运行的queue是一个常见的需求，而Apple也提供了一个方法：<em>dispatch_queue_t dispatch_get_current_queue()</em>，但是作者告诉我们，这个方法像retainCount一样，并不可靠，iOS6已经将其弃用，目前只可以在debug模式下使用。</li>
+<li>回想Item41的getter/setter最终方案，可能会出现这样的场景，就是调用getter的queue和getter中的synchronization queue是同一队列，这样就会产生死锁，dispatch_sync会一直等待queue可用，而这个queue实际上就是当前的queue，所以block永远不会执行。所以就会想到用dispatch_get_current_queue()来判断当前的queue是否是synchronization queue，如果是就直接执行block，不是的话用dispatch_sync()。</li>
+<li>如果在简单场景下应该是没问题，如果考虑到一些特殊情况，比如queueA->queueB->queueA嵌套执行，且所有的操作都是同步操作，那么内部的queueA关联的block还是会出现死锁，因为外层的queueA block还未执行完。</li>
+<li>所以这个例子中，使用dispatch_get_current_queue()并不是一个可靠地解决方法，而还是应该单独建立一个queue专门供synchronization使用，并确保该queue中会调用getter方法。</li>
+<li>从更为普遍的角度讲，因为dispatch queues是存在等级划分的，也就是说在当前queueA中的block加入了在queueB中执行的block，那么queueB上执行的block同样执行与queueA上，而顶层的queue则是global concurrent queues的其中一个。</li>
+<li>只有两个queue不存在这种包含关系，才可以并行执行，反之，如果两个queue存在包含的关系，那么在他们中执行同步操作，怎要特别关注死锁问题。这也就是dispatch_get_current_queue()这个方法意义不大的根本原因，因为它只能返回当前的queue，而无法得知整个queue的包含链。</li>
+<li>最容易产生这个问题的场景是Api需要你传入想运行的queue，而Api内部在另一个queue上使用了串行同步操作，然后将它的结果在传入的queue中返回，使用者一般会假设dispatch_get_current_queue()会返回自己传入的queue，但结果会返回内部的同步queue。</li>
+<li>Queue-specific data是解决上述问题的一个方案，它可以将任意数据和queue绑定，最重要的是，如果没发现与对应key绑定的值，系统会一直沿包含链向上，知道找到对应的queue被找到，或者到root queue。</li>
+<li><em>dispatch_queue_set_specific()</em>方法是这一技术的核心，给queue关联的是一个类似键值对的结构，键值均为空指针类型，对于key来说，需要注意的是，作为key的是指针的值而不是指向内容的值，所以其实更像Item10中介绍的associated references。value也是空指针类型，所以理论上你可以将任何值作为value，但是你希望自己管理它的内存，如果在ARC下，使用OC对象就很难做到这一点，所以作者推荐使用了CFString，因为ARC不会管理CoreFoundation的对象，而且也可以很方便转化为OC对象，所以很合适。最后的参数希望传入一个函数指针，它将用作析构函数，将在value从key移除时调用，这可能是queue被释放或者value被赋新值时。dispatch_function_t的类型是只有一个指针且返回空值，示例中CFRelease作为了参数，对应传入的CFString，如果传入的是自己定义的对象，开发者也可以自己重写CFRelease函数，做一些清除工作。</li>
+</ol>
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="kt">void</span> <span class="nf">dispatch_queue_set_specific</span><span class="p">(</span><span class="n">dispatch_queue_t</span> <span class="n">queue</span><span class="p">,</span><span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">key</span><span class="p">,</span><span class="kt">void</span> <span class="o">*</span><span class="n">context</span><span class="p">,</span><span class="n">dispatch_function_t</span> <span class="n">destructor</span><span class="p">);</span>
+</span><span class='line'><span class="k">typedef</span> <span class="nf">void</span><span class="p">(</span><span class="o">*</span><span class="n">dispatch_function_t</span><span class="p">)(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span>
+</span><span class='line'><span class="c1">//Example</span>
+</span><span class='line'><span class="n">dispatch_queue_t</span> <span class="n">queueA</span> <span class="o">=</span> <span class="n">dispatch_queue_create</span><span class="p">(</span><span class="s">&quot;com.EOC.queueA&quot;</span><span class="p">,</span><span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'><span class="n">dispatch_queue_t</span> <span class="n">queueB</span> <span class="o">=</span> <span class="n">dispatch_queue_create</span><span class="p">(</span><span class="s">&quot;com.EOC.queueB&quot;</span><span class="p">,</span><span class="nb">NULL</span><span class="p">);</span>
+</span><span class='line'><span class="n">dispatch_set_target_queue</span><span class="p">(</span><span class="n">queueB</span><span class="p">,</span><span class="n">queueA</span><span class="p">);</span>
+</span><span class='line'><span class="k">static</span> <span class="kt">int</span> <span class="n">kQueueSpecific</span><span class="p">;</span>
+</span><span class='line'><span class="n">CFStringRef</span> <span class="n">queueSpecificValue</span> <span class="o">=</span> <span class="n">CFSTR</span><span class="p">(</span><span class="s">&quot;queueA&quot;</span><span class="p">);</span>
+</span><span class='line'><span class="n">dispatch_queue_set_specific</span><span class="p">(</span><span class="n">queueA</span><span class="p">,</span><span class="o">&amp;</span><span class="n">kQueueSpecific</span><span class="p">,(</span><span class="kt">void</span><span class="o">*</span><span class="p">)</span><span class="n">queueSpecificValue</span><span class="p">,(</span><span class="n">dispatch_function_t</span><span class="p">)</span><span class="n">CFRelease</span><span class="p">);</span>
+</span><span class='line'><span class="n">dispatch_sync</span><span class="p">(</span><span class="n">queueB</span><span class="p">,</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">dispatch_block_t</span> <span class="n">block</span> <span class="o">=</span> <span class="o">^</span><span class="p">{</span><span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;No deadlock!&quot;</span><span class="p">);};</span>
+</span><span class='line'>  <span class="n">CFStringRef</span> <span class="n">retrievedValue</span> <span class="o">=</span> <span class="n">dispatch_get_specific</span><span class="p">(</span><span class="o">&amp;</span><span class="n">kQueueSpecific</span><span class="p">);</span>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="n">retrievedValue</span><span class="p">){</span>
+</span><span class='line'>      <span class="n">block</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">dispatch_sync</span><span class="p">(</span><span class="n">queueA</span><span class="p">,</span><span class="n">block</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Effective Objective-C读书笔记5]]></title>
