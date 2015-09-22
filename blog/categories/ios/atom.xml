@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-09-16T15:39:56+08:00</updated>
+  <updated>2015-09-22T11:51:20+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,398 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Effective Objective-C读书笔记7]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/09/16/effective-objective-cdu-shu-bi-ji-7/"/>
+    <updated>2015-09-16T15:42:34+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/09/16/effective-objective-cdu-shu-bi-ji-7</id>
+    <content type="html"><![CDATA[<p>这是本书的最后一章了，集中讲解了有关Cocoa自带的system framework，这是开发中必须要使用的基本库，没有这些封装，很多基本的功能都无法实现，没有集合，也没有基类NSObject，可谓寸步难行，一些新的Api有时会节省我们很多工作量，同时这些库中的很多设计也是我们自己的代码需要学习的。</p>
+
+<!--more-->
+
+
+<h2>Item47 Familiarize Yourself with the System Frameworks</h2>
+
+<ol>
+<li>一个framework是将代码打包成一个动态库，会有头文件来描述接口，有时候也会有一些第三方的静态库（即.a文件），这些不能作为真正意义上的框架，但是被常常当做框架来用，所有的系统框架都使用了动态库。</li>
+<li>Cocoa或Cocoa Touch是框架集，其中的基本框架就是Foundation框架，Foundation Framework不但提供了基本类型和基本集合，而且还有很多复杂功能，比如字符串处理。</li>
+<li>除了另一个基础库是CoreFoundation，几乎就是Foundation的镜像库，只不过内部都是C接口和结构体，OC提供了一个名为toll-free bridging的转换特性，可以使OC对象和CF对象自由转化，toll-free bridging自身比较复杂，所以不建议自己去实现这一转化功能。除了上述两个基础框架，还有以下一些常用框架：</li>
+<li>CFNetwork：基于C的网络请求基本框架，基于BSD socket提供了很多易用的请求工具，Foundation通过对它的部分封装，提供了OC类型的网络接口。</li>
+<li>CoreAudio：提供了基于C的音频设备访问接口，本身是很复杂的，但OC的抽象将其变得易用不少。</li>
+<li>AVFoundation：提供了用于播放和录制音视频的OC对象，例如播放视频的UI类。</li>
+<li>CoreData：提供了用于数据持久化的OC对象，CoreData处理数据的存取，并能在Mac OS X与iOS之间通用。</li>
+<li>CoreText：提供了基于C的文字高效的类型设置和渲染的接口。</li>
+<li>使用一些C类型的框架，有时是必要的，因为通过绕过runtime，速度会更快，但是需要更加关注内存管理。</li>
+<li>AppKit和UIKit分别是Mac OS X 和iOS的UI框架，提供了基于Foundation和CoreFoundation的OC类型，在它的下面是CoreAnimation和CoreGraphics在支持。</li>
+<li>CoreAnimation基于OC类型，提供了渲染图像和展示动画的工具，它不是一个独立的框架，还是QuartzCore框架的一部分，但是很多情况CoreAnimation还是被优先使用。</li>
+<li>CoreGraphics是基于C类型的，提供了用于2D渲染的必不可少的结构体和函数，CGPoint，CGSize，CGRect都是在这儿定义的。</li>
+<li>UIKit的上层还有很多更高级的框架，例如：MapKit，Social framework。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Item48 Prefer Block Enumeration to for Loops</h2>
+
+<p>1.遍历一个集合类型是常见需求，，而OC也有很多方式，从标准的C的for循环，到OC 1.0的NSEnumerator，到OC 2.0的快速遍历，block加入OC后，又出现了遍历直接传入block进行对象处理的新方法。<br/>
+2.For Loops：沿用最原始的C语言的循环，定义一个int型index，然后按照index去遍历每个对象，对于NSArray来说影响还不大，但是对于NSDictionary，NSSet来说，因为都是无序的，所以必须额外生成中间数组，这是额外的内存消耗，但倒序遍历只需要改变index为递减即可，还算方便。<br/>
+3.OC 1.0 NSEnumerator：NSEnumerator是一个基类，需要重写-(NSArray*)allObjects,&ndash;(id)nextObject两个方法，而Foundation框架的集合类型都支持了NSEnumerator，可以通过不断执行nextObject()来完成遍历，它的优势是所有的集合类型的遍历方式都是类似的，而且也支持不同的enumerator来实现不同顺序来遍历，缺点是还是需要额外的enumerator，而且不能得知当前的index。</p>
+
+<p>```objectivec
+//NSArray enumerator
+NSArray <em>anArray = /</em>&hellip;<em>/;
+NSEnumerator </em>enumerator = [anArray objectEnumerator];
+id object;
+while((object = [enumerator nextObject])!=nil){</p>
+
+<pre><code>//Do something with 'object'
+</code></pre>
+
+<p>}
+//NSDictionary enumerator
+NSDictionary <em>aDictionary = /</em>&hellip;*/;
+id key;
+while((key = [enumerator nextObject])!=nil){</p>
+
+<pre><code>id value = aDictionary[key];
+//Do something with 'key' and 'value'
+</code></pre>
+
+<p>}
+//NSArray reverse enumerator
+NSArray <em>anArray = /</em>&hellip;<em>/;
+NSEnumerator </em>enumerator = [anArray reverseObjectEnumerator];
+id object;
+while((object = [enumerator nextObject])!=nil){</p>
+
+<pre><code>//Do something with 'object'
+</code></pre>
+
+<p>}
+```</p>
+
+<p>4.Fast Enumeration：OC2.0引入了快速遍历，快速遍历详单与结合了for-loop和enumerator的双重特点，同时极大的简化了语法。实现这一技术是采用了NSFastEnumeration这一协议（只有一个方法），集合类型通过遵循这一协议，从而支持了快速遍历，实现协议中的方法使得类可以同时返回多个对象：</p>
+
+<p><code>objectivec
+//NSFastEnumeration
+-(NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState*)state objects:(id*)stackbuffer count:(NSUInteger)length;
+</code></p>
+
+<p>```objectivec
+//NSArray
+NSArray <em>anArray = /</em>&hellip;*/;
+for(id object in anArray){</p>
+
+<pre><code>//Do something with 'object'
+</code></pre>
+
+<p>}
+//NSDictionary
+NSDictionary <em>aDictionary = /</em>&hellip;*/;
+for(id key in aDictionary){</p>
+
+<pre><code>id value = aDictionary[key];
+//Do something with 'key' and value
+</code></pre>
+
+<p>}
+```</p>
+
+<p>如果需要反向遍历，可以通过下列方法，因为NSEnumerator也实现了NSFastEnumeration：</p>
+
+<p>```objectivec
+NSArray <em>anArray = /</em>&hellip;*/;
+for(id object in [anArray reverseObjectEnumerator]){</p>
+
+<pre><code>//Do something with 'object'
+</code></pre>
+
+<p>}
+```</p>
+
+<p>快速遍历的优点是效率很高，而且代码简洁，但是依然有两个缺陷，NSDictionary如果同时需要key和value的话，还是需要两步；同时index也是无法直接获取。</p>
+
+<p>5.Block-Based Enumeration：是在OC引入block后的遍历集合的最新方法，下面是NSArray的基本block遍历方法，前两个参数很明显，第三个参数是用来停止遍历的：</p>
+
+<p>```objectivec
+//NSArray
+&ndash;(void)enumerateObjectsUsingBlock:(void(^)(id object,NSUInteger idx,BOOL <em>stop))block;
+//NSDictionary
+&ndash;(void)enumerateLeysAndObjectsUsingBlock:(void(^)(id key,id object,BOOL </em>stop))block;
+//example
+NSArray <em>aArray = /</em>&hellip;<em>/;
+[aArray enumerateObjectsUsingBlock:^(id object,NSUInteger idx,BOOL </em>stop){</p>
+
+<pre><code>//Do something with 'object'
+if(shouldStop){
+    *stop = YES;
+}
+</code></pre>
+
+<p>}];
+```</p>
+
+<p>block遍历虽然看起来语法比快速遍历更复杂了，但是代码还是很整洁的，而且提供了方便的停止遍历的方法，而在其他方式中需要自己添加break，另外你可以现在一次性获得所有的信息，包括：NSArray的index，NSDictionary的key和value。</p>
+
+<p>如果NSDictionary的键值类型是确定的，那么你可以重写block中的id类型，也可以在类型出现异常时抛出警告，所以如果类型确定，还是推荐这么写的。</p>
+
+<p>```objectivec
+NSDictionary <em>aDictionary = /</em>&hellip;<em>/;
+[aDictionary enumerateKeysAndObjectsUsingBlock:^(NSString </em>key,NSString <em>obj,BOOL </em>stop){</p>
+
+<pre><code>//Do Something with 'key' and 'obj'
+</code></pre>
+
+<p>}];
+```</p>
+
+<p>除了这些，还有个最大的特点是，block遍历可以通过设置option（枚举类型）来实现各种各样的遍历方式，例如通过NSEnumerationConcurrent实现对集合中的对象并发执行方法（内部应该是利用了GCD的dispatch group），通过NSEnumerationReverse实现集合的逆向遍历，而且也可以通过位与操作，同时实现这两个option。</p>
+
+<p><code>objectivec
+//NSArray
+-(void)enumerateObjectsWithOptions:(NSEnumerationOptions)options usingBlock:(void(^)(id object,NSUInteger idx,BOOL *stop))block;
+//NSDictionary
+-(void)enumerateLeysAndObjectsWithOptions:(NSEnumerationOptions)options usingBlock:(void(^)(id key,id object,BOOL *stop))block;
+</code></p>
+
+<p>综上，block遍历虽然语法不及快速遍历简洁，但是对于NSArray获得index，对于NSDictionary获得key和value这些信息，通过option获得并发执行遍历，都是优于其他遍历方法的。</p>
+
+<!--more-->
+
+
+<h2>Item49 Using Toll-Free Bridging for Collections with Custom Memory-Management Semantics</h2>
+
+<p>1.Toll-Free Bridging是OC用来在Foundation定义的OC对象和CoreFoundation定义的对应的C结构体之间相互转化，使用了<strong>bridge关键字，相当于ARC依然持有OC对象，如果使用了</strong>bridge_retained，那么ARC就要交出持有权，那么在我们使用完CF指针后要执行CFRelease(aCFArray)来释放内存，反之你需要将CF指针转化为OC对象，并需要转移持有权时，要加上__bridge_transfer关键字，这三个关键字非常重要。</p>
+
+<p><code>objectivec
+NSArray *anNSArray = @[@1,@2,@3,@4,@5];
+CFArrayRef aCFArray = (__bridge CFArrayRef)anNSArray;
+NSLog(@"Size of array = %li", CFArrayGetCount(aCFArray));
+</code></p>
+
+<p>2.为什么要去使用CF结构体指针？当然绝大部分情况我们是不会刻意去使用的，作者列举了一个特殊的场景：NSDictionary的key是copy类型，而value是retain类型，也就意味着，不支持copy协议的类是不能作为NSDictionary的key的，如果我们需要一个value和key都是retain类型的dictionary，那要怎么办呢？<br/>
+3.作者列举了一种思路，重新构建一个CF的字典类型，因为在这一级，我们可以控制key和value的回调类型，然后再通过Toll-Free Bridging来转化为需要的NSMutableDictionary，从而达到目的。</p>
+
+<!--more-->
+
+
+<h2>Item50 Use NSCache Instead of NSDictionary for Caches</h2>
+
+<p>1.在网络请求中做缓存是常见的需求，因为一般会将data和url或者request对象做成键值对存储，所以一些年轻的程序员就会考虑用NSDictionary来做缓存，但是作者建议用NSCache来做这类缓存。<br/>
+2.NSCache的优势之一是，当系统资源吃紧时，cache会被自动释放，且会优先释放最近未被使用的缓存，如果NSDictionary想实现这一点，是需要做很多额外工作的。<br/>
+3.NSCache的优势之二是，NSDictionary的key是copy类型，而value是retain类型，而NSCache的key和value都是retain类型，这就意味着，NSCache可以将不实现copy协议的对象作为key，虽然根据Item49的做法，也可以把NSDictionary做成这种类型，但是实现起来很复杂。另外，NSCache是线程安全的，你可以在多个线程同时插值，在做缓存时，在主线程读取缓存，然后缓存不存在，在后台线程下载并赋值是常见的场景。<br/>
+4.你可以手动控制缓存的容量，通过设置缓存数量和大小来控制，如果缓存数量或大小超过限制，也会开始自动释放，但释放的顺序是不可控的，所以想通过改变最大容量来让缓存按照顺序释放是不现实的。<br/>
+5.需要注意的是，设置缓存大小容量，是基于加入缓存的对象的大小易于计算，如果计算对象大小成本过高的话，这就会影响效率，因为每次加入都会进行计算。例如去硬盘计算文件大小或去数据库查找大小就是耗时的操作，但如果是NSData作为缓存对象，那么获取它的大小代价就很小，只是读取一个property而已。<br/>
+6.下面是一个使用NSCache的实例：</p>
+
+<p>```objectivec
+@implementation EOCClass{</p>
+
+<pre><code>NSCache *_cache;
+</code></pre>
+
+<p>}
+&ndash;(id)init{</p>
+
+<pre><code>if((self = [super init])){
+    _cache = [NSCache new];
+    _cache.countLimit = 100;
+    _cache.totalCostLimit = 5*1024*1024;
+}
+return self;
+</code></pre>
+
+<p>}
+&ndash;(void)downloadDataForURL:(NSURL*)url{</p>
+
+<pre><code>NSData *cachedData = [_cache objectForKey:url];
+if(cacheData){
+    //Cache hit
+    [self useData:cachedData];
+} else {
+    //Cache miss
+    EOCNetworkFetcher *fetcher = [[EOCNetworkFetcher alloc] initWithURL:url];
+    [fetcher startWithCompletionHandler:^(NSData *data){
+        [_cache setObject:data forKey:url cost:data.length];
+        [self useData:data];
+    }];
+}
+</code></pre>
+
+<p>}
+@end
+```</p>
+
+<p>7.除了NSData，另一种可以和NSCache搭配的是NSPurgeableData，它是NSMutableData的子类，实现了NSDiscardableContent协议，NSPurgeableData的内存会在系统资源紧张时自动释放，<em>isContentDiscard</em>是协议中的一个方法，返回内存是否已释放。<br/>
+8.NSPurgeableData在使用之前要用<em>beginContentAccess</em>确保目前内存不被释放，然后使用完后调用<em>endContentAccess</em>告知系统可以被释放，这一对操作可以嵌套，类似retain/release。<br/>
+9.如果NSPurgeableData添加到NSCache，释放的对象会自动移出cache，这可以被<em>evictsObjectsWithDiscardedContent</em>这一property关闭或开启。<br/>
+10.下面是一个NSPurgeableData的实例，注意NSPurgeableData被创建时就相当于+1purge reference count与alloc类似，所以不必再加<em>beginContentAccess</em>，但用完要加<em>endContentAccess</em>。</p>
+
+<p>```objectivec
+&ndash;(void)downloadDataForURL:(NSURL*)url{</p>
+
+<pre><code>NSPurgeableData *cacheData = [_cache objectForKey:url];
+if(cachedData){
+    //Stop the data being purged
+    [cacheData beginContentAccess];
+    //Use the cached data
+    [self useData:cachedData];
+    //Mark that the data may be purged again
+    [cacheData endContentAccess];
+} else {
+    //Cache miss
+    EOCNetworkFetcher *fetcher = [[EOCNetworkFetcher alloc] initWithURL:url];
+    [fetcher startWithCompletionHandler:^(NSData *data){
+        NSPurgeableData *purgeableData = [NSPurgeableData dataWithData:data];
+        [_cache setObject:purgeableData forKey:url cost:purgeableData.length];
+        //Don't need to beginContentAccess as it begins with access already marked
+        [self useData:data];
+        //Mark that the data may be purged now
+        [purgeable endContentAccess];
+    }];
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<!--more-->
+
+
+<h2>Item51 Keep initialize and load Implementations Lean</h2>
+
+<ol>
+<li>一个类总会有有自己的初始化方法，由于OC中类型大部分继承于NSObject，所有有很多继承于NSObject的初始化方法，第一个就是<em>*(void)load</em>方法。</li>
+<li><em>load</em>方法在每个class和category中会且只会被调用一次，这个方法发生在包含该类的library在加载后，一般是应用加载中，而且只是iOS代码的独有的，Mac OS X有更灵活的dynamic loading，可以使library在应用加载后加载，而category的load在其原class加载后加载。</li>
+<li>想重写<em>load</em>方法的问题是，它运行时runtime处于不稳定的状态，所有父类的<em>load</em>方法是先于其他类的<em>load</em>调用的，所依赖库中的所有<em>load</em>方法会先调用。但在一个库中，这些类的<em>load</em>方法的调用顺序就是不可控的了。</li>
+<li>作者举例：EOCClassB中实现了<em>load</em>方法，它导入了Foundation.h和EOCClassA.h头文件，而EOCClassA和它同属一个库，EOCClassB在其<em>load</em>方法中使用了NSLog输出NSString，也实例化了EOCClassA并进行了操作。那么NSLog和NSString的使用是没问题的，因为Foundation.h中的class肯定先于EOCClassB的<em>load</em>方法，但使用EOCClassA就有问题了，你不能保证EOCClassA的<em>load</em>是否已经在EOCClassB的<em>load</em>方法之前调用了，因为有可能EOCClassA在<em>load</em>之前是不可用的。</li>
+<li><em>load</em>方法并不遵循于一般的继承规则，一个类没有实现<em>load</em>的话，是不会调用该方法的，即使它的父类实现了；<em>load</em>方法可同时存在于类和它的category中，且category的<em>load</em>会在本类的<em>load</em>之后调用。</li>
+<li>所以综上，<em>load</em>方法并不适合我们自己做初始化工作，因为我们不能确保所有的类型都已经加载，所以实际上它的用途最好仅停留在测试层面，因为如果在<em>load</em>中加载过多任务，也会影响应用的加载时间，是很影响用户体验的。</li>
+<li>第二个初始化方法是<em>+(void)initialize</em>方法，它也是会且只会被调用一次，它是被runtime调用的，而不能被直接调用，它与<em>load</em>有相似的地方，也有很多不同，概括有三点。</li>
+<li>区别一是<em>initialize</em>是懒加载，只有一个类被第一次用到之前才会调用，因此会出现一个类的<em>initialize</em>永远没被调用过的情况，这也意味着不像<em>load</em>会出现所有的<em>load</em>方法在同一时间加载，而且会阻塞应用加载。</li>
+<li>区别二是<em>initialize</em>在执行时，runtime是稳定状态，调用其他类的方法是安全的，而且runtime保证了<em>initialize</em>的线程安全，意味着只有执行<em>initialize</em>的线程可以和class和其实例交互，其他线程将会被阻塞，知道<em>initialize</em>完成。</li>
+<li>区别三是<em>initialize</em>与其他消息一样，如果类的<em>initialize</em>没实现，但是父类实现了，那么父类的<em>initialize</em>会被调用。</li>
+<li>作者举例父类实现了<em>initialize</em>，但是子类没有实现，但在log中会看到该方法被调用了两次，原因是使用一个类时，其父类的<em>initialize</em>会先调用，然后到子类时，由于没有实现该方法，所以继续沿响应链得知父类实现了该方法，所以又执行一次，为了避免这一问题，在<em>initialize</em>中加上<em>if(self == [EOCBaseClass class])</em>的判断就好了。</li>
+<li>虽然<em>initialize</em>比<em>load</em>灵活一些了，但是作者依然不推荐在<em>initialize</em>中做很复杂的初始化工作，原因也有三。</li>
+<li>原因一，一个类的<em>initialize</em>可能在任意线程，如果它发生在UI线程，而且<em>initialize</em>做了很多工作的话，可能导致主线程阻塞。预测哪个线程会先使用一个类是不可靠的，所以强制一个固定线程去触发类的<em>initialize</em>方法是不现实的。</li>
+<li>原因二，你不能控制一个类什么时候<em>initialize</em>，它是确定会在一个类被第一次使用之前调用，但是假设它会在某个固定时间执行是不可靠的，runtime可能会有所更新，导致细微改变类的初始化方式，那么你对类已经初始化完毕的设想可能是错误的。</li>
+<li>原因三，比较特殊，就是两个或多个类之间的初始化方法中出现了内部数据的相互调用，可能会出现，一个类需要另一个类初始化完毕，但是第二个类还依赖于第一个类的初始化完毕，造成了两个类之间的相互等待，和循环引用有一定程度的类似。</li>
+<li>综上，<em>initialize</em>中并不适合做大量的工作，尤其是调用其他类或自己的方法，如果自己的方法必须依赖自己已经初始化完毕，那么也会出现上述问题，所以<em>initialize</em>的正确用法是去初始化那些，无法在编译期间赋值的全局静态变量和全局变量，比如static NSMutableArray *kSomeObjects，因为这些OC对象必须等到runtime激活后才能使用。</li>
+<li>所以始终保持<em>initialize</em>和<em>load</em>方法简洁是一个好习惯，能避免大量的奇葩问题。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Item52 Remember that NSTimer Retains Its Target</h2>
+
+<p>1.NSTimer是一个常用的类，用来定时执行一些方法，或循环执行一些方法，它是需要和一个run loop关联的，你既可以在当前run loop预设置，也可以自己创建NSTimer对象自行设置。<br/>
+2.NSTimer预设置的方法需要传入target和selector，timer会retain target，而会在timer失效时release它，一个timer可以通过直接调用invalidate（一般是循环的）或者启动后（一般是一次性的）就会失效。<br/>
+3.因为timer会retain target，所以在循环执行时特别容易出现循环引用，如下，startPolling后，便会出现EOCClass和timer相互引用的结果，目前想解决这一问题，只能通过要求调用方自行调用stopPolling，但如果这时一个对外使用的类的话，这是不可控的；而寄希望于dealloc去解开这一循环，是不现实的，因为对于循环引用的两个对象，是不会出现一方先释放的。而且如果这一引用存在，会一直循环去执行这个任务，带来的问题不光是内存泄露。</p>
+
+<p>```objectivec
+ #import &lt;Foundation/Foundation.h>
+@interface EOCClass:NSObject
+&ndash;(void)startPolling;
+&ndash;(void)stopPolling;
+@end
+@implementation EOCClass{</p>
+
+<pre><code>NSTimer *_pollTimer;
+</code></pre>
+
+<p>}
+&ndash;(id)init{</p>
+
+<pre><code>return [super init];
+</code></pre>
+
+<p>}
+&ndash;(void)dealloc{</p>
+
+<pre><code>[_pollTimer invalidate];
+</code></pre>
+
+<p>}
+&ndash;(void)stopPolling{</p>
+
+<pre><code>[_pollTimer invalidate];
+_pollTimer = nil;
+</code></pre>
+
+<p>}
+&ndash;(void)startPolling{</p>
+
+<pre><code>_pollTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(p_doPoll) userInfo:nil repeats:YES];
+</code></pre>
+
+<p>}
+&ndash;(void)p_doPoll{</p>
+
+<pre><code>//Poll the resource
+</code></pre>
+
+<p>}
+```</p>
+
+<p>4.那么要想解决这个问题，又不依赖外部，一个方案是做一个NSTimer的block分类，如下，block被设置为userInfo参数，timer也会对它retain，block要进行一次copy，从stack移到heap上，这在Item37说过，现在的target变成了NSTimer这个类本身，因为NSTimer作为一个类对象，是一个单例，所以不用担心释放问题，虽然也存在循环引用，但是没关系。</p>
+
+<p>```objectivec
+ #import &lt;Foundation/Foundation.h>
+@interface NSTimer(EOCBlockSupport)
++(NSTimer<em>)eoc_scheduledTimerWithTimeInterval:(NSTimeInterval)interval block:(void(^)())block repeats:(BOOL)repeats;
+@end
+@implementation NSTimer(EOCBlockSupport)
++(NSTimer</em>)eoc_scheduledTimerWithTimeInterval:(NSTimeInterval)interval block:(void(^)())block repeats:(BOOL)repeats{</p>
+
+<pre><code>return [self scheduledTimerWithTimeInterval:interval target:self selector:@selector(eoc_blockInvoke:) userInfo:[block copy] repeats:repeats];
+</code></pre>
+
+<p>}
++(void)eoc_blockInvoke:(NSTimer*)timer{</p>
+
+<pre><code>void(^block)()=timer.userInfo;
+if(block){
+    block();
+} 
+</code></pre>
+
+<p>}
+```</p>
+
+<p>5.回到新方法的使用，像下面这样直接调用的话，还是会导致循环引用，因为block会retain self，而timer会在userInfo处retain block，而timer本身被self引用，所以正确的做法是做一个self的weak变量，在block中再声明一个strong的临时变量，确保block retain一个weak对象，而在block内部又不会提前释放掉，这也是解决block retain cycle的常见策略。</p>
+
+<p>```objectivec
+//wrong
+&ndash;(void)startPolling{</p>
+
+<pre><code>_polTimer = [NSTimer eoc_scheduledTimerWithTimeInterval:5.0 block:^{
+    [self p_doPoll];
+}
+repeats:YES
+];
+</code></pre>
+
+<p>}
+//right
+&ndash;(void)startPolling{</p>
+
+<pre><code>__weak __typeof(self)weakSelf = self;
+_polTimer = [NSTimer eoc_scheduledTimerWithTimeInterval:5.0 block:^{
+    __strong __typeof(weakSelf)strongSelf = weakSelf; 
+    [strongSelf p_doPoll];
+}
+repeats:YES
+];
+</code></pre>
+
+<p>}
+```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Effective Objective-C读书笔记6]]></title>
@@ -1230,247 +1622,6 @@ return copy;
 
 <p>}
 ```</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Effective Objective-C读书笔记2]]></title>
-    <link href="http://lucifer1988.github.io/blog/2015/07/22/effective-objective-cdu-shu-bi-ji-2/"/>
-    <updated>2015-07-22T17:09:55+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2015/07/22/effective-objective-cdu-shu-bi-ji-2</id>
-    <content type="html"><![CDATA[<p>继续上一篇，这篇的主题是Objects，Messaging，and the Runtime。</p>
-
-<!--more-->
-
-
-<h2>Item6 Understand Properties</h2>
-
-<ol>
-<li>在C++和Java中常使用@public和@private来声明实例变量，但在OC中由于对象是在编译期间定义的，所以按照这种定义方法，在新增变量后会导致访问偏移量出错，除非重新编译，但是这样就失去了动态语言的优势。</li>
-<li>OC的解决方案是将实例变量作为可存储内存偏移量的类对象，这同时可以将实例变量定义到实现文件中，从而实现隐藏。Apple鼓励使用存取方法而不是直接访问实例变量，也是为了解决这一问题，@property就是为了方便提供getter和setter方法。</li>
-<li>OC中的点方法类似C中访问结构体的成员，但其实是编译器转化为了对应的getter方法。</li>
-</ol>
-
-
-<h3>Property Attributes</h3>
-
-<ol>
-<li>主要说下有关内存管理的property属性，主要有assign，strong，weak，unsafe_unretained，copy。</li>
-<li>assign：主要用于标量的property属性，简单的赋值操作，引用计数不变。</li>
-<li>strong：声明的是持有关系，新值会被retain，旧值release，引用计数加1。</li>
-<li>weak：声明的是非持有关系，与assign类似，如果指向的对象被释放，该值也会被释放。</li>
-<li>unsafe_unretained：可以理解为针对对象的assign属性，但是所指向的对象被释放后，该值不会被释放，所以容易造成野指针，一般很少用到它。</li>
-<li>copy：与strong类似，只不过所赋值的引用计数不变，旧值会被赋给一个所赋值copy的引用计数为1的对象，一般用于不可变对象，可能被赋可变对象的值时，这样可确保旧值改变时，不可变对象不发生变化。</li>
-<li>get=&lt;>：可以自定义getter方法的名字，一般用于布尔型property，一般getter方法以is开头。</li>
-<li>额外1：如果对一不可变对象复制，copy是指针复制（浅拷贝）和mutableCopy就是对象复制（深拷贝）。如果是对可变对象复制，都是深拷贝，但是copy返回的对象是不可变的。</li>
-<li>额外2：不要在init（包括自定义的初始化方法）和dealloc中使用setter和getter方法。</li>
-<li>atomic用以确保线程安全，但是iOS平台的property基本都是nonatomic的，主要是因为性能问题，而且atomic也并非完全是线程安全的（例如一个线程频繁访问一个对象时，另一线程同时在写入，前一线程也会拿到不同的值），而在Mac OS X就不存在这个性能瓶颈了。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item7 Access Instance Variables Primarliy Directly When Accessing Them Internally</h2>
-
-<ol>
-<li>本章讨论的是如何在内部使用实例变量，有两种方式，一是使用生成的存取方法，二是直接使用实例变量。</li>
-<li>优缺点如下：
-
-<ol>
-<li>直接访问对象，速度会快，绕开了OC的method dispatch，编译器会直接访问存储对象的内存。</li>
-<li>直接访问对象会绕开与内存相关的setter方法，例如你设置的copy型的setter，只会按照retain来执行。</li>
-<li>直接访问对象不会触发KVO。</li>
-<li>使用存取方法会使调试变得简单，你可以在getter/setter添加断点。</li>
-</ol>
-</li>
-<li>比较推荐的做法是，在存对象的时候使用setter方法，而在读取对象时直接读取，这样既享受了快速读取，也可以利用property控制保存对象。</li>
-<li>但是这么做还是有一些需要注意的地方：
-
-<ol>
-<li>在初始化方法中，一定要使用直接赋值的方法，主要是因为怕子类复写了对象的setter方法，而导致异常，如果一个对象声明在了父类的内部，而子类不能直接访问它，你也不能直接访问读取该变量，这种情况只能通过setter赋值
-2.如果实例变量使用了延时加载，那么读取一定要使用getter方法，不然这个对象永远都不会有值。</li>
-</ol>
-</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item8 Understand Object Equality</h2>
-
-<ol>
-<li>比较两个对象，不使用==，那样只会比较指针的值，而一般使用<em>isEqual:</em>，如果对象有自己的专有比较方法，例如<em>isEqualToString:</em>，优先使用这些方法，速度会快些。</li>
-<li><em>&ndash;(NSUIntegetr)hash;</em>是一个与比较对象息息相关的方法，hash相同的对象不一定相同，而相同的对象hash值一定相同。</li>
-<li>所以自定义对象重写<em>isEqual:</em>方法，也一定要重写hash方法，共有三种方案：
-
-<ol>
-<li>返回一个常数，这个方案优点是使用单个对象时快，但是如果把大量对象放入同一集合，由于hash值相同，集合会挨个检查这些对象是否真的相同，从而导致向一个集合添加大量对象时就会很慢；</li>
-<li>使用一个拼接的唯一字符串，然后进行hash，这个方案避免了上面的问题，但是出现了单个对象需要生成一个字符串，从而影响了速度的问题；</li>
-<li>先取一系列变量的hash值，再将其异或，这个方案算是为了避免上述问题的折衷方案。</li>
-</ol>
-</li>
-</ol>
-
-
-<h3>Class-Specific Equality Methods</h3>
-
-<ol>
-<li>自定义类可以通过重写<em>isEqual:</em>方法，在方法里判断如果是同一类型，就调用上面的比较方法，如不是就调用父类的<em>isEqual:</em>方法，这样可以实现子类也可以与父类进行比较。</li>
-</ol>
-
-
-<h3>Deep versus Shallow Equality</h3>
-
-<ol>
-<li>有时你并不需要判断对象的所有信息是否相同，比如来自数据库的信息，可能只通过判断id就可以进行判断，所谓的浅比较就是这样。</li>
-</ol>
-
-
-<h3>Equality of Mutable Classes in Containers</h3>
-
-<ol>
-<li>这一部分主要讲的是，向集合添加可变对象，然后改变该对象，是有可能让集合出现重复对象的，这点值得关注。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item9 Use the Class Cluster Pattern to Hide Implementation Detail</h2>
-
-<ol>
-<li>类簇是OC中很重要的一个设计模式，例如UIButton的创建，类簇解决的问题是需要统一创建同一基本类型的不同对象，而同时避免暴露子类和父类内部复杂的switch语句。</li>
-</ol>
-
-
-<h3>Creating a Class Cluster</h3>
-
-<ol>
-<li>创建类簇的思路：一个基类，一些空方法，一个创建对象的工厂方法，继承的子类对空方法重写。这样的类簇有个缺点就是用户可能以为自己使用的类就是那个基类，而不知道其实是它的子类。</li>
-</ol>
-
-
-<h3>Class Clusters in Cocoa</h3>
-
-<ol>
-<li>由于很多Cocoa类都是使用了类簇模式，所以类似<em>[maybeAnArray class] == [NSArray class]</em>这样的校验类型的方法是不会返回正确值的，而要使用<em>[maybeAnArray isKindOfClass:[NSArray class]]</em>。</li>
-<li>添加一个类簇的子类而不去改写其基类的工厂方法，对于NSArray是可以的，但是有三点要求：1、必须是该类簇基类的子类；2、该子类必须定义自己的存储空间，也就是说内部要有一个NSArray的对象来实现数据的存储；3、子类必须重写类簇文档中规定重写的方法。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item10 Use Associated Objects to Attach Custom Data to Existing Classes</h2>
-
-<ol>
-<li>有时为了为一个类绑定一些信息，而又不方便添加多余的property或者继承这个类，可以考虑使用<em>association</em>，类似字典型的键值读取，也可以设置内存管理策略，但是需要注意绑定的key必须是唯一的指针，而不只是值相同，所以一般使用全局的静态变量作为key。</li>
-</ol>
-
-
-<h3>An Example of Using Associated Objects</h3>
-
-<ol>
-<li>通过使用<em>Associated Objects</em>实现了UIAlertView的回调Block化，使得代码的可读性更好，也更方便。</li>
-<li><em>Associated Objects</em>提供了一个将对象之间互相绑定的方法，但是并不推荐大范围使用该方法，因为会导致调试变的更难。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item11 Understand the Role of objec_msgSend</h2>
-
-<ol>
-<li>OC利用动态绑定成为了真正的动态语言，OC中传递消息最终被转化为函数<em>void objc_msgSend(id self, SEL cmd, &hellip;)</em>，例如：<em>id returnValue = [someObkect messageName:parameter];</em>转化后，<em>id returnValue = objc_msgSend(someObject, @sleector(messageName:), parameter);</em>。</li>
-<li><em>objc_msgSend</em>执行的顺序是先在接受者实现的方法中找符合的方法来执行，如没有，向继承链上方逐级寻找符合的实现方法。</li>
-<li><em>objc_msgSend</em>会为每个类缓存一张查找表，来加速这一过程，但即使如此，还是比在C中直接调用静态调用函数慢，但这常常不是应用的瓶颈，这样来换取程序的灵活性还是值得的。</li>
-<li><em>objc_msgSend</em>是针对确定消息的处理，下面还有一些处理个别案例的方法。</li>
-<li><em>objc_msgSend_stret</em>用于处理用户返回适用于CPU寄存器的结构体的消息（不太懂）。</li>
-<li><em>objc_msgSend_fpret</em>用于处理返回浮点值的消息，一些结构需要在函数调用时对浮点数寄存器特殊处理，所以这是该方法存在的意义（不太懂）。</li>
-<li><em>objc_msgSendSuper</em>直接把消息转发给父类执行，类的所有方法都是一个个类似<em>&lt;return_type> Class_selector(id self, SEL _CMD, &hellip;)</em>这样的原型，这些方法指针存在该类的一个查找表中等待调用，该原型与<em>objc_msgSend</em>是相同的，也就实现了<a href="http://www.ruanyifeng.com/blog/2015/04/tail-call.html">尾部递归调用</a>的可能，这样会实现调用栈的空间复杂度保持O(1)，不会产生溢出。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item12 Understand Message Forwarding</h2>
-
-<ol>
-<li>转发路径是为了处理接受者无法处理消息的情况，分为两条路径：1、<em>dynamic method resolution</em>期望接收者自己在runtime添加处理方法；2、<em>full forwarding mechanism</em>到了这一步，runtime得知接收者是不可能对消息做出响应了，所以要求接收者自己处理该消息，又分为两步：(1)询问是否有其他对象可以接收消息，如果有则转发给该对象；(2)如果也没有替代的接收者，那么将使用<em>NSInvocation</em>来对消息进行封装，然后交给原接收者去处理。<a href="http://bugly.qq.com/blog/?p=64">这儿也做了详细解释</a>。</li>
-</ol>
-
-
-<h3>Dynamic Method Resolution</h3>
-
-<ol>
-<li><em>+(BOOL)resolveInstanceMethod:(SEL)selector</em>用于表明类有无实例方法可处理该消息，可以说是给予该类的第二次机会。</li>
-<li>这类方法是存在的，例如CoreData的@dynamic的property的accessing方法，而<em>+(BOOL)resolveInstanceMethod:(SEL)selector</em>对其的处理是判断是否是@dynamic property，如果是，向该类添加预备好的getter，setter方法，已确保类可以响应该消息。</li>
-</ol>
-
-
-<h3>Replacement Receiver</h3>
-
-<ol>
-<li><em>&ndash;(id)forwardTargetForSelector:(SEL)selector</em>用于返回可以替代原接收者的对象（如果其存在的话），这其实提供了一些多继承的特性，即原类内部可以有其他对象来实现这一方法。但是无法对消息进行修改，只是转发，如需修改消息，则需要采取最后一步。</li>
-</ol>
-
-
-<h3>Full Forwarding Mechanism</h3>
-
-<ol>
-<li>&ndash;(void)forwardInvocation:(NSInvocation*)invocation用于转发接收到的NSInvocation消息，可以进行简单转发，但这和上述的方法没有区别，而更为常见的用途是修改消息，如增加参数或者改变方法等。</li>
-<li>重写该方法时需要调用父类的相同方法来处理改invocation，这样会最终调用NSObject的<em>doesNotRecognizeSelector</em>，最终抛出异常，但如果你不希望程序崩溃，就不要去调用父类的方法。</li>
-</ol>
-
-
-<h3>The Full Picture</h3>
-
-<ol>
-<li>具体图表见<a href="http://bugly.qq.com/blog/?p=64">这儿</a>。</li>
-<li>解决的代价是越来越高的，所以最好在第一阶段解决这一问题。</li>
-</ol>
-
-
-<h3>Full Example of Dynamic Method Resolution</h3>
-
-<ol>
-<li>举例说明，将一个model中的所有对象都存在一个dictionary中，而这些对象申明为@dynamic，在<em>+(BOOL)resolveInstanceMethod:(SEL)selector</em>中根据selector的信息对相应的对象动态添加setter，getter方法，大幅减少代码量，但缺点是想特殊处理某个对象，就变得比较麻烦了。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item13 Consider Method Swizzling to Debug Opaque Methods</h2>
-
-<ol>
-<li><em>Method Swizzling</em>主要用于不知道类的源码，且不用继承、重写，即可为原方法添加hook的手段（其实是在runtime中先交换，再执行一次原方法而已-_-）。</li>
-<li>通过添加一个类的分类，在分类添加一个方法，在这个方法中进行递归调用，然后与目标方法进行交换，这时再执行原方法时，会依次执行这两个方法。<a href="http://blog.csdn.net/yiyaaixuexi/article/details/9374411">另外一篇文章也有说明</a>。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item14 Understand What a Class Object Is</h2>
-
-<ol>
-<li>Class本身也是一个结构体指针，叫objc_class，Class也有一个Class类型的isa指针，说明Class本身也是一个OC对象，他的类型叫做metaclass，Class有Class类型的super_class指针，用来指向他的父类Class。</li>
-</ol>
-
-
-<h3>Inspecting the Class Hierarchy</h3>
-
-<ol>
-<li><em>isMemberOfClass:</em>用于判断是否属于该类，<em>isKindOfClass:</em>用于判断是否属于该类或者该类的子类。原理还是利用上述的Class的isa和super_class指针。</li>
-<li>内省（自我类型检查）是OC中的重要技术，应用也很广泛，除了上述方法，也可利用<em>[object class] == [EOCSomeClass class]</em>来判断，之所以这么写是合理的，是因为每个class的Class类型是一个单例对象，所以可以直接比较指针。</li>
-<li>但是还是推荐使用默认的类型检测方法，因为这样可以利用消息转发技术，如果一个对象的所有方法都是代理对象执行的，那么调用class方法只会返回代理对象的类型，而调用<em>isKindOfClass:</em>方法，代理会把消息转给被代理的对象，会得到正确的类型。</li>
-</ol>
-
 ]]></content>
   </entry>
   

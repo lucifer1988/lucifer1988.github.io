@@ -4,7 +4,7 @@
   <title><![CDATA[刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-09-16T15:39:56+08:00</updated>
+  <updated>2015-09-22T11:51:20+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,503 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Effective Objective-C读书笔记7]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/09/16/effective-objective-cdu-shu-bi-ji-7/"/>
+    <updated>2015-09-16T15:42:34+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/09/16/effective-objective-cdu-shu-bi-ji-7</id>
+    <content type="html"><![CDATA[<p>这是本书的最后一章了，集中讲解了有关Cocoa自带的system framework，这是开发中必须要使用的基本库，没有这些封装，很多基本的功能都无法实现，没有集合，也没有基类NSObject，可谓寸步难行，一些新的Api有时会节省我们很多工作量，同时这些库中的很多设计也是我们自己的代码需要学习的。</p>
+
+<!--more-->
+
+
+<h2>Item47 Familiarize Yourself with the System Frameworks</h2>
+
+<ol>
+<li>一个framework是将代码打包成一个动态库，会有头文件来描述接口，有时候也会有一些第三方的静态库（即.a文件），这些不能作为真正意义上的框架，但是被常常当做框架来用，所有的系统框架都使用了动态库。</li>
+<li>Cocoa或Cocoa Touch是框架集，其中的基本框架就是Foundation框架，Foundation Framework不但提供了基本类型和基本集合，而且还有很多复杂功能，比如字符串处理。</li>
+<li>除了另一个基础库是CoreFoundation，几乎就是Foundation的镜像库，只不过内部都是C接口和结构体，OC提供了一个名为toll-free bridging的转换特性，可以使OC对象和CF对象自由转化，toll-free bridging自身比较复杂，所以不建议自己去实现这一转化功能。除了上述两个基础框架，还有以下一些常用框架：</li>
+<li>CFNetwork：基于C的网络请求基本框架，基于BSD socket提供了很多易用的请求工具，Foundation通过对它的部分封装，提供了OC类型的网络接口。</li>
+<li>CoreAudio：提供了基于C的音频设备访问接口，本身是很复杂的，但OC的抽象将其变得易用不少。</li>
+<li>AVFoundation：提供了用于播放和录制音视频的OC对象，例如播放视频的UI类。</li>
+<li>CoreData：提供了用于数据持久化的OC对象，CoreData处理数据的存取，并能在Mac OS X与iOS之间通用。</li>
+<li>CoreText：提供了基于C的文字高效的类型设置和渲染的接口。</li>
+<li>使用一些C类型的框架，有时是必要的，因为通过绕过runtime，速度会更快，但是需要更加关注内存管理。</li>
+<li>AppKit和UIKit分别是Mac OS X 和iOS的UI框架，提供了基于Foundation和CoreFoundation的OC类型，在它的下面是CoreAnimation和CoreGraphics在支持。</li>
+<li>CoreAnimation基于OC类型，提供了渲染图像和展示动画的工具，它不是一个独立的框架，还是QuartzCore框架的一部分，但是很多情况CoreAnimation还是被优先使用。</li>
+<li>CoreGraphics是基于C类型的，提供了用于2D渲染的必不可少的结构体和函数，CGPoint，CGSize，CGRect都是在这儿定义的。</li>
+<li>UIKit的上层还有很多更高级的框架，例如：MapKit，Social framework。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Item48 Prefer Block Enumeration to for Loops</h2>
+
+<p>1.遍历一个集合类型是常见需求，，而OC也有很多方式，从标准的C的for循环，到OC 1.0的NSEnumerator，到OC 2.0的快速遍历，block加入OC后，又出现了遍历直接传入block进行对象处理的新方法。<br/>
+2.For Loops：沿用最原始的C语言的循环，定义一个int型index，然后按照index去遍历每个对象，对于NSArray来说影响还不大，但是对于NSDictionary，NSSet来说，因为都是无序的，所以必须额外生成中间数组，这是额外的内存消耗，但倒序遍历只需要改变index为递减即可，还算方便。<br/>
+3.OC 1.0 NSEnumerator：NSEnumerator是一个基类，需要重写-(NSArray*)allObjects,&ndash;(id)nextObject两个方法，而Foundation框架的集合类型都支持了NSEnumerator，可以通过不断执行nextObject()来完成遍历，它的优势是所有的集合类型的遍历方式都是类似的，而且也支持不同的enumerator来实现不同顺序来遍历，缺点是还是需要额外的enumerator，而且不能得知当前的index。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//NSArray enumerator</span>
+</span><span class='line'><span class="n">NSArray</span> <span class="o">*</span><span class="n">anArray</span> <span class="o">=</span> <span class="cm">/*...*/</span><span class="p">;</span>
+</span><span class='line'><span class="n">NSEnumerator</span> <span class="o">*</span><span class="n">enumerator</span> <span class="o">=</span> <span class="p">[</span><span class="n">anArray</span> <span class="n">objectEnumerator</span><span class="p">];</span>
+</span><span class='line'><span class="kt">id</span> <span class="n">object</span><span class="p">;</span>
+</span><span class='line'><span class="k">while</span><span class="p">((</span><span class="n">object</span> <span class="o">=</span> <span class="p">[</span><span class="n">enumerator</span> <span class="n">nextObject</span><span class="p">])</span><span class="o">!=</span><span class="nb">nil</span><span class="p">){</span>
+</span><span class='line'>  <span class="c1">//Do something with &#39;object&#39;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c1">//NSDictionary enumerator</span>
+</span><span class='line'><span class="n">NSDictionary</span> <span class="o">*</span><span class="n">aDictionary</span> <span class="o">=</span> <span class="cm">/*...*/</span><span class="p">;</span>
+</span><span class='line'><span class="kt">id</span> <span class="n">key</span><span class="p">;</span>
+</span><span class='line'><span class="k">while</span><span class="p">((</span><span class="n">key</span> <span class="o">=</span> <span class="p">[</span><span class="n">enumerator</span> <span class="n">nextObject</span><span class="p">])</span><span class="o">!=</span><span class="nb">nil</span><span class="p">){</span>
+</span><span class='line'>  <span class="kt">id</span> <span class="n">value</span> <span class="o">=</span> <span class="n">aDictionary</span><span class="p">[</span><span class="n">key</span><span class="p">];</span>
+</span><span class='line'>  <span class="c1">//Do something with &#39;key&#39; and &#39;value&#39;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c1">//NSArray reverse enumerator</span>
+</span><span class='line'><span class="n">NSArray</span> <span class="o">*</span><span class="n">anArray</span> <span class="o">=</span> <span class="cm">/*...*/</span><span class="p">;</span>
+</span><span class='line'><span class="n">NSEnumerator</span> <span class="o">*</span><span class="n">enumerator</span> <span class="o">=</span> <span class="p">[</span><span class="n">anArray</span> <span class="n">reverseObjectEnumerator</span><span class="p">];</span>
+</span><span class='line'><span class="kt">id</span> <span class="n">object</span><span class="p">;</span>
+</span><span class='line'><span class="k">while</span><span class="p">((</span><span class="n">object</span> <span class="o">=</span> <span class="p">[</span><span class="n">enumerator</span> <span class="n">nextObject</span><span class="p">])</span><span class="o">!=</span><span class="nb">nil</span><span class="p">){</span>
+</span><span class='line'>  <span class="c1">//Do something with &#39;object&#39;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>4.Fast Enumeration：OC2.0引入了快速遍历，快速遍历详单与结合了for-loop和enumerator的双重特点，同时极大的简化了语法。实现这一技术是采用了NSFastEnumeration这一协议（只有一个方法），集合类型通过遵循这一协议，从而支持了快速遍历，实现协议中的方法使得类可以同时返回多个对象：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//NSFastEnumeration</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="n">NSUInteger</span><span class="p">)</span><span class="nf">countByEnumeratingWithState:</span><span class="p">(</span><span class="n">NSFastEnumerationState</span><span class="o">*</span><span class="p">)</span><span class="nv">state</span> <span class="nf">objects:</span><span class="p">(</span><span class="kt">id</span><span class="o">*</span><span class="p">)</span><span class="nv">stackbuffer</span> <span class="nf">count:</span><span class="p">(</span><span class="n">NSUInteger</span><span class="p">)</span><span class="nv">length</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//NSArray</span>
+</span><span class='line'><span class="n">NSArray</span> <span class="o">*</span><span class="n">anArray</span> <span class="o">=</span> <span class="cm">/*...*/</span><span class="p">;</span>
+</span><span class='line'><span class="k">for</span><span class="p">(</span><span class="kt">id</span> <span class="n">object</span> <span class="k">in</span> <span class="n">anArray</span><span class="p">){</span>
+</span><span class='line'>  <span class="c1">//Do something with &#39;object&#39;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c1">//NSDictionary</span>
+</span><span class='line'><span class="n">NSDictionary</span> <span class="o">*</span><span class="n">aDictionary</span> <span class="o">=</span> <span class="cm">/*...*/</span><span class="p">;</span>
+</span><span class='line'><span class="k">for</span><span class="p">(</span><span class="kt">id</span> <span class="n">key</span> <span class="k">in</span> <span class="n">aDictionary</span><span class="p">){</span>
+</span><span class='line'>  <span class="kt">id</span> <span class="n">value</span> <span class="o">=</span> <span class="n">aDictionary</span><span class="p">[</span><span class="n">key</span><span class="p">];</span>
+</span><span class='line'>  <span class="c1">//Do something with &#39;key&#39; and value</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果需要反向遍历，可以通过下列方法，因为NSEnumerator也实现了NSFastEnumeration：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">NSArray</span> <span class="o">*</span><span class="n">anArray</span> <span class="o">=</span> <span class="cm">/*...*/</span><span class="p">;</span>
+</span><span class='line'><span class="k">for</span><span class="p">(</span><span class="kt">id</span> <span class="n">object</span> <span class="k">in</span> <span class="p">[</span><span class="n">anArray</span> <span class="n">reverseObjectEnumerator</span><span class="p">]){</span>
+</span><span class='line'>  <span class="c1">//Do something with &#39;object&#39;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>快速遍历的优点是效率很高，而且代码简洁，但是依然有两个缺陷，NSDictionary如果同时需要key和value的话，还是需要两步；同时index也是无法直接获取。</p>
+
+<p>5.Block-Based Enumeration：是在OC引入block后的遍历集合的最新方法，下面是NSArray的基本block遍历方法，前两个参数很明显，第三个参数是用来停止遍历的：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//NSArray</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">enumerateObjectsUsingBlock:</span><span class="p">(</span><span class="kt">void</span><span class="p">(</span><span class="o">^</span><span class="p">)(</span><span class="kt">id</span> <span class="n">object</span><span class="p">,</span><span class="n">NSUInteger</span> <span class="n">idx</span><span class="p">,</span><span class="kt">BOOL</span> <span class="o">*</span><span class="n">stop</span><span class="p">))</span><span class="nv">block</span><span class="p">;</span>
+</span><span class='line'><span class="c1">//NSDictionary</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">enumerateLeysAndObjectsUsingBlock:</span><span class="p">(</span><span class="kt">void</span><span class="p">(</span><span class="o">^</span><span class="p">)(</span><span class="kt">id</span> <span class="n">key</span><span class="p">,</span><span class="kt">id</span> <span class="n">object</span><span class="p">,</span><span class="kt">BOOL</span> <span class="o">*</span><span class="n">stop</span><span class="p">))</span><span class="nv">block</span><span class="p">;</span>
+</span><span class='line'><span class="c1">//example</span>
+</span><span class='line'><span class="n">NSArray</span> <span class="o">*</span><span class="n">aArray</span> <span class="o">=</span> <span class="cm">/*...*/</span><span class="p">;</span>
+</span><span class='line'><span class="p">[</span><span class="n">aArray</span> <span class="nl">enumerateObjectsUsingBlock:</span><span class="o">^</span><span class="p">(</span><span class="kt">id</span> <span class="n">object</span><span class="p">,</span><span class="n">NSUInteger</span> <span class="n">idx</span><span class="p">,</span><span class="kt">BOOL</span> <span class="o">*</span><span class="n">stop</span><span class="p">){</span>
+</span><span class='line'>  <span class="c1">//Do something with &#39;object&#39;</span>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="n">shouldStop</span><span class="p">){</span>
+</span><span class='line'>      <span class="o">*</span><span class="n">stop</span> <span class="o">=</span> <span class="n">YES</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}];</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>block遍历虽然看起来语法比快速遍历更复杂了，但是代码还是很整洁的，而且提供了方便的停止遍历的方法，而在其他方式中需要自己添加break，另外你可以现在一次性获得所有的信息，包括：NSArray的index，NSDictionary的key和value。</p>
+
+<p>如果NSDictionary的键值类型是确定的，那么你可以重写block中的id类型，也可以在类型出现异常时抛出警告，所以如果类型确定，还是推荐这么写的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">NSDictionary</span> <span class="o">*</span><span class="n">aDictionary</span> <span class="o">=</span> <span class="cm">/*...*/</span><span class="p">;</span>
+</span><span class='line'><span class="p">[</span><span class="n">aDictionary</span> <span class="nl">enumerateKeysAndObjectsUsingBlock:</span><span class="o">^</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="n">key</span><span class="p">,</span><span class="n">NSString</span> <span class="o">*</span><span class="n">obj</span><span class="p">,</span><span class="kt">BOOL</span> <span class="o">*</span><span class="n">stop</span><span class="p">){</span>
+</span><span class='line'>  <span class="c1">//Do Something with &#39;key&#39; and &#39;obj&#39;</span>
+</span><span class='line'><span class="p">}];</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>除了这些，还有个最大的特点是，block遍历可以通过设置option（枚举类型）来实现各种各样的遍历方式，例如通过NSEnumerationConcurrent实现对集合中的对象并发执行方法（内部应该是利用了GCD的dispatch group），通过NSEnumerationReverse实现集合的逆向遍历，而且也可以通过位与操作，同时实现这两个option。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//NSArray</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">enumerateObjectsWithOptions:</span><span class="p">(</span><span class="n">NSEnumerationOptions</span><span class="p">)</span><span class="nv">options</span> <span class="nf">usingBlock:</span><span class="p">(</span><span class="kt">void</span><span class="p">(</span><span class="o">^</span><span class="p">)(</span><span class="kt">id</span> <span class="n">object</span><span class="p">,</span><span class="n">NSUInteger</span> <span class="n">idx</span><span class="p">,</span><span class="kt">BOOL</span> <span class="o">*</span><span class="n">stop</span><span class="p">))</span><span class="nv">block</span><span class="p">;</span>
+</span><span class='line'><span class="c1">//NSDictionary</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">enumerateLeysAndObjectsWithOptions:</span><span class="p">(</span><span class="n">NSEnumerationOptions</span><span class="p">)</span><span class="nv">options</span> <span class="nf">usingBlock:</span><span class="p">(</span><span class="kt">void</span><span class="p">(</span><span class="o">^</span><span class="p">)(</span><span class="kt">id</span> <span class="n">key</span><span class="p">,</span><span class="kt">id</span> <span class="n">object</span><span class="p">,</span><span class="kt">BOOL</span> <span class="o">*</span><span class="n">stop</span><span class="p">))</span><span class="nv">block</span><span class="p">;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>综上，block遍历虽然语法不及快速遍历简洁，但是对于NSArray获得index，对于NSDictionary获得key和value这些信息，通过option获得并发执行遍历，都是优于其他遍历方法的。</p>
+
+<!--more-->
+
+
+<h2>Item49 Using Toll-Free Bridging for Collections with Custom Memory-Management Semantics</h2>
+
+<p>1.Toll-Free Bridging是OC用来在Foundation定义的OC对象和CoreFoundation定义的对应的C结构体之间相互转化，使用了<strong>bridge关键字，相当于ARC依然持有OC对象，如果使用了</strong>bridge_retained，那么ARC就要交出持有权，那么在我们使用完CF指针后要执行CFRelease(aCFArray)来释放内存，反之你需要将CF指针转化为OC对象，并需要转移持有权时，要加上__bridge_transfer关键字，这三个关键字非常重要。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">NSArray</span> <span class="o">*</span><span class="n">anNSArray</span> <span class="o">=</span> <span class="err">@</span><span class="p">[</span><span class="err">@</span><span class="mi">1</span><span class="p">,</span><span class="err">@</span><span class="mi">2</span><span class="p">,</span><span class="err">@</span><span class="mi">3</span><span class="p">,</span><span class="err">@</span><span class="mi">4</span><span class="p">,</span><span class="err">@</span><span class="mi">5</span><span class="p">];</span>
+</span><span class='line'><span class="n">CFArrayRef</span> <span class="n">aCFArray</span> <span class="o">=</span> <span class="p">(</span><span class="n">__bridge</span> <span class="n">CFArrayRef</span><span class="p">)</span><span class="n">anNSArray</span><span class="p">;</span>
+</span><span class='line'><span class="n">NSLog</span><span class="p">(</span><span class="s">@&quot;Size of array = %li&quot;</span><span class="p">,</span> <span class="n">CFArrayGetCount</span><span class="p">(</span><span class="n">aCFArray</span><span class="p">));</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.为什么要去使用CF结构体指针？当然绝大部分情况我们是不会刻意去使用的，作者列举了一个特殊的场景：NSDictionary的key是copy类型，而value是retain类型，也就意味着，不支持copy协议的类是不能作为NSDictionary的key的，如果我们需要一个value和key都是retain类型的dictionary，那要怎么办呢？<br/>
+3.作者列举了一种思路，重新构建一个CF的字典类型，因为在这一级，我们可以控制key和value的回调类型，然后再通过Toll-Free Bridging来转化为需要的NSMutableDictionary，从而达到目的。</p>
+
+<!--more-->
+
+
+<h2>Item50 Use NSCache Instead of NSDictionary for Caches</h2>
+
+<p>1.在网络请求中做缓存是常见的需求，因为一般会将data和url或者request对象做成键值对存储，所以一些年轻的程序员就会考虑用NSDictionary来做缓存，但是作者建议用NSCache来做这类缓存。<br/>
+2.NSCache的优势之一是，当系统资源吃紧时，cache会被自动释放，且会优先释放最近未被使用的缓存，如果NSDictionary想实现这一点，是需要做很多额外工作的。<br/>
+3.NSCache的优势之二是，NSDictionary的key是copy类型，而value是retain类型，而NSCache的key和value都是retain类型，这就意味着，NSCache可以将不实现copy协议的对象作为key，虽然根据Item49的做法，也可以把NSDictionary做成这种类型，但是实现起来很复杂。另外，NSCache是线程安全的，你可以在多个线程同时插值，在做缓存时，在主线程读取缓存，然后缓存不存在，在后台线程下载并赋值是常见的场景。<br/>
+4.你可以手动控制缓存的容量，通过设置缓存数量和大小来控制，如果缓存数量或大小超过限制，也会开始自动释放，但释放的顺序是不可控的，所以想通过改变最大容量来让缓存按照顺序释放是不现实的。<br/>
+5.需要注意的是，设置缓存大小容量，是基于加入缓存的对象的大小易于计算，如果计算对象大小成本过高的话，这就会影响效率，因为每次加入都会进行计算。例如去硬盘计算文件大小或去数据库查找大小就是耗时的操作，但如果是NSData作为缓存对象，那么获取它的大小代价就很小，只是读取一个property而已。<br/>
+6.下面是一个使用NSCache的实例：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">@implementation</span> <span class="nc">EOCClass</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">NSCache</span> <span class="o">*</span><span class="n">_cache</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">-</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="n">init</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span><span class="p">((</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="n">init</span><span class="p">])){</span>
+</span><span class='line'>      <span class="n">_cache</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSCache</span> <span class="n">new</span><span class="p">];</span>
+</span><span class='line'>      <span class="n">_cache</span><span class="p">.</span><span class="n">countLimit</span> <span class="o">=</span> <span class="mi">100</span><span class="p">;</span>
+</span><span class='line'>      <span class="n">_cache</span><span class="p">.</span><span class="n">totalCostLimit</span> <span class="o">=</span> <span class="mi">5</span><span class="o">*</span><span class="mi">1024</span><span class="o">*</span><span class="mi">1024</span><span class="p">;</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nl">downloadDataForURL:</span><span class="p">(</span><span class="n">NSURL</span><span class="o">*</span><span class="p">)</span><span class="n">url</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">NSData</span> <span class="o">*</span><span class="n">cachedData</span> <span class="o">=</span> <span class="p">[</span><span class="n">_cache</span> <span class="nl">objectForKey:</span><span class="n">url</span><span class="p">];</span>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="n">cacheData</span><span class="p">){</span>
+</span><span class='line'>      <span class="c1">//Cache hit</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">self</span> <span class="nl">useData:</span><span class="n">cachedData</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>      <span class="c1">//Cache miss</span>
+</span><span class='line'>      <span class="n">EOCNetworkFetcher</span> <span class="o">*</span><span class="n">fetcher</span> <span class="o">=</span> <span class="p">[[</span><span class="n">EOCNetworkFetcher</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithURL:</span><span class="n">url</span><span class="p">];</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">fetcher</span> <span class="nl">startWithCompletionHandler:</span><span class="o">^</span><span class="p">(</span><span class="n">NSData</span> <span class="o">*</span><span class="n">data</span><span class="p">){</span>
+</span><span class='line'>          <span class="p">[</span><span class="n">_cache</span> <span class="nl">setObject:</span><span class="n">data</span> <span class="nl">forKey:</span><span class="n">url</span> <span class="nl">cost:</span><span class="n">data</span><span class="p">.</span><span class="n">length</span><span class="p">];</span>
+</span><span class='line'>          <span class="p">[</span><span class="n">self</span> <span class="nl">useData:</span><span class="n">data</span><span class="p">];</span>
+</span><span class='line'>      <span class="p">}];</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">@end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>7.除了NSData，另一种可以和NSCache搭配的是NSPurgeableData，它是NSMutableData的子类，实现了NSDiscardableContent协议，NSPurgeableData的内存会在系统资源紧张时自动释放，<em>isContentDiscard</em>是协议中的一个方法，返回内存是否已释放。<br/>
+8.NSPurgeableData在使用之前要用<em>beginContentAccess</em>确保目前内存不被释放，然后使用完后调用<em>endContentAccess</em>告知系统可以被释放，这一对操作可以嵌套，类似retain/release。<br/>
+9.如果NSPurgeableData添加到NSCache，释放的对象会自动移出cache，这可以被<em>evictsObjectsWithDiscardedContent</em>这一property关闭或开启。<br/>
+10.下面是一个NSPurgeableData的实例，注意NSPurgeableData被创建时就相当于+1purge reference count与alloc类似，所以不必再加<em>beginContentAccess</em>，但用完要加<em>endContentAccess</em>。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">downloadDataForURL:</span><span class="p">(</span><span class="n">NSURL</span><span class="o">*</span><span class="p">)</span><span class="nv">url</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">NSPurgeableData</span> <span class="o">*</span><span class="n">cacheData</span> <span class="o">=</span> <span class="p">[</span><span class="n">_cache</span> <span class="nl">objectForKey:</span><span class="n">url</span><span class="p">];</span>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="n">cachedData</span><span class="p">){</span>
+</span><span class='line'>      <span class="c1">//Stop the data being purged</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">cacheData</span> <span class="n">beginContentAccess</span><span class="p">];</span>
+</span><span class='line'>      <span class="c1">//Use the cached data</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">self</span> <span class="nl">useData:</span><span class="n">cachedData</span><span class="p">];</span>
+</span><span class='line'>      <span class="c1">//Mark that the data may be purged again</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">cacheData</span> <span class="n">endContentAccess</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>      <span class="c1">//Cache miss</span>
+</span><span class='line'>      <span class="n">EOCNetworkFetcher</span> <span class="o">*</span><span class="n">fetcher</span> <span class="o">=</span> <span class="p">[[</span><span class="n">EOCNetworkFetcher</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithURL:</span><span class="n">url</span><span class="p">];</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">fetcher</span> <span class="nl">startWithCompletionHandler:</span><span class="o">^</span><span class="p">(</span><span class="n">NSData</span> <span class="o">*</span><span class="n">data</span><span class="p">){</span>
+</span><span class='line'>          <span class="n">NSPurgeableData</span> <span class="o">*</span><span class="n">purgeableData</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSPurgeableData</span> <span class="nl">dataWithData:</span><span class="n">data</span><span class="p">];</span>
+</span><span class='line'>          <span class="p">[</span><span class="n">_cache</span> <span class="nl">setObject:</span><span class="n">purgeableData</span> <span class="nl">forKey:</span><span class="n">url</span> <span class="nl">cost:</span><span class="n">purgeableData</span><span class="p">.</span><span class="n">length</span><span class="p">];</span>
+</span><span class='line'>          <span class="c1">//Don&#39;t need to beginContentAccess as it begins with access already marked</span>
+</span><span class='line'>          <span class="p">[</span><span class="n">self</span> <span class="nl">useData:</span><span class="n">data</span><span class="p">];</span>
+</span><span class='line'>          <span class="c1">//Mark that the data may be purged now</span>
+</span><span class='line'>          <span class="p">[</span><span class="n">purgeable</span> <span class="n">endContentAccess</span><span class="p">];</span>
+</span><span class='line'>      <span class="p">}];</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<h2>Item51 Keep initialize and load Implementations Lean</h2>
+
+<ol>
+<li>一个类总会有有自己的初始化方法，由于OC中类型大部分继承于NSObject，所有有很多继承于NSObject的初始化方法，第一个就是<em>*(void)load</em>方法。</li>
+<li><em>load</em>方法在每个class和category中会且只会被调用一次，这个方法发生在包含该类的library在加载后，一般是应用加载中，而且只是iOS代码的独有的，Mac OS X有更灵活的dynamic loading，可以使library在应用加载后加载，而category的load在其原class加载后加载。</li>
+<li>想重写<em>load</em>方法的问题是，它运行时runtime处于不稳定的状态，所有父类的<em>load</em>方法是先于其他类的<em>load</em>调用的，所依赖库中的所有<em>load</em>方法会先调用。但在一个库中，这些类的<em>load</em>方法的调用顺序就是不可控的了。</li>
+<li>作者举例：EOCClassB中实现了<em>load</em>方法，它导入了Foundation.h和EOCClassA.h头文件，而EOCClassA和它同属一个库，EOCClassB在其<em>load</em>方法中使用了NSLog输出NSString，也实例化了EOCClassA并进行了操作。那么NSLog和NSString的使用是没问题的，因为Foundation.h中的class肯定先于EOCClassB的<em>load</em>方法，但使用EOCClassA就有问题了，你不能保证EOCClassA的<em>load</em>是否已经在EOCClassB的<em>load</em>方法之前调用了，因为有可能EOCClassA在<em>load</em>之前是不可用的。</li>
+<li><em>load</em>方法并不遵循于一般的继承规则，一个类没有实现<em>load</em>的话，是不会调用该方法的，即使它的父类实现了；<em>load</em>方法可同时存在于类和它的category中，且category的<em>load</em>会在本类的<em>load</em>之后调用。</li>
+<li>所以综上，<em>load</em>方法并不适合我们自己做初始化工作，因为我们不能确保所有的类型都已经加载，所以实际上它的用途最好仅停留在测试层面，因为如果在<em>load</em>中加载过多任务，也会影响应用的加载时间，是很影响用户体验的。</li>
+<li>第二个初始化方法是<em>+(void)initialize</em>方法，它也是会且只会被调用一次，它是被runtime调用的，而不能被直接调用，它与<em>load</em>有相似的地方，也有很多不同，概括有三点。</li>
+<li>区别一是<em>initialize</em>是懒加载，只有一个类被第一次用到之前才会调用，因此会出现一个类的<em>initialize</em>永远没被调用过的情况，这也意味着不像<em>load</em>会出现所有的<em>load</em>方法在同一时间加载，而且会阻塞应用加载。</li>
+<li>区别二是<em>initialize</em>在执行时，runtime是稳定状态，调用其他类的方法是安全的，而且runtime保证了<em>initialize</em>的线程安全，意味着只有执行<em>initialize</em>的线程可以和class和其实例交互，其他线程将会被阻塞，知道<em>initialize</em>完成。</li>
+<li>区别三是<em>initialize</em>与其他消息一样，如果类的<em>initialize</em>没实现，但是父类实现了，那么父类的<em>initialize</em>会被调用。</li>
+<li>作者举例父类实现了<em>initialize</em>，但是子类没有实现，但在log中会看到该方法被调用了两次，原因是使用一个类时，其父类的<em>initialize</em>会先调用，然后到子类时，由于没有实现该方法，所以继续沿响应链得知父类实现了该方法，所以又执行一次，为了避免这一问题，在<em>initialize</em>中加上<em>if(self == [EOCBaseClass class])</em>的判断就好了。</li>
+<li>虽然<em>initialize</em>比<em>load</em>灵活一些了，但是作者依然不推荐在<em>initialize</em>中做很复杂的初始化工作，原因也有三。</li>
+<li>原因一，一个类的<em>initialize</em>可能在任意线程，如果它发生在UI线程，而且<em>initialize</em>做了很多工作的话，可能导致主线程阻塞。预测哪个线程会先使用一个类是不可靠的，所以强制一个固定线程去触发类的<em>initialize</em>方法是不现实的。</li>
+<li>原因二，你不能控制一个类什么时候<em>initialize</em>，它是确定会在一个类被第一次使用之前调用，但是假设它会在某个固定时间执行是不可靠的，runtime可能会有所更新，导致细微改变类的初始化方式，那么你对类已经初始化完毕的设想可能是错误的。</li>
+<li>原因三，比较特殊，就是两个或多个类之间的初始化方法中出现了内部数据的相互调用，可能会出现，一个类需要另一个类初始化完毕，但是第二个类还依赖于第一个类的初始化完毕，造成了两个类之间的相互等待，和循环引用有一定程度的类似。</li>
+<li>综上，<em>initialize</em>中并不适合做大量的工作，尤其是调用其他类或自己的方法，如果自己的方法必须依赖自己已经初始化完毕，那么也会出现上述问题，所以<em>initialize</em>的正确用法是去初始化那些，无法在编译期间赋值的全局静态变量和全局变量，比如static NSMutableArray *kSomeObjects，因为这些OC对象必须等到runtime激活后才能使用。</li>
+<li>所以始终保持<em>initialize</em>和<em>load</em>方法简洁是一个好习惯，能避免大量的奇葩问题。</li>
+</ol>
+
+
+<!--more-->
+
+
+<h2>Item52 Remember that NSTimer Retains Its Target</h2>
+
+<p>1.NSTimer是一个常用的类，用来定时执行一些方法，或循环执行一些方法，它是需要和一个run loop关联的，你既可以在当前run loop预设置，也可以自己创建NSTimer对象自行设置。<br/>
+2.NSTimer预设置的方法需要传入target和selector，timer会retain target，而会在timer失效时release它，一个timer可以通过直接调用invalidate（一般是循环的）或者启动后（一般是一次性的）就会失效。<br/>
+3.因为timer会retain target，所以在循环执行时特别容易出现循环引用，如下，startPolling后，便会出现EOCClass和timer相互引用的结果，目前想解决这一问题，只能通过要求调用方自行调用stopPolling，但如果这时一个对外使用的类的话，这是不可控的；而寄希望于dealloc去解开这一循环，是不现实的，因为对于循环引用的两个对象，是不会出现一方先释放的。而且如果这一引用存在，会一直循环去执行这个任务，带来的问题不光是内存泄露。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'> <span class="err">#</span><span class="n">import</span> <span class="o">&lt;</span><span class="n">Foundation</span><span class="o">/</span><span class="n">Foundation</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">@interface</span> <span class="nc">EOCClass</span>:<span class="nc">NSObject</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">startPolling</span><span class="p">;</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">stopPolling</span><span class="p">;</span>
+</span><span class='line'><span class="k">@end</span>
+</span><span class='line'><span class="k">@implementation</span> <span class="nc">EOCClass</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">NSTimer</span> <span class="o">*</span><span class="n">_pollTimer</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">-</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="n">init</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="p">[</span><span class="n">super</span> <span class="n">init</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">dealloc</span><span class="p">{</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">_pollTimer</span> <span class="n">invalidate</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">stopPolling</span><span class="p">{</span>
+</span><span class='line'>  <span class="p">[</span><span class="n">_pollTimer</span> <span class="n">invalidate</span><span class="p">];</span>
+</span><span class='line'>  <span class="n">_pollTimer</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">startPolling</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">_pollTimer</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSTimer</span> <span class="nl">scheduledTimerWithTimeInterval:</span><span class="mf">5.0</span> <span class="nl">target:</span><span class="n">self</span> <span class="nl">selector:</span><span class="k">@selector</span><span class="p">(</span><span class="n">p_doPoll</span><span class="p">)</span> <span class="nl">userInfo:</span><span class="nb">nil</span> <span class="nl">repeats:</span><span class="n">YES</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="n">p_doPoll</span><span class="p">{</span>
+</span><span class='line'>  <span class="c1">//Poll the resource</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>4.那么要想解决这个问题，又不依赖外部，一个方案是做一个NSTimer的block分类，如下，block被设置为userInfo参数，timer也会对它retain，block要进行一次copy，从stack移到heap上，这在Item37说过，现在的target变成了NSTimer这个类本身，因为NSTimer作为一个类对象，是一个单例，所以不用担心释放问题，虽然也存在循环引用，但是没关系。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'> <span class="err">#</span><span class="n">import</span> <span class="o">&lt;</span><span class="n">Foundation</span><span class="o">/</span><span class="n">Foundation</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;</span>
+</span><span class='line'><span class="k">@interface</span> <span class="nc">NSTimer</span><span class="nl">(EOCBlockSupport)</span>
+</span><span class='line'><span class="k">+</span><span class="p">(</span><span class="n">NSTimer</span><span class="o">*</span><span class="p">)</span><span class="nf">eoc_scheduledTimerWithTimeInterval:</span><span class="p">(</span><span class="n">NSTimeInterval</span><span class="p">)</span><span class="nv">interval</span> <span class="nf">block:</span><span class="p">(</span><span class="kt">void</span><span class="p">(</span><span class="o">^</span><span class="p">)())</span><span class="nv">block</span> <span class="nf">repeats:</span><span class="p">(</span><span class="kt">BOOL</span><span class="p">)</span><span class="nv">repeats</span><span class="p">;</span>
+</span><span class='line'><span class="k">@end</span>
+</span><span class='line'><span class="k">@implementation</span> <span class="nc">NSTimer</span><span class="nl">(EOCBlockSupport)</span>
+</span><span class='line'><span class="k">+</span><span class="p">(</span><span class="n">NSTimer</span><span class="o">*</span><span class="p">)</span><span class="nf">eoc_scheduledTimerWithTimeInterval:</span><span class="p">(</span><span class="n">NSTimeInterval</span><span class="p">)</span><span class="nv">interval</span> <span class="nf">block:</span><span class="p">(</span><span class="kt">void</span><span class="p">(</span><span class="o">^</span><span class="p">)())</span><span class="nv">block</span> <span class="nf">repeats:</span><span class="p">(</span><span class="kt">BOOL</span><span class="p">)</span><span class="nv">repeats</span><span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="p">[</span><span class="n">self</span> <span class="nl">scheduledTimerWithTimeInterval:</span><span class="n">interval</span> <span class="nl">target:</span><span class="n">self</span> <span class="nl">selector:</span><span class="k">@selector</span><span class="p">(</span><span class="nl">eoc_blockInvoke:</span><span class="p">)</span> <span class="nl">userInfo:</span><span class="p">[</span><span class="n">block</span> <span class="n">copy</span><span class="p">]</span> <span class="nl">repeats:</span><span class="n">repeats</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="k">+</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">eoc_blockInvoke:</span><span class="p">(</span><span class="n">NSTimer</span><span class="o">*</span><span class="p">)</span><span class="nv">timer</span><span class="p">{</span>
+</span><span class='line'>  <span class="kt">void</span><span class="p">(</span><span class="o">^</span><span class="n">block</span><span class="p">)()</span><span class="o">=</span><span class="n">timer</span><span class="p">.</span><span class="n">userInfo</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="n">block</span><span class="p">){</span>
+</span><span class='line'>      <span class="n">block</span><span class="p">();</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>5.回到新方法的使用，像下面这样直接调用的话，还是会导致循环引用，因为block会retain self，而timer会在userInfo处retain block，而timer本身被self引用，所以正确的做法是做一个self的weak变量，在block中再声明一个strong的临时变量，确保block retain一个weak对象，而在block内部又不会提前释放掉，这也是解决block retain cycle的常见策略。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//wrong</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">startPolling</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">_polTimer</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSTimer</span> <span class="nl">eoc_scheduledTimerWithTimeInterval:</span><span class="mf">5.0</span> <span class="nl">block:</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">self</span> <span class="n">p_doPoll</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nl">repeats:</span><span class="n">YES</span>
+</span><span class='line'>  <span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c1">//right</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">startPolling</span><span class="p">{</span>
+</span><span class='line'>  <span class="n">__weak</span> <span class="n">__typeof</span><span class="p">(</span><span class="n">self</span><span class="p">)</span><span class="n">weakSelf</span> <span class="o">=</span> <span class="n">self</span><span class="p">;</span>
+</span><span class='line'>  <span class="n">_polTimer</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSTimer</span> <span class="nl">eoc_scheduledTimerWithTimeInterval:</span><span class="mf">5.0</span> <span class="nl">block:</span><span class="o">^</span><span class="p">{</span>
+</span><span class='line'>      <span class="n">__strong</span> <span class="n">__typeof</span><span class="p">(</span><span class="n">weakSelf</span><span class="p">)</span><span class="n">strongSelf</span> <span class="o">=</span> <span class="n">weakSelf</span><span class="p">;</span>
+</span><span class='line'>      <span class="p">[</span><span class="n">strongSelf</span> <span class="n">p_doPoll</span><span class="p">];</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="nl">repeats:</span><span class="n">YES</span>
+</span><span class='line'>  <span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Effective Objective-C读书笔记6]]></title>
