@@ -4,7 +4,7 @@
   <title><![CDATA[刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-10-10T14:14:27+08:00</updated>
+  <updated>2015-10-12T15:40:05+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,279 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Swift by Tutorials--Classes and Structs]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/10/12/swift-by-tutorials-classes-and-structs/"/>
+    <updated>2015-10-12T15:26:48+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/10/12/swift-by-tutorials-classes-and-structs</id>
+    <content type="html"><![CDATA[<p>继上两章对Swift的基本类型的学习，这一章开始介绍Swift中的Class和Struct，Class对所有面向对象的语言都不陌生，而Struct可能用的比较少，因为大部分用于C中，但Swift中的Struct与C还有很多不同，这章会一一介绍，而且同时Class与Struct之间的不同与使用场景，也是这一章的重点。</p>
+
+<h2>Getting started</h2>
+
+<ol>
+<li></li>
+</ol>
+
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Swift by Tutorials--Language Basics II]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/10/10/swift-by-tutorials-language-basics-ii/"/>
+    <updated>2015-10-10T14:41:12+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/10/10/swift-by-tutorials-language-basics-ii</id>
+    <content type="html"><![CDATA[<p>继上一篇后，本章将继续介绍Swift的基础知识，但是相比第一章会有所提升，包括了Optional类型对象的用法、Swift中的Collection类型用法以及与OC的Collection的不同之处。</p>
+
+<!--more-->
+
+
+<h2>Optionals</h2>
+
+<p>1.空指针是一个困扰着各类语言的常见问题，在Java中，调用了空指针会直接抛出异常，在OC中向nil指针发送消息会返回nil，也就是说空指针是安全的，但有很多时候你并不希望指针为空，一般会加判断对象是否为nil的断言判断，但在Swift中，针对这个问题，有了新的解决方案。<br/>
+2.Swift在对没有初始化赋值的变量使用时，会直接报错，而且像String类型也不能初始化直接赋nil值，这也保证了空指针不会出现。但是如果我们真的需要一个空值的变量怎么办呢？可以使用optional机制，它是用来指明一个变量是可能有值的，相当于给变量一个nil的默认值，这也是空指针的问题所在，它是一个合法的指针，但没有指向一个合法的对象。</p>
+
+<h3>Declaring optionals</h3>
+
+<p>1.使用optional很简单，如下，不赋值的话str默认为nil，在这里你可以把String?理解为一个不同于String的类型，所以能给String?直接赋值String类型实际上是Swift在内部进行了封装，Swift将String的值封装到了一个String?类型的实例中，然后再赋值给了str。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//no assignment</span>
+</span><span class='line'><span class="n">var</span> <span class="nl">str:</span> <span class="n">String</span><span class="o">?</span>
+</span><span class='line'><span class="c1">//an assignment</span>
+</span><span class='line'><span class="n">var</span> <span class="nl">str:</span> <span class="n">String</span><span class="o">?</span> <span class="o">=</span> <span class="s">&quot;Swift by Tutorials!&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.如果你现在对str使用uppercaseString方法，会报错，这也验证了上面所说String?已是另一个类型的说法，那么如何让str使用String的方法呢？如下即可，通过if语句对str进行解封，并将其赋值给一个let型的String，这就是optional和if在Swift中的经典配合，这么做的好处就是让开发者可以在必选确认指针不为空的时候强制去进行空指针的检查。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">if</span> <span class="n">let</span> <span class="n">unwrappedStr</span> <span class="o">=</span> <span class="n">str</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;Unwrapped! \(unwrappedStr.uppercaseString)&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;Was nil&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Forced unwrapping</h3>
+
+<p>1.在你了解optional机制下，在一些optional中你确定有值的时候，你可以使用强制解封，如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="nl">str:</span> <span class="n">String</span><span class="o">?</span> <span class="o">=</span> <span class="s">&quot;Swift by Tutorials!&quot;</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="s">&quot;Force unwrapped! \(str!.uppercaseString)&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.但是需要注意的是，如果optional类型中的是nil值，那么会出现runtime error，所以使用强制解封，<strong>一定要在你100%确定你的optional对象不是空值</strong>。</p>
+
+<h3>Implicit unwrapping</h3>
+
+<p>1.你也可以不用!或者let来进行optional解封，使用以下方法，可以直接对变量使用方法，这看起来和没使用optional差不多，但是它在实质上和上述两种解封方法是一致的，只是语法不通而已，如果不去初始化赋值，那么你会得到和强制解封一个nil的optional的值一样的error。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="nl">str:</span> <span class="n">String</span><span class="o">!</span> <span class="o">=</span> <span class="s">&quot;Swift by Tutorials!&quot;</span>
+</span><span class='line'><span class="n">str</span> <span class="o">=</span> <span class="n">str</span><span class="p">.</span><span class="n">lowercaseString</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">str</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.你也可以通过if来检查隐式解封的optional值，但你会发现这和OC中的做法一样，只不过在OC中你拿nil作为一个false的判断条件，而在Swift中你将nil作为一个无值的状态来判断。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">if</span> <span class="n">str</span> <span class="o">!=</span> <span class="nb">nil</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">str</span> <span class="o">=</span> <span class="n">str</span><span class="p">.</span><span class="n">lowercaseString</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="n">str</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.<strong>最后注意，你要将隐式解封和强制解封一样重视，因为除了声明的地方，它和普通变量是一样的，这很容易忽视。</strong></p>
+
+<h3>Optional chaining</h3>
+
+<p>1.最后要介绍的是Optional chaining，这是上述三个解封方式之外的另一种optional来执行方法的方式，它的设计参照了OC中常用的delegate模式，即在optional类型变量执行方法时会先判断它是否为nil，不是nil的话直接执行，而如果是nil的话，则直接返回nil，其实和OC中对nil发送消息的处理是一样的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="nl">maybeString:</span> <span class="n">String</span><span class="o">?</span> <span class="o">=</span> <span class="s">&quot;Swift by Tutorials!&quot;</span>
+</span><span class='line'><span class="n">let</span> <span class="n">uppercase</span> <span class="o">=</span> <span class="n">maybeString</span><span class="o">?</span><span class="p">.</span><span class="n">uppercaseString</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.由于在对象声明和方法执行时两次使用optional，所以形成了Optional chaining。</p>
+
+<!--more-->
+
+
+<h2>Collection</h2>
+
+<p>1.任何语言都会有集合类型，OC中有NSArray、NSDictionary、NSSet，其中包含可变和不可变类型，而在Swift中只保留了Array和Dictionary两种类型。</p>
+
+<h3>Arrays</h3>
+
+<p>1.Swift的Array有着其他语言中共同的特性，如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//initialize array</span>
+</span><span class='line'><span class="n">var</span> <span class="n">array</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">array</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+</span><span class='line'><span class="c1">//add an element</span>
+</span><span class='line'><span class="n">array</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.Swift中你可以通过添加一个序列来扩展一个Array，比如上一节提到的Range。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//add 7,8,9,10</span>
+</span><span class='line'><span class="c1">//Swift2.0中将extend()改为了appendContentsOf()</span>
+</span><span class='line'><span class="c1">//array.extend(7...10)</span>
+</span><span class='line'><span class="n">array</span><span class="p">.</span><span class="n">appendContentsOf</span><span class="p">(</span><span class="mf">7.</span><span class="p">.</span><span class="mf">.10</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.在上述数组中试图添加一个String，会直接报错，这在OC中可能是很正常的需求，可以在一个数组中添加不同类型的对象，但在Swift中只能在一个数组中添加同一类型的对象，在上面的Array初始化中是使用了type interface，如果制定类型声明的话应该是<em>var array: Array<Int> = [1, 2, 3, 4, 5]</em>（会在第四章详细说明），不过更常见的写法是<em>var arrray: [Int] = [1, 2, 3, 4, 5]</em>，这是Apple的语法糖，用来简化语法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//Array Initializer</span>
+</span><span class='line'><span class="n">var</span> <span class="nl">array:</span> <span class="n">Array</span><span class="o">&lt;</span><span class="n">Int</span><span class="o">&gt;</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+</span><span class='line'><span class="n">var</span> <span class="nl">arrray:</span> <span class="p">[</span><span class="n">Int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>4.当然也可以让Array像NSArray那样工作，可以将类型声明为Array<Any>，但是仍然不推荐这么做，因为这样Swift的很多Array方法会因为类型不一而不能使用，而且也会失去Swift的提供的安全性保护。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//add multiple type instance</span>
+</span><span class='line'><span class="n">var</span> <span class="nl">array:</span> <span class="n">Array</span><span class="o">&lt;</span><span class="n">Any</span><span class="o">&gt;</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'><span class="n">array</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+</span><span class='line'><span class="n">array</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;Swift By Tutorials!&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Dictionaries</h3>
+
+<p>1.Swift的Dictionary与OC的NSDicionary大致相同，只是语法上略有变化，但需要注意的是，Dictionary也存在只能添加固定类型的键值对的情况，与上述的Array相同。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">dictionary</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="o">:</span> <span class="s">&quot;Dog&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="o">:</span> <span class="s">&quot;Cat&quot;</span><span class="p">]</span>
+</span><span class='line'><span class="c1">//Another Initializer</span>
+</span><span class='line'><span class="c1">//var dictionary: Dictionary&lt;Int:String&gt; = [1: &quot;Dog&quot;, 2: &quot;Cat&quot;]</span>
+</span><span class='line'><span class="c1">//var dictionary: [Int:String] = [1: &quot;Dog&quot;, 2: &quot;Cat&quot;]</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">dictionary</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</span><span class='line'><span class="n">dictionary</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;Mouse&quot;</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)</span>
+</span><span class='line'><span class="n">dictionary</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="nb">nil</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">dictionary</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.从Dictionary中通过key直接获取值时，该值是optional类型的，因为有可能是不存在该key对应的值的，所以推荐读取Dictionary时还是使用上一章中介绍的安全拆解的方法，这又是Swift强制开发者随时考虑安全问题的一个表现。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">if</span> <span class="n">let</span> <span class="n">value</span> <span class="o">=</span> <span class="n">dictionary</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;Value is \(value)&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Reference and copies</h3>
+
+<p>1.这一节讨论Dictionary和Array在Swift中与OC所不同的内存管理策略，如下，从结果发现，Swift中将一个Dictionary直接赋值给另外的变量或常量，都是执行copy操作的，即改变新变量，并不会影响原来的Dictionary。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">dictionaryA</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="o">:</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="o">:</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="o">:</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">4</span><span class="o">:</span> <span class="mi">16</span><span class="p">]</span>
+</span><span class='line'><span class="n">var</span> <span class="n">dictionaryB</span> <span class="o">=</span> <span class="n">dictionaryA</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">dictionaryA</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">dictionaryB</span><span class="p">)</span>
+</span><span class='line'><span class="n">dictionaryB</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="nb">nil</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">dictionaryA</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">dictionaryB</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.那么关于Array呢？答案是一样的，Array也是会执行copy操作，这与OC中的NSDictionary和NSArray的指针赋值是完全不同的，所以单独强调一下。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">arrayA</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+</span><span class='line'><span class="n">var</span> <span class="n">arrayB</span> <span class="o">=</span> <span class="n">arrayA</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">arrayA</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">arrayB</span><span class="p">)</span>
+</span><span class='line'><span class="n">arrayB</span><span class="p">.</span><span class="n">removeAtIndex</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">arrayA</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">arrayB</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Constant collection</h3>
+
+<p>1.上面都是定义的var类型的Dictionary和Array，那么如果定义为let的话，Dictionary和Array是不能进行任何修改操作的（其实就是OC中的不可变类型）。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">constantArray</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+</span><span class='line'><span class="c1">//error</span>
+</span><span class='line'><span class="n">constantArray</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+</span><span class='line'><span class="n">constantArray</span><span class="p">.</span><span class="n">removeAtIndex</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Swift by Tutorials--Language Basics I]]></title>
