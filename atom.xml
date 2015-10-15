@@ -4,7 +4,7 @@
   <title><![CDATA[刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-10-12T15:40:05+08:00</updated>
+  <updated>2015-10-15T11:02:42+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -18,14 +18,657 @@
     <link href="http://lucifer1988.github.io/blog/2015/10/12/swift-by-tutorials-classes-and-structs/"/>
     <updated>2015-10-12T15:26:48+08:00</updated>
     <id>http://lucifer1988.github.io/blog/2015/10/12/swift-by-tutorials-classes-and-structs</id>
-    <content type="html"><![CDATA[<p>继上两章对Swift的基本类型的学习，这一章开始介绍Swift中的Class和Struct，Class对所有面向对象的语言都不陌生，而Struct可能用的比较少，因为大部分用于C中，但Swift中的Struct与C还有很多不同，这章会一一介绍，而且同时Class与Struct之间的不同与使用场景，也是这一章的重点。</p>
+    <content type="html"><![CDATA[<p>继上两章对Swift的基本类型的学习，这一章开始介绍Swift中的Class和Struct，Class对所有面向对象的语言都不陌生，而Struct可能用的比较少，因为大部分用于C中，但Swift中的Struct与C还有很多不同，这章会一一介绍，而且同时会讲到Class与Struct之间的不同与使用场景，以及它们的扩展，也是这一章的重点。</p>
 
 <h2>Getting started</h2>
 
-<ol>
-<li></li>
-</ol>
+<h3>The class concept</h3>
 
+<p>1.类是通过总结一些对象的共同特点，定义基本类型，通过继承来创建具体使用的子类型，它拥有自己的数据和方法，可以视为数据的容器。</p>
+
+<h2>My first class</h2>
+
+<p>1.介绍示例项目的Class设计。</p>
+
+<h3>Creating the class</h3>
+
+<p>1.import语句用于导入Swift的库文件，记性好的话，之前Apple在OC中加入了@import来替代#import（如：@import Foundation;替代#import &lt;Foundation/Foundation.h>），其实Swift中的import是和这个一致的。<br/>
+2.定义一个类如下即可，但是如果如下，有未初始化赋值的非optional变量，那么会提示你增加初始化方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="n">Treasure</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">what:</span> <span class="n">String</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">latitude:</span> <span class="n">Double</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">longitude:</span><span class="n">Double</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">init</span><span class="p">(</span><span class="nl">what:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">latitude:</span> <span class="n">Double</span><span class="p">,</span> <span class="nl">longitude:</span> <span class="n">Double</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">what</span> <span class="o">=</span> <span class="n">waht</span>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">latitude</span> <span class="o">=</span> <span class="n">latitude</span>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">longitude</span> <span class="o">=</span> <span class="n">longitude</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>A struct-ural improvement</h3>
+
+<p>1.下一步的优化是把经纬度信息做成一个结构体，那么就涉及到了Swift中的Struct，Swift中Struct和Class一样，都可以存储数据和拥有自己的方法，但要记住Struct始终是一个数值型的容器，它的用途只是持有数据，不要让它承担更多的功能。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">struct</span> <span class="n">GeoLocation</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">latitude:</span> <span class="n">Double</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">longitude:</span> <span class="n">Double</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.在Swift中，在工程中的文件是相互自动import的，所以你不用再去手动导入，这一点在你开发library和framework也是一样的。</p>
+
+<h3>Reference types vs. value types</h3>
+
+<p>1.Swift中，Struct与Class的最大区别是，Class在本质上是指针引用类型，而Struct是值类型，在赋值过程中，Class传递的是指针，而Struct则会copy一份新值，从如下的例子即可看出。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">struct</span> <span class="n">MyStruct</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">foo:</span> <span class="n">Double</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">class</span> <span class="n">MyClass</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">foo:</span> <span class="n">Double</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">var</span> <span class="n">structA</span> <span class="o">=</span> <span class="n">MyStruct</span><span class="p">()</span>
+</span><span class='line'><span class="n">var</span> <span class="n">structB</span> <span class="o">=</span> <span class="n">structA</span>
+</span><span class='line'><span class="n">structB</span><span class="p">.</span><span class="n">foo</span> <span class="o">=</span> <span class="mf">1.0</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">structA</span><span class="p">.</span><span class="n">foo</span><span class="p">)</span>
+</span><span class='line'><span class="c1">//0.0</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">structB</span><span class="p">.</span><span class="n">foo</span><span class="p">)</span>
+</span><span class='line'><span class="c1">//1.0</span>
+</span><span class='line'><span class="n">var</span> <span class="n">classA</span> <span class="o">=</span> <span class="n">MyClass</span><span class="p">()</span>
+</span><span class='line'><span class="n">var</span> <span class="n">classB</span> <span class="o">=</span> <span class="n">classA</span>
+</span><span class='line'><span class="n">classB</span><span class="p">.</span><span class="n">foo</span> <span class="o">=</span> <span class="mf">1.0</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">classA</span><span class="p">.</span><span class="n">foo</span><span class="p">)</span>
+</span><span class='line'><span class="c1">//1.0</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">classB</span><span class="p">.</span><span class="n">foo</span><span class="p">)</span>
+</span><span class='line'><span class="c1">//0.0</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.需要说明的一点，Swift在copy一个Struct时是很智能的，只会在确定必要的时候copy，也就是说structB = structA并不会创建出拷贝，只有你开始改变其中一个值时，runtime会开始执行copy。<br/>
+3.另外关于let类型的Struct和Class还有一些细微的区别，对于二者的var实例，是没有区别的，都可以改变各自的属性或将自身赋值给其他实例，但对于let实例，Class依然可以修改自己的属性变量，但是不能将自己赋值给其他实例，而Struct既不能改变自己的属性变量，也不能将自己赋值给其他实例，这也是为什么Array和Dictionary是Struct而不是Class。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">struct</span> <span class="n">MyStruct</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">foo:</span> <span class="n">Double</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">class</span> <span class="n">MyClass</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">foo:</span> <span class="n">Double</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">var</span> <span class="n">classA</span> <span class="o">=</span> <span class="n">MyClass</span><span class="p">()</span>
+</span><span class='line'><span class="n">let</span> <span class="n">classB</span> <span class="o">=</span> <span class="n">MyClass</span><span class="p">()</span>
+</span><span class='line'><span class="n">classA</span><span class="p">.</span><span class="n">foo</span> <span class="o">=</span> <span class="mf">1.0</span>
+</span><span class='line'><span class="n">classB</span><span class="p">.</span><span class="n">foo</span> <span class="o">=</span> <span class="mf">1.0</span>
+</span><span class='line'><span class="n">classB</span> <span class="o">=</span> <span class="n">classA</span>
+</span><span class='line'><span class="c1">//error</span>
+</span><span class='line'><span class="n">var</span> <span class="n">structA</span> <span class="o">=</span> <span class="n">MyStruct</span><span class="p">()</span>
+</span><span class='line'><span class="n">let</span> <span class="n">structB</span> <span class="o">=</span> <span class="n">MyStruct</span><span class="p">()</span>
+</span><span class='line'><span class="n">structA</span><span class="p">.</span><span class="n">foo</span> <span class="o">=</span> <span class="mf">1.0</span>
+</span><span class='line'><span class="n">structB</span><span class="p">.</span><span class="n">foo</span> <span class="o">=</span> <span class="mf">1.0</span>
+</span><span class='line'><span class="c1">//error</span>
+</span><span class='line'><span class="n">structB</span> <span class="o">=</span> <span class="n">structA</span>
+</span><span class='line'><span class="c1">//error</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Convenience initializers</h3>
+
+<p>1.在实例中其实还是不必要将GeoLocation暴露给使用者，可以直接给出更方便的初始化方法，这就用到了convenience initializer，在该初始化方法中跳转到了原初始化方法中，也称为designated initializer。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">convenience</span> <span class="nf">init</span><span class="p">(</span><span class="nl">what:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">latitude:</span> <span class="n">Double</span><span class="p">,</span> <span class="nl">longitude:</span> <span class="n">Double</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">let</span> <span class="n">location</span> <span class="o">=</span> <span class="n">GeoLocation</span><span class="p">(</span><span class="nl">latitude:</span> <span class="n">latitude</span><span class="p">,</span> <span class="nl">longitude:</span> <span class="n">longitude</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">init</span><span class="p">(</span><span class="nl">what:</span> <span class="n">what</span><span class="p">,</span> <span class="nl">location:</span> <span class="n">location</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.Struct不需要显式的初始化方法，Swift为你自动添加了，你只需要按Struct的属性顺序一一初始化就行了，这也是为什么上述方法中可以自动初始化GeoLocation。</p>
+
+<h3>Class inheritance</h3>
+
+<p>1.Swift中的继承是怎样的？如下例：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="nl">HistoryTreasure:</span> <span class="n">Treasure</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">yaer:</span> <span class="n">Int</span>
+</span><span class='line'>  <span class="n">init</span><span class="p">(</span><span class="nl">what:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">year:</span> <span class="n">Int</span><span class="p">,</span> <span class="nl">latitude:</span> <span class="n">Double</span><span class="p">,</span> <span class="nl">longitude:</span> <span class="n">Double</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">year</span>
+</span><span class='line'>      <span class="n">let</span> <span class="n">location</span> <span class="o">=</span> <span class="n">GeoLocation</span><span class="p">(</span><span class="nl">latitude:</span> <span class="n">latitude</span><span class="p">,</span> <span class="nl">longitude:</span> <span class="n">longitude</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">super</span><span class="p">.</span><span class="n">init</span><span class="p">(</span><span class="nl">what:</span> <span class="n">what</span><span class="p">,</span> <span class="nl">location:</span> <span class="n">location</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.子类如果有自己新的属性时，需要自己的designated initializer，而子类的designated initializer必须引用父类的一个designated initializer（注意不可以是convenience initializer），所以和上一节比较相当于做了重复工作。<br/>
+3.这里有与OC不同的一点，在OC中子类的init()方法中，是先调用父类的init()，再进行子类属性的赋值，而在Swift中是最后调用父类的init()，因为在Swift中是initializer来初始化所有属性，最后交给父类来处理，父类的init()要放在最后，是因为它不知道子类中声明的新属性，必须在它之前把这些新属性初始化。</p>
+
+<!--more-->
+
+
+<h2>Swift and MapKit</h2>
+
+<p>1.重写父类方法，Swift中需要在方法前加上override关键字，增加了可读性，同时如果你写的方法不存在于父类，那么编译器会报error通知你。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">override</span> <span class="n">func</span> <span class="nf">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">super</span><span class="p">.</span><span class="n">viewDidLoad</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Class extensions and computed properties</h3>
+
+<p>1.示例中需要将Treasure类型的变量显示在MKMapView上，那么就要使Treasure遵循MKAnnotation协议，我们使用了extension来实现：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">import</span> <span class="n">MapKit</span>
+</span><span class='line'><span class="n">extension</span> <span class="nl">Treasure:</span> <span class="n">MKAnnotation</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">coordinate:</span> <span class="n">CLLocationCoordinate2D</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">coordinate</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">title:</span> <span class="n">String</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">what</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.extension类似OC的category，都是扩展类的技术，但是优于category，因为extension不但可以添加方法，还可以添加新属性。<br/>
+3.这里添加的两个property有些特别，它们是Swift中的computed properties，每次访问它们都会执行后面的方法，用法与普通的properties是一致的。</p>
+
+<h3>Your first struct extension</h3>
+
+<p>1.Struct也可以添加extension，下例中的extension起到了分割代码，增加可读性的作用，这是extension的习惯用法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">import</span> <span class="n">MapKit</span>
+</span><span class='line'><span class="n">extension</span> <span class="n">GeoLocation</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">coordinate:</span> <span class="n">CLLocationCoordinate2D</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">CLLocationCoordinate2DMake</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">longitude</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">mapPoint:</span> <span class="n">MKMapPoint</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">MKMapPointForCoordinate</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">coordinate</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Inheriting from NSObject</h3>
+
+<p>1.类遵循MKAnnotation同时，也应该遵循NSObject协议，因为MKAnnotation继承自NSObject协议。</p>
+
+<h3>Pinning the map</h3>
+
+<p>1.在viewDidLoad()中添加以下代码，完成mapView上打点的工作。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">self</span><span class="p">.</span><span class="n">mapView</span><span class="p">.</span><span class="n">delegate</span> <span class="o">=</span> <span class="n">self</span>
+</span><span class='line'><span class="n">self</span><span class="p">.</span><span class="n">mapView</span><span class="p">.</span><span class="n">addAnnotations</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">treasures</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.然后添加viewController的extension，并实现MKMapViewDelegate的方法：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">extension</span> <span class="nl">ViewController:</span> <span class="n">MKMapViewDelegate</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">func</span> <span class="n">mapView</span><span class="p">(</span><span class="nl">mapView:</span> <span class="n">MKMapView</span><span class="p">,</span> <span class="n">viewForAnnotation</span> <span class="nl">annotation:</span> <span class="n">MKAnnotation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MKAnnotationView</span>
+</span><span class='line'>  <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="n">let</span> <span class="n">treasure</span> <span class="o">=</span> <span class="n">annotation</span> <span class="n">as</span><span class="o">?</span> <span class="n">Treasure</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">var</span> <span class="n">view</span> <span class="o">=</span> <span class="n">mapView</span><span class="p">.</span><span class="n">dequeueReusableAnnotationViewWithIdentifier</span><span class="p">(</span><span class="s">&quot;pin&quot;</span><span class="p">)</span> <span class="n">as</span><span class="o">!</span> <span class="n">MKPinAnnotationView</span><span class="o">!</span>
+</span><span class='line'>          <span class="k">if</span> <span class="n">view</span> <span class="o">=</span> <span class="nb">nil</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">view</span> <span class="o">=</span> <span class="n">MKPinAnnotationView</span><span class="p">(</span><span class="nl">annotation:</span> <span class="n">annotation</span><span class="p">,</span> <span class="nl">reuseIdentifier:</span> <span class="s">&quot;pin&quot;</span><span class="p">)</span>
+</span><span class='line'>              <span class="n">view</span><span class="p">.</span><span class="n">canShowCallout</span> <span class="o">=</span> <span class="n">true</span>
+</span><span class='line'>              <span class="n">view</span><span class="p">.</span><span class="n">animatesDrop</span> <span class="o">=</span> <span class="n">false</span>
+</span><span class='line'>              <span class="n">view</span><span class="p">.</span><span class="n">calloutOffset</span> <span class="o">=</span> <span class="n">CGPoint</span><span class="p">(</span><span class="nl">x:</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="nl">y:</span> <span class="mi">5</span><span class="p">)</span>
+</span><span class='line'>              <span class="n">view</span><span class="p">.</span><span class="n">rightCalloutAccessoryView</span> <span class="o">=</span> <span class="n">UIButton</span><span class="p">(</span><span class="nl">type:</span> <span class="p">.</span><span class="n">DetailDisclosure</span><span class="p">)</span> <span class="n">as</span> <span class="n">UIView</span>
+</span><span class='line'>          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>              <span class="n">view</span><span class="p">.</span><span class="n">annotation</span> <span class="o">=</span> <span class="n">annotation</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="k">return</span> <span class="n">view</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.在实现的mapView:viewForAnnotation方法中，annotation参数类型为MKAnnotation!，是一个隐式拆解的optional类型，但是我们还是进行了if/let的检查，因为这个方法是OC的API，是没有optional的，所以为了兼容Swift只能声明为这个类型，所以还需要显式拆解。<br/>
+4.同时除了检查是否为nil，我们还要注意传入的类型是否为Treasure类型，这儿用到了inline downcasting技术，也是Swift的一种简写语法，if let treasure = annotation as？ Treasure{}，如果annotation不是Treasure类型，那么也不会进入if，这是Swift中确保类型正确的一种技术。<br/>
+5.获取MKPinAnnotationView利用了一贯的复用技术，另外此处又一次用到了downcast技术，只不过因为返回的类型肯定可以确定都是MKPinAnnotationView，所以用了非optional版本。</p>
+
+<h3>The reduce algorithm</h3>
+
+<p>1.这一节是为了解决app载入后不能直接定位到目标位置，而要先定位自己的位置这个bug。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">rectToDisplay</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">treasures</span><span class="p">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">MKMapRectNull</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="p">(</span><span class="nl">mapRect:</span> <span class="n">MKMapRect</span><span class="p">,</span> <span class="nl">treasure:</span> <span class="n">Treasure</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MKMapRect</span> <span class="k">in</span>
+</span><span class='line'>  <span class="n">let</span> <span class="n">treasurePointRect</span> <span class="o">=</span> <span class="n">MKMapRect</span><span class="p">(</span><span class="nl">origin:</span> <span class="n">treasure</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">mapPoint</span><span class="p">,</span> <span class="nl">size:</span> <span class="n">MKMapSize</span><span class="p">(</span><span class="nl">width:</span> <span class="mi">0</span><span class="p">,</span> <span class="nl">height:</span> <span class="mi">0</span><span class="p">))</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">MKMapRectUnion</span><span class="p">(</span><span class="n">mapRect</span><span class="p">,</span> <span class="n">treasurePointRect</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">self</span><span class="p">.</span><span class="n">mapView</span><span class="p">.</span><span class="n">setVisibleMapRect</span><span class="p">(</span><span class="n">rectToDisplay</span><span class="p">,</span> <span class="nl">edgePadding:</span> <span class="n">UIEdgeInsetsMake</span><span class="p">(</span><span class="mi">74</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="nl">animated:</span> <span class="n">false</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.为了达到这一优化，实际就是要获取可以展示全部treasures的最小地图范围，然后在地图绘制这一区域。而输入是一个数组，需要一个它们逐个计算的结果，这里使用了函数式编程中的Reduce函数，这是处理这一问题的最佳方案，下面是Swift中reduce的原型，需要一个初始值initial，这里对应的是MKMapRectNull，是一个空区域，然后combine的方法是(mapRect: MKMapRect, treasure: Treasure) &ndash;> MKMapRect类型的方法，mapRect是每次执行后的返回值，初始值就是initial，而treasure是array每个元素的遍历，最后可以得到一个MKMapRect类型的区域，包含了所有元素的最小区域，然后setVisibleMapRect()，并加了边距来适应其他页面元素，最终达到了目的，Swift中的函数式编程还会在第七章继续讲解。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">reduce</span><span class="p">(</span><span class="nl">initial:</span> <span class="n">U</span><span class="p">,</span> <span class="nl">combine:</span> <span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">U</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">U</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<h2>Polymorphism</h2>
+
+<p>1.现在又有新需求了，需要不同类型的Treasure在地图上显示Annotation颜色不同，这可以通过多态来实现，首先在父类中添加方法，再在子类中重写该方法：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//in parent class</span>
+</span><span class='line'><span class="n">func</span> <span class="n">pinColor</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">MKPinAnnotationColor</span>  <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">MKPinAnnotationColor</span><span class="p">.</span><span class="n">Red</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c1">//in subclass</span>
+</span><span class='line'><span class="n">override</span> <span class="n">func</span> <span class="n">pinColor</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">MKPinAnnotationColor</span>  <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">MKPinAnnotationColor</span><span class="p">.</span><span class="n">Purple</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.然后在绘制MKPinAnnotationView那儿调用该方法：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">view</span><span class="p">.</span><span class="n">pinColor</span> <span class="o">=</span> <span class="n">treasure</span><span class="p">.</span><span class="n">pinColor</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Dynamic dispatch and final classes</h3>
+
+<p>1.对于上面的Treasure多态，runtime是怎么执行的呢？是靠dynamic dispatch实现的，这一技术其实在OC里用的很普遍，OC作为动态语言，可以在runtime修改所传递的消息，甚至消息的接收者，都是靠动态分发(详细过程可参照前一部的Effective Objective-C2.0的笔记)。<br/>
+2.Dynamic dispatch在Swift中依然存在，就是为了实现多态这类特性，不同于OC的消息分发机制，Swift的分发更像C++，它通过virtual tables(简称vtables)来实现。<br/>
+3.如上例，当编译器遇到pinColor()调用，因为Treasure有很多子类，它便会去使用vtable去查找，而如果是Treasure的子类调用pinColor()，编译器依然会去先去查找vtable，而不是直接去调用pinColor()方法，因为它并不知道有没有类继续在继承，虽然开发者知道它是没有子类的。<br/>
+4.所以通过告知编译器某些类没有子类，会提高app的效率，缩短运行时间，我们可以通过在类型前加final关键字来告知编译器这一信息。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">final</span> <span class="n">class</span> <span class="nl">HistoryTreasure:</span> <span class="n">Treasure</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<h2>Adding annotations</h2>
+
+<p>1.继续，新的需求是用户点击每个annotation时弹出一个alertView来告知用户一些信息。因为每个alert提示的信息不同，所以打算将生成alert的任务交给treasure，然后viewController负责显示，采用的是利用protocol技术。<br/>
+2.首先在Treasure.swift文件中声明Alertable协议，然后Treasure的子类分别遵循并实现其中的方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="err">@</span><span class="n">objc</span> <span class="n">protocol</span> <span class="n">Alertable</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">fun</span> <span class="n">alert</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UIAlertController</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">extension</span> <span class="nl">HistoryTreasure:</span> <span class="n">Alertable</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">func</span> <span class="n">alert</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">UIAlertController</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">alert</span> <span class="o">=</span> <span class="n">UIAlertController</span><span class="p">(</span><span class="nl">title:</span> <span class="s">&quot;History&quot;</span><span class="p">,</span> <span class="nl">message:</span> <span class="s">&quot;From \(self.year):</span><span class="se">\n</span><span class="s">\(self.what)&quot;</span><span class="p">,</span> <span class="nl">preferredStyle:</span> <span class="n">UIAlertControllerStyle</span><span class="p">.</span><span class="n">Alert</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">alert</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.然后在viewController中实现MapView点击Annotation的委托方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">mapView</span><span class="p">(</span><span class="nl">mapView:</span> <span class="n">MKMapView</span><span class="p">,</span> <span class="n">annotationView</span> <span class="nl">view:</span> <span class="n">MKAnnotationView</span><span class="p">,</span> <span class="n">calloutAccessoryControlTapped</span> <span class="nl">control:</span> <span class="n">UIControl</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">let</span> <span class="n">treasure</span> <span class="o">=</span> <span class="n">view</span><span class="p">.</span><span class="n">annotation</span> <span class="n">as</span><span class="o">?</span> <span class="n">Treasure</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">let</span> <span class="n">alertable</span> <span class="o">=</span> <span class="n">treasure</span> <span class="n">as</span><span class="o">?</span> <span class="n">Alertable</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">let</span> <span class="n">alert</span> <span class="o">=</span> <span class="n">alertable</span><span class="p">.</span><span class="n">alert</span><span class="p">()</span>
+</span><span class='line'>      <span class="n">alert</span><span class="p">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">UIAlertAction</span><span class="p">(</span><span class="nl">title:</span> <span class="s">&quot;OK&quot;</span><span class="p">,</span> <span class="nl">style:</span> <span class="n">UIAlertActionStyle</span><span class="p">.</span><span class="n">Default</span><span class="p">,</span> <span class="nl">handler:</span> <span class="nb">nil</span><span class="p">))</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">presentViewController</span><span class="p">(</span><span class="n">alert</span><span class="p">,</span> <span class="nl">animated:</span> <span class="n">true</span><span class="p">,</span> <span class="nl">completion:</span> <span class="nb">nil</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<h2>Sorting an array</h2>
+
+<p>1.新需求，用户可以在找到第一个treasure后能有选项可以使其找到下一个最近的treasure。首先我们给GeoLocation添加一个计算点之间的方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">distanceBetween</span><span class="p">(</span><span class="nl">other:</span> <span class="n">GeoLocation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Double</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">let</span> <span class="n">locationA</span> <span class="o">=</span> <span class="n">CLLocation</span><span class="p">(</span><span class="nl">latitude:</span> <span class="n">self</span><span class="p">.</span><span class="n">latitude</span><span class="p">,</span> <span class="nl">longitude:</span> <span class="n">self</span><span class="p">.</span><span class="n">longitude</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">let</span> <span class="n">locationB</span> <span class="o">=</span> <span class="n">CLLocation</span><span class="p">(</span><span class="nl">latitude:</span> <span class="n">other</span><span class="p">.</span><span class="n">latitude</span><span class="p">,</span> <span class="nl">longitude:</span> <span class="n">other</span><span class="p">.</span><span class="n">longitude</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">locationA</span><span class="p">.</span><span class="n">distanceFromLocation</span><span class="p">(</span><span class="n">locationB</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.该方法是直接定义在struct的定义中的，Swift中的Struct可以定义方法，这也是它与C的Struct的最大区别，C中的Struct只能定义变量，导致与之相关的方法只能定义为全局方法，而如何按照类型归纳这些方法就需要开发者手工将其写到一个头文件中，这显然费时也不合理，而Swift真正实现了Struct中可以真正拥有自己的方法。<br/>
+3.像用户点击Annotation后弹出的alert再添加一个Find Nearest的选项，并实现找到离该点最近的Treasure。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">alert</span><span class="p">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">UIAlertAction</span><span class="p">(</span><span class="nl">title:</span> <span class="s">&quot;Find Nearest&quot;</span><span class="p">,</span> <span class="nl">style:</span> <span class="n">UIAlertActionStyle</span><span class="p">.</span><span class="n">Default</span><span class="p">)</span> <span class="p">{</span> <span class="n">action</span> <span class="k">in</span>
+</span><span class='line'>  <span class="n">var</span> <span class="n">sortedTreasures</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">treasures</span>
+</span><span class='line'>  <span class="n">sortedTreasures</span><span class="p">.</span><span class="n">sortInPlace</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">distanceA</span> <span class="o">=</span> <span class="n">treasure</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">distanceBetween</span><span class="p">(</span><span class="n">$0</span><span class="p">.</span><span class="n">location</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">distanceB</span> <span class="o">=</span> <span class="n">treasure</span><span class="p">.</span><span class="n">location</span><span class="p">.</span><span class="n">distanceBetween</span><span class="p">(</span><span class="n">$1</span><span class="p">.</span><span class="n">location</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">distanceA</span> <span class="o">&lt;</span> <span class="n">distanceB</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="n">mapView</span><span class="p">.</span><span class="n">deselectAnnotation</span><span class="p">(</span><span class="n">treasure</span><span class="p">,</span> <span class="nl">animated:</span> <span class="n">true</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">mapView</span><span class="p">.</span><span class="n">selectAnnotation</span><span class="p">(</span><span class="n">sortedTreasures</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="nl">animated:</span> <span class="n">true</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>4.上述代码的核心是sortedTreasures的排序，利用了sort()方法(Swift中改为sortInPlace())，$1和$2分别代表了传入方法的第一和第二参数，是简写形式，分别计算出两点距离当前treasure的距离，然后返回Bool告知是否已按照小大顺序排好，最后数组排序后，展示第二个元素，来展示最近的treasure。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">public</span> <span class="n">mutating</span> <span class="n">func</span> <span class="n">sortInPlace</span><span class="p">(</span><span class="err">@</span><span class="n">noescape</span> <span class="nl">isOrderedBefore:</span> <span class="p">(</span><span class="n">Self</span><span class="p">.</span><span class="n">Generator</span><span class="p">.</span><span class="n">Element</span><span class="p">,</span> <span class="n">Self</span><span class="p">.</span><span class="n">Generator</span><span class="p">.</span><span class="n">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<h2>Equality and operator overload</h2>
+
+<p>1.照例，新需求，需要标记用户发现treasure的路径并在用户在已发现的treasure上操作时提示用户。<br/>
+2.创建已找到Treasure的数组和要绘制的地图线，并实现MKMapViewDelegate的一个方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">private</span> <span class="n">var</span> <span class="nl">foundLocations:</span> <span class="p">[</span><span class="n">GeoLocation</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'><span class="n">private</span> <span class="n">var</span> <span class="nl">polyline:</span> <span class="n">MKPolyline</span><span class="o">!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">mapView</span><span class="p">(</span><span class="nl">mapView:</span> <span class="n">MKMapView</span><span class="p">,</span> <span class="n">rendererForOverlay</span> <span class="nl">overlay:</span> <span class="n">MKOverlay</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">MKOverlayRenderer</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">let</span> <span class="n">polylineOverlay</span> <span class="o">=</span> <span class="n">overlay</span> <span class="n">as</span><span class="o">?</span> <span class="n">MKPolyline</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">renderer</span> <span class="o">=</span> <span class="n">MKPolylineRenderer</span><span class="p">(</span><span class="nl">polyline:</span> <span class="n">polylineOverlay</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">renderer</span><span class="p">.</span><span class="n">strokeColor</span> <span class="o">=</span> <span class="n">UIColor</span><span class="p">.</span><span class="n">blueColor</span><span class="p">()</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">renderer</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.在上一节添加alert的位置再添加Found项，再创建markTreasureAsFound()方法来标记已找到的Treasure，并绘制新的MKPolyline。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">alert</span><span class="p">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">UIAlertAction</span><span class="p">(</span><span class="nl">title:</span> <span class="s">&quot;Found&quot;</span><span class="p">,</span> <span class="nl">style:</span> <span class="n">UIAlertActionStyle</span><span class="p">.</span><span class="n">Default</span><span class="p">)</span> <span class="p">{</span> <span class="n">action</span> <span class="k">in</span>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">markTreasureAsFound</span><span class="p">(</span><span class="n">treasure</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">private</span> <span class="n">func</span> <span class="nf">markTreasureAsFound</span><span class="p">(</span><span class="nl">treasure:</span> <span class="n">Treasure</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">let</span> <span class="n">index</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">foundLocations</span><span class="p">.</span><span class="n">indexOf</span><span class="p">(</span><span class="n">treasure</span><span class="p">.</span><span class="n">location</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">alert</span> <span class="o">=</span> <span class="n">UIAlertController</span><span class="p">(</span><span class="nl">title:</span> <span class="s">&quot;Oops!&quot;</span><span class="p">,</span> <span class="nl">message:</span> <span class="s">&quot;You&#39;ve already found this treasure (at step \(index + 1))! Try again!&quot;</span><span class="p">,</span> <span class="nl">preferredStyle:</span> <span class="p">.</span><span class="n">Alert</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">alert</span><span class="p">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">UIAlertAction</span><span class="p">(</span><span class="nl">title:</span> <span class="s">&quot;OK&quot;</span><span class="p">,</span> <span class="nl">style:</span> <span class="p">.</span><span class="n">Default</span><span class="p">,</span> <span class="nl">handler:</span> <span class="nb">nil</span><span class="p">))</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">presentViewController</span><span class="p">(</span><span class="n">alert</span><span class="p">,</span> <span class="nl">animated:</span> <span class="n">true</span><span class="p">,</span> <span class="nl">completion:</span> <span class="nb">nil</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">foundLocations</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">treasure</span><span class="p">.</span><span class="n">location</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">polyline</span> <span class="o">!=</span> <span class="nb">nil</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">mapView</span><span class="p">.</span><span class="n">removeOverlay</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">polyline</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">var</span> <span class="n">coordinates</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">foundLocations</span><span class="p">.</span><span class="n">map</span> <span class="p">{</span> <span class="n">$0</span><span class="p">.</span><span class="n">coordinate</span> <span class="p">}</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">polyline</span> <span class="o">=</span> <span class="n">MKPolyline</span><span class="p">(</span><span class="nl">coordinates:</span> <span class="o">&amp;</span><span class="n">coordinates</span><span class="p">,</span> <span class="nl">count:</span> <span class="n">coordinates</span><span class="p">.</span><span class="n">count</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">mapView</span><span class="p">.</span><span class="n">addOverlay</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">polyline</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>4.首先利用find()函数（Swift2.0已弃用，改为collection的indexOf()方法）来获取目前位置是否已在foundLocations中，返回值为optional类型，所以需要if/let判断，这里就体现了这一技术的便利。<br/>
+5.在创建MKPolyline时，先对foundLocations使用了map方法，map如前面提到的reduce一样，也是函数式编程的一种，它的作用是从一个数组中获取另外一个数组，这里就是从foundLocations得到了由其中每一个location的coordinate组成的新数组，$0代表每一个location。<br/>
+6.这里需要实现find()方法（实际在Swift2.0已弃用），需要在GeoLocation中遵循Equatable协议，，因为find()中比较每个元素是通过==来比较的（类似OC中的isEqual()），而Class和Struc默认是不能用==比较的。这里用到了Swift的又一新特性，operator overload，既可以直接重写==这样的操作符，但需要注意下面对==的重写，并没有包含在extension中，因为operation overload都必须在定义在全局中，因为它本身并不属于某个类，它只是与一个类有关，基于要比较的的两个参数是这个类的实例。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">protocol</span> <span class="n">Equatable</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">func</span> <span class="o">==</span><span class="p">(</span><span class="nl">lhs:</span> <span class="n">Self</span><span class="p">,</span> <span class="nl">rhs:</span> <span class="n">Self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">extension</span> <span class="nl">GeoLocation:</span> <span class="n">Equatable</span> <span class="p">{</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">func</span> <span class="o">==</span><span class="p">(</span><span class="nl">lhs:</span> <span class="n">GeoLocation</span><span class="p">,</span> <span class="nl">rhs:</span> <span class="n">GeoLocation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">lhs</span><span class="p">.</span><span class="n">latitude</span> <span class="o">==</span> <span class="n">rhs</span><span class="p">.</span><span class="n">latitude</span> <span class="o">&amp;&amp;</span> <span class="n">lhs</span><span class="p">.</span><span class="n">longitude</span> <span class="o">==</span> <span class="n">rhs</span><span class="p">.</span><span class="n">longitude</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<!--more-->
+
+
+<h2>Access Control</h2>
+
+<p>1.目前为止所有变量和方法都是public的，但Swift提供了访问权限的关键字，包括：Public(所有代码均可访问)、Internal(只在该target(library或app)下的代码可以访问，是默认权限)、Private(只有该文件可以访问)。<br/>
+2.例如有一些类中的帮助方法，你不希望暴露在外，因为他们可以改变着一些不该暴露的内部状态信息。<br/>
+3.需要注意的是Unit test通常是另外一个Target，如果你的代码有部分需要单元测试，那么需要声明为public。<br/>
+4.与OC相比，OC是没有绝对的私有方法的，因为即使没有暴露在在头文件中，也可以通过runtime注入来访问私有方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">private</span> <span class="n">func</span> <span class="n">markTreasureAsFound</span><span class="p">(</span><span class="nl">treasure:</span> <span class="n">Treasure</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">private</span> <span class="n">var</span> <span class="nl">treasures:</span> <span class="p">[</span><span class="n">Treasure</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'><span class="n">private</span> <span class="n">var</span> <span class="nl">foundLocations:</span> <span class="p">[</span><span class="n">GeoLocation</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'><span class="n">private</span> <span class="n">var</span> <span class="nl">polyline:</span> <span class="n">MKPolyline</span><span class="o">!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>5.internal一般是不会显式声明的，如果是一个library被多个app使用，你可能会将内部类声明为internal，这样就不会被其他app中的代码使用了。<br/>
+6.访问控制标志是表达你代码意图的很好的方式，可以使代码更易维护，也会减少Bug，</p>
 ]]></content>
   </entry>
   

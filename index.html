@@ -9,7 +9,7 @@
   <meta name="author" content="刘毅">
 
   
-  <meta name="description" content="继上两章对Swift的基本类型的学习，这一章开始介绍Swift中的Class和Struct，Class对所有面向对象的语言都不陌生，而Struct可能用的比较少，因为大部分用于C中，但Swift中的Struct与C还有很多不同，这章会一一介绍，而且同时Class与Struct之间的不同与使用场景， &hellip;">
+  <meta name="description" content="继上两章对Swift的基本类型的学习，这一章开始介绍Swift中的Class和Struct，Class对所有面向对象的语言都不陌生，而Struct可能用的比较少，因为大部分用于C中，但Swift中的Struct与C还有很多不同，这章会一一介绍， &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -112,16 +112,203 @@ $(document).bind('DOMNodeInserted', function(event) {
   </header>
 
 
-  <div class="entry-content"><p>继上两章对Swift的基本类型的学习，这一章开始介绍Swift中的Class和Struct，Class对所有面向对象的语言都不陌生，而Struct可能用的比较少，因为大部分用于C中，但Swift中的Struct与C还有很多不同，这章会一一介绍，而且同时Class与Struct之间的不同与使用场景，也是这一章的重点。</p>
+  <div class="entry-content"><p>继上两章对Swift的基本类型的学习，这一章开始介绍Swift中的Class和Struct，Class对所有面向对象的语言都不陌生，而Struct可能用的比较少，因为大部分用于C中，但Swift中的Struct与C还有很多不同，这章会一一介绍，而且同时会讲到Class与Struct之间的不同与使用场景，以及它们的扩展，也是这一章的重点。</p>
 
 <h2>Getting started</h2>
 
-<ol>
-<li></li>
-</ol>
+<h3>The class concept</h3>
+
+<p>1.类是通过总结一些对象的共同特点，定义基本类型，通过继承来创建具体使用的子类型，它拥有自己的数据和方法，可以视为数据的容器。</p>
+
+<h2>My first class</h2>
+
+<p>1.介绍示例项目的Class设计。</p>
+
+<h3>Creating the class</h3>
+
+<p>1.import语句用于导入Swift的库文件，记性好的话，之前Apple在OC中加入了@import来替代#import（如：@import Foundation;替代#import &lt;Foundation/Foundation.h>），其实Swift中的import是和这个一致的。<br/>
+2.定义一个类如下即可，但是如果如下，有未初始化赋值的非optional变量，那么会提示你增加初始化方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="n">Treasure</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">what:</span> <span class="n">String</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">latitude:</span> <span class="n">Double</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">longitude:</span><span class="n">Double</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">init</span><span class="p">(</span><span class="nl">what:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">latitude:</span> <span class="n">Double</span><span class="p">,</span> <span class="nl">longitude:</span> <span class="n">Double</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">what</span> <span class="o">=</span> <span class="n">waht</span>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">latitude</span> <span class="o">=</span> <span class="n">latitude</span>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">longitude</span> <span class="o">=</span> <span class="n">longitude</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>A struct-ural improvement</h3>
+
+<p>1.下一步的优化是把经纬度信息做成一个结构体，那么就涉及到了Swift中的Struct，Swift中Struct和Class一样，都可以存储数据和拥有自己的方法，但要记住Struct始终是一个数值型的容器，它的用途只是持有数据，不要让它承担更多的功能。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">struct</span> <span class="n">GeoLocation</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">latitude:</span> <span class="n">Double</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">longitude:</span> <span class="n">Double</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.在Swift中，在工程中的文件是相互自动import的，所以你不用再去手动导入，这一点在你开发library和framework也是一样的。</p>
+
+<h3>Reference types vs. value types</h3>
+
+<p>1.Swift中，Struct与Class的最大区别是，Class在本质上是指针引用类型，而Struct是值类型，在赋值过程中，Class传递的是指针，而Struct则会copy一份新值，从如下的例子即可看出。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">struct</span> <span class="n">MyStruct</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">foo:</span> <span class="n">Double</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">class</span> <span class="n">MyClass</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">foo:</span> <span class="n">Double</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">var</span> <span class="n">structA</span> <span class="o">=</span> <span class="n">MyStruct</span><span class="p">()</span>
+</span><span class='line'><span class="n">var</span> <span class="n">structB</span> <span class="o">=</span> <span class="n">structA</span>
+</span><span class='line'><span class="n">structB</span><span class="p">.</span><span class="n">foo</span> <span class="o">=</span> <span class="mf">1.0</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">structA</span><span class="p">.</span><span class="n">foo</span><span class="p">)</span>
+</span><span class='line'><span class="c1">//0.0</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">structB</span><span class="p">.</span><span class="n">foo</span><span class="p">)</span>
+</span><span class='line'><span class="c1">//1.0</span>
+</span><span class='line'><span class="n">var</span> <span class="n">classA</span> <span class="o">=</span> <span class="n">MyClass</span><span class="p">()</span>
+</span><span class='line'><span class="n">var</span> <span class="n">classB</span> <span class="o">=</span> <span class="n">classA</span>
+</span><span class='line'><span class="n">classB</span><span class="p">.</span><span class="n">foo</span> <span class="o">=</span> <span class="mf">1.0</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">classA</span><span class="p">.</span><span class="n">foo</span><span class="p">)</span>
+</span><span class='line'><span class="c1">//1.0</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">classB</span><span class="p">.</span><span class="n">foo</span><span class="p">)</span>
+</span><span class='line'><span class="c1">//0.0</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.需要说明的一点，Swift在copy一个Struct时是很智能的，只会在确定必要的时候copy，也就是说structB = structA并不会创建出拷贝，只有你开始改变其中一个值时，runtime会开始执行copy。<br/>
+3.另外关于let类型的Struct和Class还有一些细微的区别，对于二者的var实例，是没有区别的，都可以改变各自的属性或将自身赋值给其他实例，但对于let实例，Class依然可以修改自己的属性变量，但是不能将自己赋值给其他实例，而Struct既不能改变自己的属性变量，也不能将自己赋值给其他实例，这也是为什么Array和Dictionary是Struct而不是Class。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">struct</span> <span class="n">MyStruct</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">foo:</span> <span class="n">Double</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">class</span> <span class="n">MyClass</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">foo:</span> <span class="n">Double</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">var</span> <span class="n">classA</span> <span class="o">=</span> <span class="n">MyClass</span><span class="p">()</span>
+</span><span class='line'><span class="n">let</span> <span class="n">classB</span> <span class="o">=</span> <span class="n">MyClass</span><span class="p">()</span>
+</span><span class='line'><span class="n">classA</span><span class="p">.</span><span class="n">foo</span> <span class="o">=</span> <span class="mf">1.0</span>
+</span><span class='line'><span class="n">classB</span><span class="p">.</span><span class="n">foo</span> <span class="o">=</span> <span class="mf">1.0</span>
+</span><span class='line'><span class="n">classB</span> <span class="o">=</span> <span class="n">classA</span>
+</span><span class='line'><span class="c1">//error</span>
+</span><span class='line'><span class="n">var</span> <span class="n">structA</span> <span class="o">=</span> <span class="n">MyStruct</span><span class="p">()</span>
+</span><span class='line'><span class="n">let</span> <span class="n">structB</span> <span class="o">=</span> <span class="n">MyStruct</span><span class="p">()</span>
+</span><span class='line'><span class="n">structA</span><span class="p">.</span><span class="n">foo</span> <span class="o">=</span> <span class="mf">1.0</span>
+</span><span class='line'><span class="n">structB</span><span class="p">.</span><span class="n">foo</span> <span class="o">=</span> <span class="mf">1.0</span>
+</span><span class='line'><span class="c1">//error</span>
+</span><span class='line'><span class="n">structB</span> <span class="o">=</span> <span class="n">structA</span>
+</span><span class='line'><span class="c1">//error</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Convenience initializers</h3>
+
+<p>1.在实例中其实还是不必要将GeoLocation暴露给使用者，可以直接给出更方便的初始化方法，这就用到了convenience initializer，在该初始化方法中跳转到了原初始化方法中，也称为designated initializer。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">convenience</span> <span class="nf">init</span><span class="p">(</span><span class="nl">what:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">latitude:</span> <span class="n">Double</span><span class="p">,</span> <span class="nl">longitude:</span> <span class="n">Double</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">let</span> <span class="n">location</span> <span class="o">=</span> <span class="n">GeoLocation</span><span class="p">(</span><span class="nl">latitude:</span> <span class="n">latitude</span><span class="p">,</span> <span class="nl">longitude:</span> <span class="n">longitude</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">init</span><span class="p">(</span><span class="nl">what:</span> <span class="n">what</span><span class="p">,</span> <span class="nl">location:</span> <span class="n">location</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.Struct不需要显式的初始化方法，Swift为你自动添加了，你只需要按Struct的属性顺序一一初始化就行了，这也是为什么上述方法中可以自动初始化GeoLocation。</p>
+
+<h3>Class inheritance</h3>
+
+<p>1.Swift中的继承是怎样的？如下例：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="nl">HistoryTreasure:</span> <span class="n">Treasure</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">yaer:</span> <span class="n">Int</span>
+</span><span class='line'>  <span class="n">init</span><span class="p">(</span><span class="nl">what:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">year:</span> <span class="n">Int</span><span class="p">,</span> <span class="nl">latitude:</span> <span class="n">Double</span><span class="p">,</span> <span class="nl">longitude:</span> <span class="n">Double</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">year</span>
+</span><span class='line'>      <span class="n">let</span> <span class="n">location</span> <span class="o">=</span> <span class="n">GeoLocation</span><span class="p">(</span><span class="nl">latitude:</span> <span class="n">latitude</span><span class="p">,</span> <span class="nl">longitude:</span> <span class="n">longitude</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">super</span><span class="p">.</span><span class="n">init</span><span class="p">(</span><span class="nl">what:</span> <span class="n">what</span><span class="p">,</span> <span class="nl">location:</span> <span class="n">location</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.子类如果有自己新的属性时，需要自己的designated initializer，而子类的designated initializer必须引用父类的一个designated initializer（注意不可以是convenience initializer），所以和上一节比较相当于做了重复工作。<br/>
+3.这里有与OC不同的一点，在OC中子类的init()方法中，是先调用父类的init()，再进行子类属性的赋值，而在Swift中是最后调用父类的init()，因为在Swift中是initializer来初始化所有属性，最后交给父类来处理，父类的init()要放在最后，是因为它不知道子类中声明的新属性，必须在它之前把这些新属性初始化。</p>
 
 </div>
   
+  
+    <footer>
+      <a rel="full-article" href="/blog/2015/10/12/swift-by-tutorials-classes-and-structs/">阅读 &rarr;</a>
+    </footer>
   
 
 
