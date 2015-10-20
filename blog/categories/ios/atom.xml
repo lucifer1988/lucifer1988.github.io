@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-10-20T17:14:17+08:00</updated>
+  <updated>2015-10-20T17:21:53+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -426,6 +426,9 @@ public func anyGenerator&lt;Element&gt;(body: () -&gt; Element?) -&gt; AnyGenera
     <updated>2015-10-12T15:26:48+08:00</updated>
     <id>http://lucifer1988.github.io/blog/2015/10/12/swift-by-tutorials-classes-and-structs</id>
     <content type="html"><![CDATA[<p>继上两章对Swift的基本类型的学习，这一章开始介绍Swift中的Class和Struct，Class对所有面向对象的语言都不陌生，而Struct可能用的比较少，因为大部分用于C中，但Swift中的Struct与C还有很多不同，这章会一一介绍，而且同时会讲到Class与Struct之间的不同与使用场景，以及它们的扩展，也是这一章的重点。</p>
+
+<!--more-->
+
 
 <h2>Getting started</h2>
 
