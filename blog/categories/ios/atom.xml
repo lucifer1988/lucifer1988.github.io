@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-10-15T11:02:42+08:00</updated>
+  <updated>2015-10-20T17:14:17+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,413 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Swift by Tutorials--Generics]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/10/15/swift-by-tutorials-generics/"/>
+    <updated>2015-10-15T11:05:56+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/10/15/swift-by-tutorials-generics</id>
+    <content type="html"><![CDATA[<p>经过前三章，基本对Swift的基本语法有了较全面的介绍，接下来会分别就Swift比较重要的几个技术要点介绍，这一节将讨论一个比较流行的语言特性，generics，即泛型。对于类型安全的编程语言，希望代码可以在一个场景下运行，但又想要在其他场景中也可以是合法的，比如对于一个加法函数，Int和Float类型的函数形式是一样的，只是变量类型不同，在强调类型的语言中，你必须分开定义这两个方法。很多语言为这一问题提供了解决方案，C++是使用了模板，而Swift、Java、C#是使用了泛型，也就是这一章的主角，配合主题这一章将创建一个Flickr照片搜素App来实践这一技术。</p>
+
+<!--more-->
+
+
+<h2>Introducing generics</h2>
+
+<p>1.泛型是什么？举例来说Array和Dictionary就是类型安全的泛型应用实例。在OC中Array和Dictionary是可以存放不同类型的对象的，当然这有时是提供了很多方便，但当你去使用一个Array或Dictionary时，你如何知道其中的类型？只能通过文档或其他代码，而且没有任何办法去控制在runtime中出现数据异常。<br/>
+2.而Swift中对Array和Dictionary中类型是固定的，编译器会完成类型检查，而你的代码本身也对自己做了注释，比较下处理点击的方法在OC和Swift中的区别，在OC中调用这一方法，你一般是需要将set中的对象转化为UITouch类型，而Swift不仅省去你这一操作，代码可读性也更优。</p>
+
+<p><code>objectivec
+//in OC
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
+//in Swift
+func touchesBegan(touches: [UITouch]!, withEvent event: UIEvent!)
+</code></p>
+
+<p>2.所以说泛型就是类似Array这样，所有的Array运作方式都是一致的，都是将数据存在一张有序的表中，但泛型的Array将值的类型作为了参数，也就是不论Array中类型如何，都可以执行Array的方法。</p>
+
+<!--more-->
+
+
+<h2>Generics in action</h2>
+
+<p>1.本章的实例项目是要从Flickr的搜索接口获取对应图片，并进行展示的一个App，其中网络访问部分大神已经写好了。</p>
+
+<!--more-->
+
+
+<h2>Ordered dictionaries</h2>
+
+<p>1.第一个需求就是希望将用户最近搜索的图片放在前面，那么如果正常来讲，我们要用Array来存数据源，而不是Dictionary或Set，因为后两者是无序的，而这里为了应用泛型，打算自己创建一个有序的Dictionary，实际上就是想把key作为顺序。</p>
+
+<h3>The initial data structure</h3>
+
+<p>1.首先声明有序字典为Struct类型，并声明它的泛型类型参数，KeyType和ValueType并不是真实的类型，只是两个你用来替代类型的参数，一般用T来表示，如果单词表示的话用驼峰式大写首字母来表示。</p>
+
+<p><code>objectivec
+struct OrderedDictionary&lt;KeyType, ValueType&gt; {
+}
+</code></p>
+
+<p>2.创建一个有序字典最简单的方法是，在内部同时维护一个Dictionary和Array，这里使用了typealias分别给[KeyType]和[KeyType: ValueType]做了类型名替代，这样下面声明Array和Dictionary就可以直接用替代类型名来定义，同理这个也可以用在替换函数类型和闭包等比较长的类型的替换。</p>
+
+<p>```objectivec
+typealias ArrayType = [KeyType]
+typealias DictionaryType = [KeyType: ValueType]</p>
+
+<p>var array = ArrayType()
+var dictionary = DictionaryType()
+```</p>
+
+<p>3.对比Dictionary的定义，KeyType需要遵循Hashable协议，因为Dictionary需要对key做hash，所以在定义泛型那儿要加上遵循该协议。</p>
+
+<p><code>objectivec
+struct OrderedDictionary&lt;KeyType: Hashable, ValueType&gt;
+</code></p>
+
+<h3>Keys, values and all that jazz</h3>
+
+<p>1.第一个要加入的方法是insert方法，因为是有序字典，所以有所不同。</p>
+
+<p>```objectivec
+mutating func insert(value: ValueType, forKey key: KeyType, atIndex index: Int) &ndash;> ValueType? {
+  var adjustedIndex = index</p>
+
+<p>  let existingValue = self.dictionary[key]
+  if existingValue != nil {</p>
+
+<pre><code>let existingIndex = self.array.indexOf(key)!
+if existingIndex &lt; index {
+  adjustedIndex--
+}
+self.array.removeAtIndex(existingIndex)
+</code></pre>
+
+<p>  }</p>
+
+<p>  self.array.insert(key, atIndex:adjustedIndex)
+  self.dictionary[key] = value</p>
+
+<p>  return existingValue
+}
+```</p>
+
+<p>2.有几点需要说明，首先，该方法前的mutating关键字，因为Struct默认是不可变的，也就是是说你不能在实例方法中修改struct的成员变量，加上mutating是为了告诉编译器该方法可以修改struct成员变量，使编译器在适当的时候对struct做copy操作(前面说过，实际上是copy-on-write)，同时也增加了可读性。<br/>
+3.然后是remove方法，这里先对index是否越界做了判断，可以像OC中使用Assertions断言，也可以如下使用precondition，如果失败，会退出App。</p>
+
+<p><code>objectivec
+mutating func removeAtIndex(index: Int) -&gt; (KeyType, ValueType) {
+  precondition(index &lt; self.array.count, "Index out-of-bounds")
+  let key = self.array.removeAtIndex(index)
+  let value = self.dictionary.removeValueForKey(key)!
+  return (key, value)
+}
+</code></p>
+
+<p>4.这里在结束后会返回一个元组类型的删除值，使之与Swift的Array和Dictionary的remove方法保持一致。</p>
+
+<h3>Accessing values</h3>
+
+<p>1.上一节为有序字典添加了写入的方法，接下来添加一些读取的方法，首先是获取count的方法，如下，使用了前面提到的computed property技术。</p>
+
+<p><code>objectivec
+var count: Int {
+  return self.array.count
+}
+</code></p>
+
+<p>2.在Swift中我们一般使用subscript来访问变量，类似dictionary[1]，一般是见于Array和Dictionary，不过我们计划在我们的有序字典也加入这一特性。</p>
+
+<p>```objectivec
+subscript(key: KeyType) &ndash;> ValueType? {
+  get {</p>
+
+<pre><code>return self.dictionary[key]
+</code></pre>
+
+<p>  }
+  set {</p>
+
+<pre><code>if let index = self.array.indexOf(key) {
+} else {
+  self.array.append(key)
+}
+self.dictionary[key] = newValue
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>3.上述代码就是如何在自己的Struct中加入subscript行为，类似computed property，subscript有两个闭包，分别是getter和setter。<br/>
+4.因为这是一个有序数组，我们打算让他支持通过index来访问，需要注意的是：一，无论setter，getter都需要判断index是否越界；二，setter中输入的值newValue是一个元组类型，所以需要用let (key, value) = newValue将键值取出来。</p>
+
+<p>```objectivec
+subscript(index: Int) &ndash;> (KeyType, ValueType) {
+  get {</p>
+
+<pre><code>precondition(index &lt; self.array.count, "Index out-of-bounds")
+let key = self.array[index]
+let value = self.dictionary[key]!
+return (key, value)
+</code></pre>
+
+<p>  }
+  set {</p>
+
+<pre><code>precondition(index &lt; self.array.count, "Index out-of-bounds")
+let (key, value) = newValue
+let originalKey = self.array[index]
+self.dictionary[originalKey] = nil
+self.array[index] = key
+self.dictionary[key] = value
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>5.这里可能有个疑问，就是如果使用者使用Int作为KeyType呢？因为Int也遵循hashable，完全可以作为key，那么编译器如何判断该用哪组方法呢？遇到这种情况，setter方法当然没问题，因为赋值也不同，那么getter方法只能在取值时就声明返回值的类型，这样编译器会通过这个类型选择使用哪个方法。</p>
+
+<p><code>objectivec
+var dict = OrderedDictionary&lt;Int, String&gt;()
+dict.insert("dog", forKey: 1, atIndex: 0)
+dict.insert("cat", forKey: 2, atIndex: 1)
+print(dict.array.description + " : " + dict.dictionary.description)
+//"[1, 2] : [2: "cat", 1: "dog"]"
+var byIndex: (Int, String) = dict[0]
+print(byIndex)
+//"(1, "dog")"
+var byKey: String? = dict[2]
+print(byKey)
+//"Optional("cat")"
+</code></p>
+
+<p>6.在使用type interface时，编译器需要明确知道返回值的类型，如果出现上述相同方法，返回值类型不同的情况，必须caller指明类型，否则编译器是不会知道该返回那个值的。</p>
+
+<!--more-->
+
+
+<h2>Aside: Assertions &amp; preconditions</h2>
+
+<p>1.assertions和precondition都是判断程序是否能继续执行时的判断条件，不同的是，assertion是不会在release build时编译的，而precondition可以；assertion是被用于在开发时获取bug，而precondition是用于当一个条件不满足时，抛出严重异常的。<br/>
+2.assertion的一个使用场景是有多个创建view的方法共同来构建页面，但其中一些依赖于另一些完成，这时要使用assertion。</p>
+
+<p>```objectivec
+private func configureTableView() {</p>
+
+<pre><code>self.tableView = UITableView(frame: CGRectZero) 
+self.tableView.delegate = self 
+self.tableView.dataSource = self 
+self.view.addSubview(self.tableView)}private func configureHeader() {   assert(self.tableView != nil)   let headerView = UIView(frame: CGRectMake(0, 0, 320, 50))   headerView.backgroundColor = UIColor.clearColor()   let label = UILabel(frame: CGRectZero)  label.text = "My Table"     label.sizeToFit()   label.frame = CGRectMake(0, 0, label.bounds.size.width, label.bounds.size.height) headerView.addSubview(label)  self.tableView.tableHeaderView = headerView }
+</code></pre>
+
+<p>```</p>
+
+<p>3.关于assertion一个有趣的现象是编译器允许在release build时假设assertion是true，有时也会导致一些bug，如下，输入0时，在debug下没问题，会触发断言；而在release中，编译器自动认为assertion是true，然后optimizer就会跳过if，直接进入>0的分支。</p>
+
+<p>```objectivec
+func foo(value: Int) {</p>
+
+<pre><code>assert(value &gt; 0)   if value &gt; 0 {      print("Yes, it's greater than zero")    } else { 
+    print("Nope")   } }
+</code></pre>
+
+<p>```</p>
+
+<p>4.再来看下precondition，它和assertion做的是一样的工作，但是可以在release下运行，使用它是为了确保一些必要的条件，如下例，数组越界即使不加precondition，也会crash，但是通过precondition，可以获取到自定义的log信息，方便调试。</p>
+
+<p>```objectivec
+func fetchPeopleBetweenIndexes(start: Int, end: Int) &ndash;> [Person] {</p>
+
+<pre><code>precondition(start &lt; end)   precondition(start &gt;= 0)    precondition(end &lt;= self.people.count)  return Array(self.people[start..&lt;end]) 
+</code></pre>
+
+<p>}
+```</p>
+
+<p>5.一般的经验是，在你release时可以跳过，但是希望在debug阶段获取失败信息时使用assertion；而在将会导致数据损坏或者其他严重问题前，使用precondition。同时在你开发一些第三方库时，在容易出现数据输入错误这些位置可以使用precondition来提示开发者。</p>
+
+<!--more-->
+
+
+<h2>Adding image search</h2>
+
+<p>1.创建App的数据源，使用的就是之前自定义的有序字典，你可能注意到使用了Flickr.photo，Photo是一个定义在Flickr中的类，这样的机制非常有用，在保持类名尽量短的基础上实现了命名空间，在Flickr类中，可以单独使用Photo类。</p>
+
+<p><code>objectivec
+var searches = OrderedDictionary&lt;String, [Flickr.Photo]&gt;()
+</code></p>
+
+<p>2.然后实现tableView的委托和数据源协议。</p>
+
+<p>```objectivec
+func tableView(tableView: UITableView, numberOfRowsInSection section: Int) &ndash;> Int {
+  return self.searches.count
+}</p>
+
+<p>func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) &ndash;> UITableViewCell {
+  let cell = tableView.dequeueReusableCellWithIdentifier(&ldquo;Cell&rdquo;, forIndexPath: indexPath) as UITableViewCell
+  let (term, photos) = self.searches[indexPath.row]
+  cell.textLabel!.text = &ldquo;(term) ((photos.count))&rdquo;
+  return cell
+}
+```</p>
+
+<p>3.然后是UISearchBarDelegate，这里调用Flickr的search方法是使用了Trailing Closures技术，即如果closure作为一个方法最后一个变量，那么可以写到所调用方法的外面（后面），如下：</p>
+
+<p>```objectivec
+func searchBarSearchButtonClicked(searchBar: UISearchBar!) {
+  searchBar.resignFirstResponder()
+  let searchTerm = searchBar.text
+  Flickr.search(searchTerm!) {</p>
+
+<pre><code>switch ($0) {
+case .Error:
+  break
+case .Results(let results):
+  self.searches.insert(results, forKey: searchTerm!, atIndex: 0)
+  self.tableView.reloadData()
+}
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>```objectivec
+func someFunctionThatTakesAClosure(closure: () &ndash;> Void) {</p>
+
+<pre><code>// function body goes here
+</code></pre>
+
+<p>}
+// here&rsquo;s how you call this function without using a trailing closure:
+someFunctionThatTakesAClosure({</p>
+
+<pre><code>// closure's body goes here
+</code></pre>
+
+<p>})
+// here&rsquo;s how you call this function with a trailing closure instead:
+someFunctionThatTakesAClosure() {</p>
+
+<pre><code>// trailing closure's body goes here
+</code></pre>
+
+<p>}
+```</p>
+
+<h3>Show me the photos!</h3>
+
+<p>1.这一节来完成详情页，先是在prepareForSegue方法中设置DetailViewController。</p>
+
+<p>```objectivec
+override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+  if segue.identifier == &ldquo;showDetail&rdquo; {</p>
+
+<pre><code>if let indexPath = self.tableView.indexPathForSelectedRow {
+  let (_, photos) = self.searches[indexPath.row]
+  (segue.destinationViewController as! DetailViewController).photos = photos
+}
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<h3>Deleting searches</h3>
+
+<p>1.为搜索页添加滑动删除功能。</p>
+
+<p><code>objectivec
+self.navigationItem.leftBarButtonItem = self.editButtonItem()
+</code></p>
+
+<p><code>objectivec
+override func setEditing(editing: Bool, animated: Bool)  {
+  super.setEditing(editing, animated: animated)
+  self.tableView.setEditing(editing, animated: animated)
+}
+</code></p>
+
+<p><code>objectivec
+func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -&gt; Bool {
+  return true
+}
+</code></p>
+
+<p>```objectivec
+func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
+  if editingStyle == .Delete {</p>
+
+<pre><code>self.searches.removeAtIndex(indexPath.row)
+tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<!--more-->
+
+
+<h2>Generic functions and protocols</h2>
+
+<p>1.这一节介绍泛型的函数和协议，之前一直使用的find方法就是一个泛型方法，这是一个全局方法，泛型参数C定义了domain参数，也间接定义了value参数的类型，且返回值也和C有关：</p>
+
+<p><code>objectivec
+func find&lt;C: Collection where C.GeneratorType.Element: Equatable&gt; (domain: C, value: C.GeneratorType.Element) -&gt; C.IndexType?
+</code></p>
+
+<p>2.我们之前定义的有序字典的insert方法中这么使用了find()，没有指出C，其实这又是type interface的体现，通过第一个参数推断出了C的类型。</p>
+
+<p><code>objectivec
+let existingIndex = find(self.array, key)!
+</code></p>
+
+<p>3.那么GeneratorType是什么？上述的Collection协议，同时也遵从于SequenceType协议，如下，要实现该协议，必须有个typealias名为Generator，且遵从于GeneratorType协议，同时实现generate()方法返回Generator类型。</p>
+
+<p>```objectivec
+protocol SequenceType { typealias Generator : GeneratorType</p>
+
+<pre><code>public func generate() -&gt; Self.Generator}
+</code></pre>
+
+<p>```</p>
+
+<p>4.那么在自定义的有序数组上实验下SeqenceType，首先定义typealias名为Generator，使用AnyGenerator这个泛型类。</p>
+
+<p>```objectivec
+extension OrderedDictionary: SequenceType {
+  typealias Generator = AnyGenerator&lt;(KeyType, ValueType)>
+  func generate() &ndash;> AnyGenerator&lt;(KeyType, ValueType)> {</p>
+
+<pre><code>var index = 0
+return anyGenerator {
+  if index &lt; self.array.count {
+    let key = self.array[index++]
+    return (key, self.dictionary[key]!)
+  } else {
+    return nil
+  }
+}
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>5.而在实现generate()方法中，通过调用了anyGenerator方法，该方法只有一个closure参数，所以使用了Trailing Closures技术，这个closure会在每次调用next()时调用，在closure中，你完成自己的遍历方法。</p>
+
+<p><code>objectivec
+public func anyGenerator&lt;Element&gt;(body: () -&gt; Element?) -&gt; AnyGenerator&lt;Element&gt;
+</code></p>
+
+<p>6.实现了SequenceType Protocol，你可以使用for-in来遍历字典，其实typealias Generator = AnyGenerator&lt;(KeyType, ValueType)>这句可以删除，因为Swift从func generate() &ndash;> AnyGenerator&lt;(KeyType, ValueType)>()返回值推断出了该类型。<br/>
+7.实际上SequenceType Protocol就是一个泛型协议，只不过因为protocol不能使用&lt;>关键字，而像Java和C#是可以的，原因也很简单，Protocols本身就是定义给class或struct实现的，这本身就是带有泛型的性质，Swift的思想就是protocol定义接口，而class和struct定义类型、泛型或其他。</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Swift by Tutorials--Classes and Structs]]></title>
@@ -1503,558 +1910,6 @@ repeats:YES
 </code></pre>
 
 <p>}
-```</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Effective Objective-C读书笔记6]]></title>
-    <link href="http://lucifer1988.github.io/blog/2015/09/09/effective-objective-cdu-shu-bi-ji-6/"/>
-    <updated>2015-09-09T16:29:01+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2015/09/09/effective-objective-cdu-shu-bi-ji-6</id>
-    <content type="html"><![CDATA[<p>第六章的主要内容是Blocks和GCD，这可以说是Morden OC当中的三驾马车的其余两架，它们和ARC的出现，彻底改变了OC的开发模式。多线程是现代编程中任何语言都不可或缺的技术，在iOS中阻塞UI主线程往往是应用崩溃或用户体验差的重要原因，多线程就是解决这一问题的良方，而Blocks和GCD就是Apple给开发者带来的多线程解决方案。Blocks即OC中的闭包，它可以被当做一个对象，可以运行于其他上下文中。GCD基于dispatch queues提供了对线程的抽象，它会根据系统资源自动开辟、复用、销毁后台线程，同时GCD也对一些常见编程提供了简化方案，比如：创建单例、并发任务等等。</p>
-
-<!--more-->
-
-
-<h2>Item37 Understand Blocks</h2>
-
-<p>1.Blocks作为了GCC的拓展，也存在于Clang的所有版本中。Blocks的runtime component在Mac OS X 10.4和iOS4被加入。由于是C级别的语言特性，所以可以被用于C,C++,OC当中。</p>
-
-<h3>Block Basics</h3>
-
-<p>1.Blcoks的类型写法类似函数指针，也可以直接当做函数来执行：</p>
-
-<p>```objectivec
-int(^addBlcok)(int a,int b) = ^(int a, int b){</p>
-
-<pre><code>return a+b;
-</code></pre>
-
-<p>};
-int add = addBlcok(2,5);//&lt;add=7
-```</p>
-
-<p>2.Blocks最重要的特性，它可以将它包含的所有内容进行复制，也就意味着范围内的任何变量都可以使用：</p>
-
-<p>```objectivec
-int additional = 5;
-int(^addBlcok)(int a,int b) = ^(int a, int b){</p>
-
-<pre><code>return a+b+additional;
-</code></pre>
-
-<p>};
-int add = addBlcok(2,5);//&lt;add=12
-```</p>
-
-<p>3.默认Blocks是不能改变外部变量的，但是可以通过添加__blcok关键字，来声明变量可以改变。</p>
-
-<p>```objectivec
-NSArray <em>array = @[@0,@1,@2,@3,@4,@5];
-__blcok NSInteger count = 0;
-[array enumerateObjectsUsingBlock:^(NSNumber </em>number, NSUInteger idx, BOOL *stop){</p>
-
-<pre><code>if([number compare:@2] == NSOrderedAscending){
-    count++;
-}
-</code></pre>
-
-<p>}];
-//count = 2
-```</p>
-
-<p>4.上例也说明了Block作为内联参数的使用，这也是它的重要用法，取代了之前传selector name这样的方式，增加了代码可读性。<br/>
-5.Block内部引用的变量会被隐性添加retain，然后在block release时再调用一次release，所以blcok可以被理解为一个一般的OC对象，它也是有retain count的。<br/>
-6.那么在一个类中的实例方法中声明使用block，然后在block中使用了类的实例变量，那么其实是对self进行了一次retain，如果这时这个block被self的变量再retain一次，那么就会形成循环引用，解决方法在Item40会详细说，其实就是声明一个self的__weak替代对象就好了。</p>
-
-<h3>The Guts of Block</h3>
-
-<ol>
-<li>Block的实质，除了包含通常的isa（block的Class为void*），flags等，block的三个主要组成为：invoke、descriptor、Captured variables。</li>
-<li>invoke是一个函数指针，类型为void(<em>)(void </em>,&hellip;)，至少包含的void *其实就是block自身，因为block的Captured variables包含了所有据有变量的copy，invoke指向的就是block的实现部分，所以也证明了block实质上就是Apple对函数指针的一次高级封装，便于开发者使用。</li>
-<li>descriptor指向一个结构体，包含了：size（blcok总大小），copy和dispose（都是函数指针，copy在blcok被拷贝时执行，dispose在block retain或release据有的对象时执行）。</li>
-<li>Captured variables就是block据有的所有变量的copy，注意这里的copy是指针拷贝。</li>
-</ol>
-
-
-<h3>Global，Stack，and Heap Blocks</h3>
-
-<p>1.Block声明的时候是存在于stack上的，类似下面的代码是不安全的，因为if/else中声明的blcok是存在于stack上的，在if/else结束时，系统可能会收回这些内存重用，而且这个问题在编译中不会报出：</p>
-
-<p>```objectivec
-void(^blcok)();
-if(/<em>some condition</em>/){</p>
-
-<pre><code>blcok = ^{
-    NSLog(@"Block A");
-};
-</code></pre>
-
-<p>} else {</p>
-
-<pre><code>blcok = ^{
-    NSLog(@"Block B");
-};
-</code></pre>
-
-<p>}
-block();
-```</p>
-
-<p>2.解决这一问题的方法，就是对声明的block进行copy，这样的话，block被copy到了heap上，这样的block和其他一般对象就一样了，也不会出现上述问题，使用ARC的话，block会在之后自动释放，而MRC将要自己去添加release方法，这也是类在为block类型的property添加属性时，一般都是copy类型的。<br/>
-3.所谓的global Block就是类似于之前说的NSString和NSNumber的常量声明，如果Block内部没有任何状态变化，也不依赖于外部的状态变化，在编译期间就可以知道其所需要的空间大小，系统就会对其做优化，生成一个global block，它是被声明在global memory上，而不是stack上，而且copy对于它也是一个空操作，也不会被释放，实际就是一个单例，类似：</p>
-
-<p>```objectivec
-void(^block)() = ^{</p>
-
-<pre><code>NSLog(@"This is a global blcok!");
-</code></pre>
-
-<p>};
-```</p>
-
-<!--more-->
-
-
-<h2>Item38 Create typedefs for Common Block Types</h2>
-
-<p>1.由于Block的类型像函数指针一样，参数多的话会很长，而且类型名又在中间，很难使用和记住，所以我们可以使用C语言的typedef来做类型定义，这么做也方便将来可能的修改：</p>
-
-<p>```objectivec
-typedef int(^EOCSomeBlock)(BOOL flag,int value);
-EOCSomeBlock block = ^(BOOL flag,int value){</p>
-
-<pre><code>//Implementation
-</code></pre>
-
-<p>};
-```</p>
-
-<p>2.对block命名时还是要遵循OC的命名习惯，使用命名空间，也不要还害怕对相同类型使用多个命名，有时候这是必须的，一是命名更加清楚，二是方便将来重构。</p>
-
-<!--more-->
-
-
-<h2>Item39 Use Handler Blocks to Reduce Code Separation</h2>
-
-<ol>
-<li>异步多线程执行任务，之前一直是采用Delegate模式，但现在我们可以通过定义block作为handler来完成同样的任务，而且代码简洁，可读性强。</li>
-<li>尤其出现一个类中同时使用多个同种类型的实例，采用一套回调时，那么使用Delegate则会大大增加代码的复杂度，会在很多地方出现switch的判断，而使用block则能避免这一问题。</li>
-<li>作者列举了两个例子使用这一模式的场景，都是针对网络请求回调，一是，使用两个block分别处理失败和成功，二是使用一个block，使用error来判断失败和成功（这两种写法都在作者的AFNetworking里出现过）。</li>
-<li>方案一的好处是，代码清晰，使用者只需对不同情况填空即可；方案二的好处是，可以更灵活的处理这一问题，如出现一些数据异常、下载中断这些情况，业务端也可以自行按失败来进行处理。</li>
-<li>在设计API时，有时会出现，需要在特定线程执行代码的需求，这时我们可以在接口中加入(NSOperationQueue*)queue这样的参数，可以是缺省的。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item40 Avoid Retain Cycles Introduced by Blocks Referencing the Object Owning Them</h2>
-
-<ol>
-<li>block出现循环引用一般是因为ClassA使用了ClassB的实例，ClassB有block的实例，而ClassA在block中使用了自己的其他实例，造成了block retain了ClassA，ClassA retain了ClassB，ClassB retain了block，这样循环引用就形成了。</li>
-<li>解决方案一是在block中完成所有操作时，将ClassB的实例置为nil，这样retain环就断裂了，但这么做也有问题，如果这段block代码没有被执行，那么retain环还存在。</li>
-<li>还有一种更隐蔽的情况，ClassA不在把ClassB当做实例变量，只是用做局部变量，但在block中使用了ClassB的局部变量，这样会出现，block retain了ClassB，ClassB ratain了block，所以形成了二元retain环，不过解决很简单，在ClassB中完成对block的最终调用后，将它的block实例置为nil。</li>
-<li>这样也凸显了不将block作为外部property的好处（使用者只能通过初始化方法赋值），如果block直接暴露给使用者，你只能要求使用者去清除block property，但这通常是不合理的设计。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item41 Prefer Dispatch Queues to Locks for Synchronization</h2>
-
-<p>1.OC大部分线程操作都是默认多线程的，但如果有些情况需要单线程，就需要开发者自己实现，GCD之前有两种方式。<br/>
-2.一是synchronization block，它将包含的代码进行加锁操作，参数是self，这可以实现类的不同实例可以分别运行这个方法，但缺点是如果过度使用，会导致性能问题，也会出现代码被不知名的锁所阻塞的问题。</p>
-
-<p>```objectivec
-&ndash;(void)synchronizedMethod{</p>
-
-<pre><code>@synchronized(self){
-    //Safe
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>3.二是NSLock，而且也有专门为递归设计的NSRecursiveLock，但是NSLock一个最大的问题是会出现死锁问题，所以二者都不是最佳方案。</p>
-
-<p>```objectivec
-_lock = [[NSLock alloc] init];
-&ndash;(void)synchronizedMethod {</p>
-
-<pre><code>[_lock lock];
-//Safe
-[_lock unlock];
-</code></pre>
-
-<p>}
-```</p>
-
-<p>4.那么对比使用atomic属性的property，Item6也说过，我们手动实现时，可以利用synchronization block来实现，但是问题就是当多个property这么做时，会出现propertys之间出现阻塞，而且在多次频繁访问一个property时，其他线程可能会对其修改，会造成返回值不同。<br/>
-5.替代方案就是GCD的serial synchronization queue，它可以使读写property在一个队列中执行，也就避免了上述问题，代码更加简化，而且利用了GCD底层的优化，而且你不用担心对象之间的相互阻塞。</p>
-
-<p>```objectivec
-_syncQueue = dispatch_queue_creat(&ldquo;com.EOC.syncQueue&rdquo;, NULL);
-&ndash;(NSString*)someString{</p>
-
-<pre><code>__block NSString *localSomeString;
-dispatch_sync(_syncQueue,^{
-    localSomeString = _someString;
-});
-return localSomeString;
-</code></pre>
-
-<p>}
-&ndash;(void)setSomeString:(NSString*)someString{</p>
-
-<pre><code>dispatch_sync(_syncQueue, ^{
-    _someString = someString;
-});
-</code></pre>
-
-<p>}
-```</p>
-
-<p>6.对于这一方案还有优化，优化一是可以将setter方法使用异步执行，因为setter方法不会有返回值，而且由于和getter还是在一个队列执行，还是能保持读取的同步，但是涉及到一个问题，异步需要将block copy到异步线程，那么如果block内容很简单，可能copy的时间和执行的时间差不多，也就达不到优化的效果，但是当block内容比较复杂时，这一手段还是有效地。</p>
-
-<p>```objectivec
-&ndash;(void)setSomeString:(NSString*)someString{</p>
-
-<pre><code>dispatch_async(_syncQueue,^{
-    _someString = someString;
-});
-</code></pre>
-
-<p>}
-```</p>
-
-<p>7.第二种优化想实现，可以同时并发执行多个getter，但同步执行setter，且它们还要在同一线程，这对于synchronization block或NSLock来说，都是极难实现的，但是我们利用GCD的特性dispatch_barrier_sync()可以轻松实现，getter可以并行执行，如果出现barrier的setter，那么线程会等之前的所有getter都执行完，然后单独执行setter，执行完之后照常并行执行getter操作。</p>
-
-<p>```objectivec
-_syncQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0);
-&ndash;(NSString*)someString{</p>
-
-<pre><code>__block NSString *localSomeString;
-dispatch_sync(_syncQueue,^{
-    localSomeString = _someString;
-});
-return localSomeString;
-</code></pre>
-
-<p>}
-&ndash;(void)setSomeString:(NSString*)someString{</p>
-
-<pre><code>dispatch_barrier_async(_syncQueue,^{
-    _someString = someString;
-});
-</code></pre>
-
-<p>}
-```</p>
-
-<!--more-->
-
-
-<h2>Item42 Prefer GCD to performSelector and Friends</h2>
-
-<ol>
-<li>&ndash;(id)performSelector:(SEL)selector，曾作为延时执行方法和在特定线程执行方法这些场景中的主要手段，利用runtime，可以改变selector的名称，在运行时再决定执行那个方法，但使用这一方法是有风险的。</li>
-<li>如果你使用if/else来决定赋值不同的selector，然后再执行，这样的话，ARC模式下会报内存泄露的警告，原因是编译器不知道那个方法会执行，所以也没办法确定有没有返回值，返回值是autoreleased还是caller自己释放，所以ARC会保守的添加autoreleased，如果这时返回值是caller自己释放的，那么就出现了内存泄露，这一警告MRC不会报出，但也更难发现，且静态分析器也检查不出，所以这是需要注意的一点。</li>
-<li>&ndash;(id)performSelector:(SEL)selector以及它的族函数，它们的返回类型都是id类型，也就是说必须是一个指针，如果返回值是void、C结构体、或数值型，那么就有可能出问题，然后最多只能添加两个参数，而且也必须是id类型，超过两个参数或类型不对的也不能用，所以说局限性是非常大的。</li>
-<li>&ndash;(id)performSelector:(SEL)selector的延时执行和在特定线程执行的族函数也是一样，缺陷很明显，只支持一个参数，所以使用者必选把所有参数打包，才能使用。</li>
-<li>而结合使用Blocks和GCD，你可以实现上述所有的功能，且不会有约束，代码还简洁。</li>
-</ol>
-
-
-<p>```objectivec
-//Using dispatch_after
-dispatch_time_t time = dispatch_time(DISPATCH_TIME_NOW,(INT64_t)(5.0*NSEC_PER_SEC));
-dispatch_after(time,dispatch_get_main_queue(),^(void){</p>
-
-<pre><code>[self doSomething];
-</code></pre>
-
-<p>});
-//Using dispatch_async(or if waitUntileDone is YES,then dispatch_sync)
-dispatch_async(dispatch_get_main_queue(),^{</p>
-
-<pre><code>[self doSomething];
-</code></pre>
-
-<p>});
-```</p>
-
-<!--more-->
-
-
-<h2>Item43 Know When to Use GCD and When to Use Operation Queues</h2>
-
-<ol>
-<li>上面介绍了很多GCD的优点，GCD在的同步机制（Item41）和单例机制（Item45）是非常优秀的，但并不是说GCD就是所有OC线程问题的最优解，在它之前的NSOperationQueue有时更为合适。</li>
-<li>GCD是C类型的Api，而operation queues则是OC对象；GCD中的任务是一个block，比较轻量，而operation queues中的任务是NSOperation的子类，比较重量；但这不意味着GCD一直是最优解，有时作为对象的优势也是非常明显的。</li>
-<li>使用NSBlockOperation或NSOperationQueue的addOperationWithBlock:方法，可以使operation queues非常像GCD，下面是它的一些优势。</li>
-</ol>
-
-
-<h3>Cancelling operations</h3>
-
-<ol>
-<li>NSOperation很容易就可以实现cancel，执行它的cancel方法即可，但已经执行的operation就不能cancel了，但是对于GCD也一样，不能cancel一个已经在执行的block，这类机制就是“fire and forget”，但在GCD上实现cancel，需要自己去实现，而这需要很多工作。</li>
-</ol>
-
-
-<h3>Operation dependencies</h3>
-
-<ol>
-<li>operation可以实现依赖，这样开发者可以自己组织执行的优先顺序，例如下载一些文件之前需要先下载验证文件，下验证文件的operation就是其他下载operation的依赖，如果其他下载是并发的，那么它们会等下载完验证文件后再并发执行。</li>
-</ol>
-
-
-<h3>Key-Value Observing of operation properties</h3>
-
-<ol>
-<li>Operation的很多property是很适合KVO的，比如：<em>isCancelled，isFinished</em>去监测operation是否取消或完成，如果你的代码需要对operation做到如此细粒度的控制的话，那么更应该使用operation。</li>
-</ol>
-
-
-<h3>Operation priorities</h3>
-
-<ol>
-<li>operation可以设置优先级（即queuePriority，从verylow到veryhigh五个枚举值），高优先级的operation会先执行，GCD无法设置每个block的执行优先级，而只能设置整个queue的优先级，所以这也是operation的一大特性。另外，operation还有一个相关的线程优先级（即threadPriority，从0.0到1.0），可以指定operation执行时线程分配的优先级，我理解它和前者一个是时间上的优先级，一个是空间上的优先级，这两者均可通过operation的property直接设置。</li>
-</ol>
-
-
-<h3>Reuse of operation</h3>
-
-<ol>
-<li>除非你使用内建的NSOperation的子类，比如NSBlockOperation，你一般都需要自己继承NSOperation，所以这就意味着你可以添加实例和方法，和进行复用。</li>
-<li>综上operation有这很多的优点，主要集中于你可以对单个operation进行更加细粒度的操作，而不用自己去组织相关代码，这是对比GCD的block的优势之处。</li>
-<li>Apple的NSNotificationCenter有一个方法，如下，其中的NSOperationQueue可以换成dispatch queue的，但是开发者不想对GCD产生无谓的依赖，在这个实例中，两者是没什么区别的。总之，GCD和Operation queue都是视情况使用，而不是一味遵从使用高级接口或底层接口，各有好处。</li>
-</ol>
-
-
-<p><code>objectivec
--(id)addObserverForName:(NSString*)name object:(id)object queue:(NSOperationQueue*)queue usingBlock:(void(^)(NSNotification*))block;
-</code></p>
-
-<!--more-->
-
-
-<h2>Item44 Use Dispatch Groups to Take Advantage of Platform Scaling</h2>
-
-<p>1.Dispatch Groups是GCD的一个特性，为了方便开发者对任务进行分组，你可以等待一组任务完成或者通过回调来被通知一组任务完成了。当你想让一组方法并行执行，但同时希望在它们完成时得到通知，那么你该使用这一特性。例如批量压缩文件。<br/>
-2.一个group是一个简单的结构体，也没有标识，下面是group的类型和将task和group关联的方法，其实只是在正常的dipatch执行方法上关联了group而已：</p>
-
-<p><code>objectivec
-dispatch_group_t dispatch_group_creat();
-void dispatch_group_async(dispatch_group_t group, dispatch_queue_t queue, dispatch_block_t block);
-</code></p>
-
-<p>3.另一个方法是使用下面这对方法，enter和leave要配合使用，类似retain和release，必须保持平衡，如果缺少一个leave，那么这个group就永远不会结束了。</p>
-
-<p>```objectivec
-void dispatch_group_enter(dispatch_group_t group);
-void dispatch_group_leave(dispatch_group_t group);
-//Example
-dispatch_group_t group = dispatch_group_create();
-dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0);
-//A
-dispatch_group_async(group,queue,^{</p>
-
-<pre><code>//...
-</code></pre>
-
-<p>});
-//B
-dispatch_group_enter(group);
-dispatch_async(queue,^{</p>
-
-<pre><code>//...
-dispatch_group_leave(group);
-</code></pre>
-
-<p>});
-```</p>
-
-<p>4.下面的方法可以阻塞目前线程，等待group中的task全部完成，timeout可以设置为一个固定值，也可以设置为DISPATCH_TIME_FOREVER，如果group在timeout内完成，返回值为0，反之则会返回非0值。</p>
-
-<p><code>objectivec
-long dispatch_group_wait(dispatch_group_t group, dispatch_time_t timeout);
-</code></p>
-
-<p>5.这个方法则是wait方法的替代，该方法不会阻塞当前线程，而是允许你为group完成添加一个通知回调block，而且可以指定线程，一般在主线程中，肯定是不希望阻塞的。</p>
-
-<p><code>objectivec
-void dispatch_group_notify(dispatch_group_t group, dispatch_queue_t queue, dispatch_block_t block);
-</code></p>
-
-<p>6.下面是一个对一个数组中的对象并发执行相同操作，并在全部完成后进行后续操作的实例，如果不希望阻塞主线程，那么要把wait换为notify，<a href="http://stackoverflow.com/questions/10643797/wait-until-multiple-networking-requests-have-all-executed-including-their-comp/10644282#comment13830651_10644282">StackOverflow另一实例</a>。</p>
-
-<p>```objectivec
-dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0);
-dispatch_group_t group = dispatch_group_create();
-//Plan A, block main queue
-for(id object in collection){</p>
-
-<pre><code>dispatch_group_async(group,queue,^{
-    [object performTask];
-});
-</code></pre>
-
-<p>}
-dispatch_group_wait(group,DISPATCH_TIME_FOREVER);
-//Continue processing after copleting tasks
-dispatch_release(group);
-//Plan B, not block main queue
-for(id object in collection){</p>
-
-<pre><code>dispatch_group_enter(group);
-dispatch_async(queue,^{
-    [object performTask];
-    dispatch_group_leave(group);
-});
-</code></pre>
-
-<p>}
-dispatch_queue_t notifyQueue = dispatch_get_main_queue();
-dispatch_group_notify(group,notifyQueue,^{</p>
-
-<pre><code>//Continue processing after completing tasks
-</code></pre>
-
-<p>});
-```</p>
-
-<p>7.可以通过创建不同优先级的dispatch_queue，来实现task进行优先级分类，但是依然并发执行，并在全部完成后统一处理。<br/>
-8.如果你在一个串行的queue中加入多个任务，那么group其实是不起作用的，因为本来这些任务就会串行执行，你只需要继续添加一个block，就可以实现所有任务完成后统一处理。</p>
-
-<p>```objectivec
-dispatch_queue_t queue = dispatch_queue_create(&ldquo;com.EOC.queue&rdquo;,NULL);
-for(id object in collection){</p>
-
-<pre><code>dispatch_async(queue,^{
-    [object performTask];
-});
-</code></pre>
-
-<p>}
-dispatch_async(queue,^{</p>
-
-<pre><code>//Continue processing after completing tasks
-</code></pre>
-
-<p>});
-```</p>
-
-<p>9.如果你不是自己创建queue，而是使用系统方法返回的queue，那么加入的task，系统会根据系统资源开辟一定数量的线程，来执行这些task，再配合group特性，你只需要关注你的业务逻辑即可，而不用去在如何安排和控制它们的线程开辟和同步上面花费精力。<br/>
-10.类似上面多次执行相同的任务，还有一个专门的方法来实现它，如下，传入的iterations类似for循环的最大值，i会从0循环到最大值减一。但dispatch_apply的缺点是会阻塞当前线程，如果你希望在后台线程运行，那么还要使用group的notify方法。</p>
-
-<p>```objectivec
-void dispatch_apply(size_t iterations, dispatch_queue_t queue,void(^block)(size_t));
-//A serial
-dispatch_queue_t queue = dispatch_queue_create(&ldquo;com.EOC.queue&rdquo;);
-dispatch_apple(10,queue,^{</p>
-
-<pre><code>//perform task
-</code></pre>
-
-<p>});
-//B concurrent
-dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT,0);
-dispatch_apply(array.count,queue,^(size_t i){</p>
-
-<pre><code>id object = array[i];
-[object peformTask];
-</code></pre>
-
-<p>});
-```</p>
-
-<!--more-->
-
-
-<h2>Item45 Use dispatch_once for Thread-Safe Single-Time Code Execution</h2>
-
-<p>1.GCD之前的单例模式实现，使用了synchronization block是为了线程安全：</p>
-
-<p>```objectivec
-+(id)sharedInstance{</p>
-
-<pre><code>static EOCClass *sharedInstance = nil;
-@synchronized(self){
-    if(!sharedInstance){
-        sharedInstance = [[self alloc] init];
-    }
-}
-return sharedInstance;
-</code></pre>
-
-<p>}
-```</p>
-
-<p>2.这是GCD之后的版本，使用了dispatch_once，新类型dispatch_once_t保证了，对于每一个该类型的token，dispatch_once只会执行它对应的block一次，而且是线程安全的，为了保证token的唯一性，token也必须声明为static或global类型。</p>
-
-<p>```objectivec
-void dispatch_once(dispatch_once_t *token,dispatch_block_t block);
-//singleton
-+(id)sharedInstance{</p>
-
-<pre><code>static EOCClass *sharedInstance = nil;
-static dispatch_once_t onceToken;
-dispatch_once(&amp;onceToken,^{
-    sharedInstance = [[self alloc] init];
-});
-return sharedInstance;
-</code></pre>
-
-<p>}
-```</p>
-
-<p>3.相比较synchronization block的版本，dispatch_once版本效率更高，因为前者在每次运行这段代码时都会进行加锁操作，它对dispatch token进行了原子型的访问来确定代码是否执行过，作者测试使用dispatch_once较synchronization block快将近两倍。</p>
-
-<!--more-->
-
-
-<h2>Item46 Avoid dispatch_get_current_queue</h2>
-
-<ol>
-<li>使用GCD时，获得当前运行的queue是一个常见的需求，而Apple也提供了一个方法：<em>dispatch_queue_t dispatch_get_current_queue()</em>，但是作者告诉我们，这个方法像retainCount一样，并不可靠，iOS6已经将其弃用，目前只可以在debug模式下使用。</li>
-<li>回想Item41的getter/setter最终方案，可能会出现这样的场景，就是调用getter的queue和getter中的synchronization queue是同一队列，这样就会产生死锁，dispatch_sync会一直等待queue可用，而这个queue实际上就是当前的queue，所以block永远不会执行。所以就会想到用dispatch_get_current_queue()来判断当前的queue是否是synchronization queue，如果是就直接执行block，不是的话用dispatch_sync()。</li>
-<li>如果在简单场景下应该是没问题，如果考虑到一些特殊情况，比如queueA->queueB->queueA嵌套执行，且所有的操作都是同步操作，那么内部的queueA关联的block还是会出现死锁，因为外层的queueA block还未执行完。</li>
-<li>所以这个例子中，使用dispatch_get_current_queue()并不是一个可靠地解决方法，而还是应该单独建立一个queue专门供synchronization使用，并确保该queue中会调用getter方法。</li>
-<li>从更为普遍的角度讲，因为dispatch queues是存在等级划分的，也就是说在当前queueA中的block加入了在queueB中执行的block，那么queueB上执行的block同样执行与queueA上，而顶层的queue则是global concurrent queues的其中一个。</li>
-<li>只有两个queue不存在这种包含关系，才可以并行执行，反之，如果两个queue存在包含的关系，那么在他们中执行同步操作，怎要特别关注死锁问题。这也就是dispatch_get_current_queue()这个方法意义不大的根本原因，因为它只能返回当前的queue，而无法得知整个queue的包含链。</li>
-<li>最容易产生这个问题的场景是Api需要你传入想运行的queue，而Api内部在另一个queue上使用了串行同步操作，然后将它的结果在传入的queue中返回，使用者一般会假设dispatch_get_current_queue()会返回自己传入的queue，但结果会返回内部的同步queue。</li>
-<li>Queue-specific data是解决上述问题的一个方案，它可以将任意数据和queue绑定，最重要的是，如果没发现与对应key绑定的值，系统会一直沿包含链向上，知道找到对应的queue被找到，或者到root queue。</li>
-<li><em>dispatch_queue_set_specific()</em>方法是这一技术的核心，给queue关联的是一个类似键值对的结构，键值均为空指针类型，对于key来说，需要注意的是，作为key的是指针的值而不是指向内容的值，所以其实更像Item10中介绍的associated references。value也是空指针类型，所以理论上你可以将任何值作为value，但是你希望自己管理它的内存，如果在ARC下，使用OC对象就很难做到这一点，所以作者推荐使用了CFString，因为ARC不会管理CoreFoundation的对象，而且也可以很方便转化为OC对象，所以很合适。最后的参数希望传入一个函数指针，它将用作析构函数，将在value从key移除时调用，这可能是queue被释放或者value被赋新值时。dispatch_function_t的类型是只有一个指针且返回空值，示例中CFRelease作为了参数，对应传入的CFString，如果传入的是自己定义的对象，开发者也可以自己重写CFRelease函数，做一些清除工作。</li>
-</ol>
-
-
-<p>```objectivec
-void dispatch_queue_set_specific(dispatch_queue_t queue,const void <em>key,void </em>context,dispatch_function_t destructor);
-typedef void(<em>dispatch_function_t)(void</em>)
-//Example
-dispatch_queue_t queueA = dispatch_queue_create(&ldquo;com.EOC.queueA&rdquo;,NULL);
-dispatch_queue_t queueB = dispatch_queue_create(&ldquo;com.EOC.queueB&rdquo;,NULL);
-dispatch_set_target_queue(queueB,queueA);
-static int kQueueSpecific;
-CFStringRef queueSpecificValue = CFSTR(&ldquo;queueA&rdquo;);
-dispatch_queue_set_specific(queueA,&amp;kQueueSpecific,(void*)queueSpecificValue,(dispatch_function_t)CFRelease);
-dispatch_sync(queueB,^{</p>
-
-<pre><code>dispatch_block_t block = ^{NSLog(@"No deadlock!");};
-CFStringRef retrievedValue = dispatch_get_specific(&amp;kQueueSpecific);
-if(retrievedValue){
-    block();
-} else {
-    dispatch_sync(queueA,block);
-}
-</code></pre>
-
-<p>});
 ```</p>
 ]]></content>
   </entry>
