@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-10-20T17:21:53+08:00</updated>
+  <updated>2015-10-26T11:37:47+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,768 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[React Native初探1]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/10/20/react-nativechu-tan-1/"/>
+    <updated>2015-10-20T17:29:08+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/10/20/react-nativechu-tan-1</id>
+    <content type="html"><![CDATA[<p>React Native是Facebook最近推出的一个框架，让开发者通过JavaScript来完成iOS或Android的Native App，类似的方案好像几年前就出现过，比如PhoneGap，但经过市场检验，其App的用户体验，尤其是UI方面，始终较Native App相距甚远，那么这次Facebook带来的解决方案又有什么不同呢？</p>
+
+<!--more-->
+
+
+<h2>React Native特点</h2>
+
+<ol>
+<li>使用React Native后，你的App的逻辑部分是用JavaScript完成的，而UI则是完全native的，所以也不用担心H5带来的体验下降。</li>
+<li>React Native还为用户界面构建带来了一种全新的函数式构建方案，App的UI会用与app的状态有关的函数来呈现。</li>
+<li>React Native的核心思路是将响应式编程引入移动开发，这并不像之前PhoneGap倡导的<em>write-once,run-anywhere</em>，而是<em>learn-once,write-anywhere</em>。</li>
+<li>Swift中Apple倡导使用函数式编程来完成算法和业务逻辑，但是构建UI仍然是基于UIKit，并没有实现函数式实现，而React则引入了UI层的函数式编程。</li>
+</ol>
+
+
+<h2>React Native环境搭建</h2>
+
+<p>React Native的源码开源在<a href="https://github.com/facebook/react-native">GitHub</a>上，不过如果只是开发使用，则推荐使用commend line interface（CLI）来创建项目。<br/>
+1.React Native使用Node.js，JavaScript的runtime，来创建JS代码。这里推荐使用Homebrew来安装Node.js。</p>
+
+<p><code>ruby
+brew install node
+</code></p>
+
+<p>2.然后安装watchman，一个Facebook开发的文件监听器，React Native通过它来监视代码的改动并适时编译，类似在Xcode中保存一次文件，便会执行一次build。</p>
+
+<p><code>ruby
+brew install watchman
+</code></p>
+
+<p>3.然后利用安装好的Node.js带的Node Package Manager来安装React Native CLI工具。</p>
+
+<p><code>ruby
+npm install -g react-native-cli
+</code></p>
+
+<p>4.这样环境就搭建完毕了，然后在目标文件夹，利用React Native的CLI创建新的项目。</p>
+
+<p><code>ruby
+react-native init YourAppFolderName
+</code></p>
+
+<h2>Hello Recact Native</h2>
+
+<p>1.下面来创建一个“Hello World”的小程序，首先打开<strong>index.ios.js</strong>文件，删除测试代码，先添加以下代码，这段代码是开启了Strict Mode，主要为了提高JS的错误处理和禁用一些JS的语言特性。</p>
+
+<p><code>javascript
+'use strict'
+</code></p>
+
+<p>2.然后继续添加，这其实是导入了react-native模块，并将其赋值给了React，类似于#import或include。</p>
+
+<p><code>javascript
+var React = require("react-native")
+</code></p>
+
+<p>3.再添加一个样式，React Native使用了CSS来定义UI的样式，这和web开发是一致的。</p>
+
+<p>```javascript
+ var styles = React.StyleSheet.create({</p>
+
+<pre><code>text:{
+    color:'black',
+    backgroundColor:'white',
+    fontSize:30,
+    margin:80
+}
+</code></pre>
+
+<p> })
+```</p>
+
+<p>4.创建一个JS的类，Class是在ES6中引入的，但web开发为了兼容旧版浏览器，一般不会使用类，React Native是基于JavaScriptCore，可以放心使用JS的新特性，而不用担心浏览器兼容的问题。PropertyFinderApp扩展了React.Component，它是React UI的基本构建块，包含了不可变的Properties、可变的状态变量和用于渲染的方法，这里由于程序简单，只有一个渲染方法。</p>
+
+<p>```javascript
+class PropertyFinderApp extends React.Component{</p>
+
+<pre><code>render(){
+    return React.createElement(React.Text, {style:styles.text}, "Hello World!");
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>5.React.Component不是UIKit类，可以说是UIKit类的替代品，框架来负责将React components来转换为Native UI。最后再添加程序的入口，这里需要提供root component，也就是我们上面定义的PropertyFinderApp。</p>
+
+<p><code>javascript
+React.AppRegistry.registerComponent("RANTest", function(){return PropertyFinderApp});
+</code></p>
+
+<p>6.然后运行程序，你会发现JS代码已经转化为Native元素，完全没有网页元素出现。</p>
+
+<h2>React Native运作原理</h2>
+
+<p>1.先来看一下OC的程序加载后做了什么，一个类为RCTRootView的对象被创建，它负责加载JS程序和渲染视图，它通过*<a href="http://localhost:8081/index.ios.bundle?platform=ios&amp;dev=true*%E6%9D%A5%E5%8A%A0%E8%BD%BDJS%E3%80%82">http://localhost:8081/index.ios.bundle?platform=ios&amp;dev=true*%E6%9D%A5%E5%8A%A0%E8%BD%BDJS%E3%80%82</a></p>
+
+<p>```objectivec
+&ndash; (BOOL)application:(UIApplication <em>)application didFinishLaunchingWithOptions:(NSDictionary </em>)launchOptions
+{
+  NSURL <em>jsCodeLocation;
+  jsCodeLocation = [NSURL URLWithString:@&ldquo;<a href="http://localhost:8081/index.ios.bundle?platform=ios&amp;dev=true">http://localhost:8081/index.ios.bundle?platform=ios&amp;dev=true</a>&rdquo;];
+  RCTRootView </em>rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation</p>
+
+<pre><code>                                                  moduleName:@"RANTest"
+                                           initialProperties:nil
+                                               launchOptions:launchOptions];
+</code></pre>
+
+<p>  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+  UIViewController *rootViewController = [[UIViewController alloc] init];
+  rootViewController.view = rootView;
+  self.window.rootViewController = rootViewController;
+  [self.window makeKeyAndVisible];
+  return YES;
+}
+```</p>
+
+<p>2.当你运行程序时，会打开一个终端窗口，就是为了开启一个packager和server来处理上述请求，在浏览器打开这一URL，也可以看到JS代码。<br/>
+3.当app启动时，这些代码被载入，并被JavaScriptCore framework执行，将各个component载入，然后构建Native UIKit视图。</p>
+
+<h2>Hello World JSX</h2>
+
+<p>1.为了增加可读性和提高可维护性，可以使用HTML样式的JSX，也就是JavaScript syntax extension。</p>
+
+<p><code>javascript
+return &lt;React.Text style={styles.text}&gt;Hello World(Again)&lt;/React.Text&gt;;
+</code></p>
+
+<h2>A Search React Native App1</h2>
+
+<h3>Adding Navigation</h3>
+
+<p>1.这一节构建一个OC的NavgationController，将之前的PropertyFinderApp类改为HelloWorld，然后新定义一个PropertyFinderApp类，initialRoute定为HelloWorld，routing技术是web开发中定义导航结构，即哪个页面（或route）对应哪个URL。</p>
+
+<p>```javascript
+class PropertyFinderApp extends React.Component {
+  render() {</p>
+
+<pre><code>return (
+  &lt;React.NavigatorIOS
+    style={styles.container}
+    initialRoute={ {
+      title: 'Property Finder',
+      component: HelloWorld,
+    } }/&gt;
+);
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>2.然后添加container样式，这样，一个简单的导航控制器就完成了。</p>
+
+<p>```javascript
+var styles = React.StyleSheet.create({</p>
+
+<pre><code>text:{
+    color:'black',
+    backgroundColor:'white',
+    fontSize:30,
+    margin:80
+},
+container:{
+    flex:1
+}
+</code></pre>
+
+<p>})
+```</p>
+
+<h3>Building the Search Page</h3>
+
+<p>1.这一节介绍如何添加自定义一个Search页面，并在其他文件中进行引用。首先新建一个SearchPage.js文件，并在文件中添加代码。</p>
+
+<p>```javascript
+&lsquo;use strict&rsquo;
+var React = require(&lsquo;react-native&rsquo;);
+var {</p>
+
+<pre><code>StyleSheet,
+Text,
+TextInput,
+View,
+TouchableHighlight,
+ActivityIndicatorIOS,
+Image,
+Component
+</code></pre>
+
+<p>} = React;
+```</p>
+
+<p>2.这里使用了destructuring assignment，可以通过一行代码将多个对象属性一次性输出并将他们赋值给多个变量，这样你可以在之后的代码去掉React前缀，例如直接引用StyleSheet而不是React.StyleShet，这一技术在<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment">修改数组</a>时也经常用到，有点类似Swift的元组取值模式。</p>
+
+<p><code>javascript
+var foo = ["one", "two", "three"];
+// without destructuring
+var one   = foo[0];
+var two   = foo[1];
+var three = foo[2];
+// with destructuring
+var [one, two, three] = foo;
+</code></p>
+
+<p>3.然后创建CSS样式，并创建SearchPage component，语法依然使用了JSX的结构。</p>
+
+<p>```javascript
+var styles = StyleSheet.creat({</p>
+
+<pre><code>description:{
+    marginBottom:20,
+    fontSize:18.
+    textAlign:'center'.
+    color:'#656565'
+},
+container:{
+    padding:30,
+    marginTop:65,
+    alignItems:'center'
+}
+</code></pre>
+
+<p>});
+```</p>
+
+<p>```javascript
+class SearchPage extends Component {</p>
+
+<pre><code>render() {
+    return(
+     &lt;View style={styles.container}&gt;
+      &lt;Text style={styles.description}&gt;
+       Search for houses to buy!
+      &lt;/Text&gt;
+      &lt;Text style={styles.description}&gt;
+       Search by place-name, postcode or search near your location.
+      &lt;/Text&gt;
+     &lt;/View&gt;
+    );
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>4.最后在文件结尾将SearchPage作为输出，并在index.ios.js中导入SearchPage，然后将之前render方法中的PropertyFinderApp类中的initialRoute更新。</p>
+
+<p><code>javascript
+module.exports = SearchPage;
+</code></p>
+
+<p><code>javascript
+var SearchPage = require('./SearchPage');
+</code></p>
+
+<p><code>javascript
+initialRoute={ {
+  title: 'Property Finder',
+  component: SearchPage,
+} }
+</code></p>
+
+<h3>Styling with Flexbox</h3>
+
+<p>1.flexbox是CSS最近加入的新特性，用于页面的布局（类似Autolayout），React Native使用了<a href="http://https://github.com/facebook/css-layout">css-layout</a>库，该库是Facebook自己开发的一个使用了flexbox标准的JS库，而这一标准对于C(iOS)和Java(Android)都是可接受的，这里有一篇专门讲解<a href="http://blog.scottlogic.com/2015/02/02/svg-layout-flexbox.html">flexbox layout to SVG</a>的文章，也是该作者写的。<br/>
+2.在这个app中，container默认是列方向布局，也就是垂直方向布局（这与Android的布局方式是相同的），同时container也可以决定他的子视图的布局方向。</p>
+
+<p>```javascript
+<View style={styles.flowRight}>
+  &lt;TextInput</p>
+
+<pre><code>style={styles.searchInput}
+placeholder='Search via name or postcode'/&gt;
+</code></pre>
+
+<p>  &lt;TouchableHighlight style={styles.button}</p>
+
+<pre><code>  underlayColor='#99d9f4'&gt;
+&lt;Text style={styles.buttonText}&gt;Go&lt;/Text&gt;
+</code></pre>
+
+<p>  </TouchableHighlight>
+</View>
+&lt;TouchableHighlight style={styles.button}</p>
+
+<pre><code>underlayColor='#99d9f4'&gt;
+</code></pre>
+
+<p>  <Text style={styles.buttonText}>Location</Text>
+</TouchableHighlight>
+```</p>
+
+<p>3.添加新的样式，记得在每个样式后要添加逗号分开，flex值是为了划分同一container下子视图的占位比，如这里的Go button和input view的flex分别为1和4，那么就按照1:4来划分，另外，这里的button是使用了TouchableHighlight。</p>
+
+<p><code>javascript
+flowRight: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  alignSelf: 'stretch'
+},
+buttonText: {
+  fontSize: 18,
+  color: 'white',
+  alignSelf: 'center'
+},
+button: {
+  height: 36,
+  flex: 1,
+  flexDirection: 'row',
+  backgroundColor: '#48BBEC',
+  borderColor: '#48BBEC',
+  borderWidth: 1,
+  borderRadius: 8,
+  marginBottom: 10,
+  alignSelf: 'stretch',
+  justifyContent: 'center'
+},
+searchInput: {
+  height: 36,
+  padding: 4,
+  marginRight: 5,
+  flex: 4,
+  fontSize: 18,
+  borderWidth: 1,
+  borderColor: '#48BBEC',
+  borderRadius: 8,
+  color: '#48BBEC'
+}
+</code></p>
+
+<p>4.然后添加一张图片，图片资源依然要添加到Xcode的Images.xcassets，使用require(&lsquo;image!house&rsquo;)来加载图片，</p>
+
+<p><code>javascript
+&lt;Image source={require('image!house')} style={styles.image}/&gt;
+</code></p>
+
+<p><code>javascript
+image: {
+  width: 217,
+  height: 138
+}
+</code></p>
+
+<h2>A Search React Native App2</h2>
+
+<h3>Adding Component State</h3>
+
+<p>1.这一节，让我们来处理TextInput的输入，首先，我们来初始化SearchPage Component，下列代码添加到render()之前，这里有了新变量state以及searchString，并对TextInput赋该值。</p>
+
+<p>```javascript
+constructor(props) {
+  super(props);
+  this.state = {</p>
+
+<pre><code>searchString: 'london'
+</code></pre>
+
+<p>  };
+}
+```</p>
+
+<p><code>javascript
+&lt;TextInput
+  style={styles.searchInput}
+  value={this.state.searchString}
+  placeholder='Search via name or postcode'/&gt;
+</code></p>
+
+<p>2.然后在SearchPage Class添加一个方法，作为TextInput的回调，并将其与TextInput绑定，这一过程在OC中是以delegate的形式实现的，需要说明下的是这里的this是指向所在component的实例的指针。</p>
+
+<p><code>javascript
+onSearchTextChanged(event) {
+  console.log('onSearchTextChanged');
+  this.setState({ searchString: event.nativeEvent.text });
+  console.log(this.state.searchString);
+}
+</code></p>
+
+<p><code>javascript
+&lt;TextInput
+  style={styles.searchInput}
+  value={this.state.searchString}
+  onChange={this.onSearchTextChanged.bind(this)}
+  placeholder='Search via name or postcode'/&gt;
+</code></p>
+
+<p>3.通过实验TextInput我们发现，每次TextIput的状态发生改变，整个component就会重新render一次，这一机制将渲染逻辑和与UI有关的状态改变彻底分开。在大部分UI框架中，一般都是开发者根据app状态改变来手动刷新UI（比如OC或Swift），或者使用隐式链接来绑定app的状态和UI刷新完成自动刷新（比如ReactiveCocoa），但是在React Native中，你不用再去手动处理这些逻辑，整个UI就是app状态的一个函数表示！这就是响应式编程的核心理念。<br/>
+4.不过你可能会担心效率问题，频繁刷新整个UI当然是不明智的，React在每次刷新时，它会从render方法获取整个视图树，然后与现在的UIKit视图进行比较，比较的结果就是一个简单的更新表，React按照这个表去更新当前视图，所以只有需要更新的UI才会去更新。<br/>
+5.这一理念的应用，将虚拟DOM和一致性引入了App开发，也是React的独特之处。</p>
+
+<h3>Initiating a Search</h3>
+
+<p>1.这一节为Search页面添加搜索功能，首先在state中加入isLoading变量，再在render中添加spinner变量告知用户搜索在进行，它依据isLoading变量来添加一个spinner或空视图，并将{spinner}加入return方法。</p>
+
+<p><code>javascript
+this.state = {
+  searchString: 'london',
+  isLoading: false
+};
+</code></p>
+
+<p>```javascript
+var spinner = this.state.isLoading ?
+  ( &lt;ActivityIndicatorIOS</p>
+
+<pre><code>  hidden='true'
+  size='large'/&gt; ) :
+</code></pre>
+
+<p>  ( <View/>);
+&hellip;
+{spinner}
+```</p>
+
+<p>2.在Go Button绑定onPress事件回调，并添加回调方法，注意Javascript的类没有访问器，所以也没有私有方法，所以一般用<em>_</em>前缀来标识私有方法。</p>
+
+<p><code>javascript
+onPress={this.onSearchPressed.bind(this)}
+</code></p>
+
+<p><code>javascript
+_executeQuery(query) {
+  console.log(query);
+  this.setState({ isLoading: true });
+}
+onSearchPressed() {
+  var query = urlForQueryAndPage('place_name', this.state.searchString, 1);
+  this._executeQuery(query);
+}
+</code></p>
+
+<p>3.在SearchPage外单独定义urlForQueryAndPage()方法，这里做了URL的拼接，用到了<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions">JS的方法</a> 。</p>
+
+<p>```javascript
+function urlForQueryAndPage(key, value, pageNumber) {
+  var data = {</p>
+
+<pre><code>  country: 'uk',
+  pretty: '1',
+  encoding: 'json',
+  listing_type: 'buy',
+  action: 'search_listings',
+  page: pageNumber
+</code></pre>
+
+<p>  };
+  data[key] = value;</p>
+
+<p>  var querystring = Object.keys(data)</p>
+
+<pre><code>.map(key =&gt; key + '=' + encodeURIComponent(data[key]))
+.join('&amp;');
+</code></pre>
+
+<p>  return &lsquo;<a href="http://api.nestoria.co.uk/api?">http://api.nestoria.co.uk/api?</a>&rsquo; + querystring;
+};
+```</p>
+
+<p>4.=>是JS中对函数指针的缩写，可理解为OC中的block，这里先用map将其原字典的keys映射为新的数组，然后用&amp;相连，产生URL的参数String。</p>
+
+<p><code>javascript
+var a = [
+  "Hydrogen",
+  "Helium",
+  "Lithium",
+  "Beryl­lium"
+];
+var a2 = a.map(function(s){ return s.length });
+var a3 = a.map( s =&gt; s.length );
+</code></p>
+
+<h3>Performing an API Request</h3>
+
+<p>1.在state添加message变量，并在render添加Text，用以显示请求错误信息，并在_excuteQuery()中添加请求的代码。</p>
+
+<p><code>javascript
+this.state = {
+  searchString: 'london',
+  isLoading: false,
+  message: ''
+};
+</code></p>
+
+<p><code>javascript
+&lt;Text style={styles.description}&gt;{this.state.message}&lt;/Text&gt;
+</code></p>
+
+<p>2.请求代码使用了fetch函数，这是<a href="https://fetch.spec.whatwg.org">Fetch API</a>中的函数，相比XMLHttpRequest，有很大提升，使用了promise规范。</p>
+
+<p>```javascript
+fetch(query)
+  .then(response => response.json())
+  .then(json => this._handleResponse(json.response))
+  .catch(error =></p>
+
+<pre><code> this.setState({
+  isLoading: false,
+  message: 'Something bad happened ' + error
+</code></pre>
+
+<p>   }));
+```</p>
+
+<p>3.success的回调处理，先对response code做了判断，然后打印出了listings的长度，可以看出JSON在JS开发中是直接使用的，而省去了转化为Model的步骤。</p>
+
+<p>`&ldquo;javascript
+_handleResponse(response) {
+  this.setState({ isLoading: false , message: &rdquo; });
+  if (response.application_response_code.substr(0, 1) === &lsquo;1&rsquo;) {</p>
+
+<pre><code>console.log('Properties found: ' + response.listings.length);
+</code></pre>
+
+<p>  } else {</p>
+
+<pre><code>this.setState({ message: 'Location not recognized; please try again.'});
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<h3>Displaying the Results</h3>
+
+<p>1.新建SearchResult.js，新建SearchResults component，代码中使用到了ListView，类似OC的UITableView，通过dataSource来提供数据源，renderRow来渲染每个cell。</p>
+
+<p>```javascript
+class SearchResults extends Component {</p>
+
+<p>  constructor(props) {</p>
+
+<pre><code>super(props);
+var dataSource = new ListView.DataSource(
+  {rowHasChanged: (r1, r2) =&gt; r1.guid !== r2.guid});
+this.state = {
+  dataSource: dataSource.cloneWithRows(this.props.listings)
+};
+</code></pre>
+
+<p>  }</p>
+
+<p>  renderRow(rowData, sectionID, rowID) {</p>
+
+<pre><code>return (
+  &lt;TouchableHighlight
+      underlayColor='#dddddd'&gt;
+    &lt;View&gt;
+      &lt;Text&gt;{rowData.title}&lt;/Text&gt;
+    &lt;/View&gt;
+  &lt;/TouchableHighlight&gt;
+);
+</code></pre>
+
+<p>  }</p>
+
+<p>  render() {</p>
+
+<pre><code>return (
+  &lt;ListView
+    dataSource={this.state.dataSource}
+    renderRow={this.renderRow.bind(this)}/&gt;
+);
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>2.构建数据源时，提供了一个方法来比较row之间的id是否相同，ListView在更新时调用它，来确定数据源是否改变，本例中通过数据的guid来达到这个目的，然后在SearchPage的_handleResponse中添加导航方法。</p>
+
+<p><code>javascript
+this.props.navigator.push({
+  title: 'Results',
+  component: SearchResults,
+  passProps: {listings: response.listings}
+});
+</code></p>
+
+<h3>A Touch of Style</h3>
+
+<p>1.添加样式，更新renderRow()方法，price为了去掉GBP后缀，做了字符串裁剪，同时这次的Image数据源为url，JS可直接赋值，而React Native会自动后台一步下载。</p>
+
+<p>```javascript
+var styles = StyleSheet.create({
+  thumb: {</p>
+
+<pre><code>width: 80,
+height: 80,
+marginRight: 10
+</code></pre>
+
+<p>  },
+  textContainer: {</p>
+
+<pre><code>flex: 1
+</code></pre>
+
+<p>  },
+  separator: {</p>
+
+<pre><code>height: 1,
+backgroundColor: '#dddddd'
+</code></pre>
+
+<p>  },
+  price: {</p>
+
+<pre><code>fontSize: 25,
+fontWeight: 'bold',
+color: '#48BBEC'
+</code></pre>
+
+<p>  },
+  title: {</p>
+
+<pre><code>fontSize: 20,
+color: '#656565'
+</code></pre>
+
+<p>  },
+  rowContainer: {</p>
+
+<pre><code>flexDirection: 'row',
+padding: 10
+</code></pre>
+
+<p>  }
+});
+```</p>
+
+<p>```javascript
+renderRow(rowData, sectionID, rowID) {
+  var price = rowData.price_formatted.split(&lsquo; &rsquo;)[0];</p>
+
+<p>  return (</p>
+
+<pre><code>&lt;TouchableHighlight onPress={() =&gt; this.rowPressed(rowData.guid)}
+    underlayColor='#dddddd'&gt;
+  &lt;View&gt;
+    &lt;View style={styles.rowContainer}&gt;
+      &lt;Image style={styles.thumb} source={ { uri: rowData.img_url } } /&gt;
+      &lt;View  style={styles.textContainer}&gt;
+        &lt;Text style={styles.price}&gt;£{price}&lt;/Text&gt;
+        &lt;Text style={styles.title} 
+              numberOfLines={1}&gt;{rowData.title}&lt;/Text&gt;
+      &lt;/View&gt;
+    &lt;/View&gt;
+    &lt;View style={styles.separator}/&gt;
+  &lt;/View&gt;
+&lt;/TouchableHighlight&gt;
+</code></pre>
+
+<p>  );
+}
+```</p>
+
+<p>2.然后添加点击cell的回调，可以看到数据源始终还是最原始的数据源，做了一步过滤操作（因为这里的cell没有index的概念，所以只能过滤，但是必须保证guid唯一才可以）。</p>
+
+<p><code>javascript
+rowPressed(propertyGuid) {
+  var property = this.props.listings.filter(prop =&gt; prop.guid === propertyGuid)[0];
+}
+</code></p>
+
+<h3>Property Details View</h3>
+
+<p>1.添加详情页，PropertyView，首先对房屋的配置信息做了整理，然后就是常规的视图布局。</p>
+
+<p>```javascript
+class PropertyView extends Component {
+  render() {</p>
+
+<pre><code>var property = this.props.property;
+var stats = property.bedroom_number + ' bed ' + property.property_type;
+if (property.bathroom_number) {
+  stats += ', ' + property.bathroom_number + ' ' + (property.bathroom_number &gt; 1 ? 'bathrooms' : 'bathroom');
+}
+
+var price = property.price_formatted.split(' ')[0];
+
+return (
+  &lt;View style={styles.container}&gt;
+    &lt;Image style={styles.image} 
+        source={ {uri: property.img_url} } /&gt;
+    &lt;View style={styles.heading}&gt;
+      &lt;Text style={styles.price}&gt;£{price}&lt;/Text&gt;
+      &lt;Text style={styles.title}&gt;{property.title}&lt;/Text&gt;
+      &lt;View style={styles.separator}/&gt;
+    &lt;/View&gt;
+    &lt;Text style={styles.description}&gt;{stats}&lt;/Text&gt;
+    &lt;Text style={styles.description}&gt;{property.summary}&lt;/Text&gt;
+  &lt;/View&gt;
+);
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>2.最后从SearchResults，推入PropertyView。</p>
+
+<p>```javascript
+rowPressed(propertyGuid) {
+  var property = this.props.listings.filter(prop => prop.guid === propertyGuid)[0];</p>
+
+<p>  this.props.navigator.push({</p>
+
+<pre><code>title: "Property",
+component: PropertyView,
+passProps: {property: property}
+</code></pre>
+
+<p>  });
+}
+```</p>
+
+<h3>Geolocation Search</h3>
+
+<p>1.增加自动定位并搜索周边房屋的功能，在SearchPage的Location按钮添加该功能，前提在Xcode的工程的Plist中添加NSLocationWhenInUseUsageDescription来添加请求允许定位的描述。</p>
+
+<p><code>javascript
+onPress={this.onLocationPressed.bind(this)}
+</code></p>
+
+<p>```javascript
+onLocationPressed() {
+  navigator.geolocation.getCurrentPosition(</p>
+
+<pre><code>location =&gt; {
+  var search = location.coords.latitude + ',' + location.coords.longitude;
+  this.setState({ searchString: search });
+  var query = urlForQueryAndPage('centre_point', search, 1);
+  this._executeQuery(query);
+},
+error =&gt; {
+  this.setState({
+    message: 'There was a problem with obtaining your location: ' + error
+  });
+});
+</code></pre>
+
+<p>}
+```</p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Swift by Tutorials--Functions and Closures]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/10/20/swift-by-tutorials-functions-and-closures/"/>
+    <updated>2015-10-20T17:28:15+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/10/20/swift-by-tutorials-functions-and-closures</id>
+    <content type="html"><![CDATA[
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Swift by Tutorials--Generics]]></title>
@@ -1117,803 +1879,6 @@ let constantArray = [1, 2, 3, 4, 5]
 constantArray.append(6)
 constantArray.removeAtIndex(0)
 </code></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Swift by Tutorials--Language Basics I]]></title>
-    <link href="http://lucifer1988.github.io/blog/2015/10/08/swift-by-tutorials-language-basics-i/"/>
-    <updated>2015-10-08T14:26:37+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2015/10/08/swift-by-tutorials-language-basics-i</id>
-    <content type="html"><![CDATA[<p>Swift更新到2.0了，是时候来一波Swift的集中学习了，这次用的教材是raywenderlich出版的Swift by Tutorials，我手里的版本是2014年12月份的，可能有些在Swift2.0中发生了变化，我会尽量标注出来。开始第一章，介绍一些Swift的基本语法。</p>
-
-<!--more-->
-
-
-<h2>Variables,constants and strings</h2>
-
-<p>1.Playground是Xcode新加入的一种文件，实际上就是一个可以自动编译的swift文件，可以用来测试一些简单的代码，也能显示一些资源文件，下面是申明一个string类型，可以直接在playground运行。</p>
-
-<p><code>objectivec
-var greeting: String = "Hello"
-//也可以不指名类型
-//var greeting = "Hello"
-//如对greeting赋值int型，会报错
-//greeting = 9
-print(greeting)
-</code></p>
-
-<p>2.string可以不声明类型，即可运行，是源于Swift的type interface的特性，即通过赋值自动确定变量的类型，但是之后再对其赋值整形，则会报错。因为Swift是静态输入语言，编译期间会进行类型检查。<strong>type interface是推荐使用的，可以使代码简洁，增加可读性</strong>。<br/>
-3.Swift的string类型是可变的，而且改变方式不像NSMutableString那么复杂，直接使用+=方式即可。</p>
-
-<p><code>objectivec
-var greeting = "Hello"
-greeting += "World"
-print(greeting)
-</code></p>
-
-<p>4.如果想声明不可变String，只需添加let关键字即可。在Swift中，控制内建类型的可变性是通过添加let或var关键字来实现的，这不同于OC，需要两种类型来实现。<strong>你应该尽量使用不可变类型，这不仅使你的程序更加健壮，也会使编译器做更多优化，实际上let使用的场景是远远多于var的</strong>。</p>
-
-<p><code>objectivec
-let greeting = "Hello"
-</code></p>
-
-<p>5.let关键字不仅限于Swift内建类型，自定义的结构体和类也可以使用，但有些细微不同，这将在第三章中详细讲到。<br/>
-6.改变string也可以利用append()方法，这是Swift String自带的一些API，但是数量不多。幸运的是，Swift String与OC的NSString是可转换的，NSString的全部方法，String也可全部使用，但是还是推荐尽量使用String自带的API，比较简洁。</p>
-
-<p>```objectivec
-//Swift String API
-greeting.append(Character(&ldquo;!&rdquo;))
-//bridge to NSString
-//logout Hello World
-import Foundation</p>
-
-<p>var greeting = &ldquo;hello world&rdquo;.capitalizedString
-print(greeting)
-//NSString style append
-import Foundation</p>
-
-<p>var greeting = &ldquo;hello&rdquo;.stringByAppendingString(&ldquo; world&rdquo;)
-print(greeting)
-```</p>
-
-<p>7.Swift String是一个值类型，当它被赋值给变量、常量、或者作为参数传入方法时，它的值是被copy的，如下例，改变alternateGreeting不会影响greeting的值。</p>
-
-<p><code>objectivec
-var alternateGreeting = greeting
-alternateGreeting += " and beyond!"
-print(alternateGreeting)
-print(greeting)
-</code></p>
-
-<!--more-->
-
-
-<h2>Semicolons(分号)</h2>
-
-<ol>
-<li>Swift中分号只有在同一行中添加多条代码时才强制使用，其他情况可以省略不写，<strong>这又是Swift代码简洁的一大表现</strong>。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Numeric types and conversion</h2>
-
-<p>1.这一节主要讲Swift的数值类型，下面创建了两个变量，Int类型的radius和Double类型的pi，Swift还有很多其他类型，如Int8、UInt16、Float等。除非你有特殊需求，那么Int和Double类型是你的首选，这两个类型有广泛的使用，而且编译器会自动选择Int的最佳长度，32或64，基于机器的字长，来生成最高效的代码。</p>
-
-<p><code>objectivec
-var radius = 4
-let pi = 3.14159
-</code></p>
-
-<p>2.在Swift中，你可以使用<strong>_</strong>来作为千分号，如下。</p>
-
-<p><code>objectivec
-let milion = 1_000_000
-</code></p>
-
-<p>3.以下代码会报错，是因为*无法直接将Int和Double相乘，而Swift中也不会隐式转化，需要开发者显式转化，需要注意这里并不是类型转化，而是新生成了一个Double类型，在第三章中会详细讲解初始化方法。</p>
-
-<p><code>objectivec
-//error
-var area = radius * radius * pi
-//soluation
-var area = Double(radius) * Double(radius) * pi
-</code></p>
-
-<p>4.显式转化变量是Swift的安全策略之一，另外一个是越界检查，下列代码在其他语言中可能会生成一个负数，而在Swift中会直接将其视为一个runtime error。同时，为了避免integer的越界计算error，Apple提供了&amp;+、&amp;-、&amp;*、&amp;/、&amp;%这些越界运算符，使用后会像常规计算一样，生成负数。</p>
-
-<p><code>objectivec
-var overflow = Int.max + 1
-//overflow operators
-var overflow = Int.max &amp;+ 1
-</code></p>
-
-<!--more-->
-
-
-<h2>Booleans</h2>
-
-<p>1.Swift的布尔类型为Bool，值为true或false，需要说明的一点是，作为Swift的安全特性之一，控制流中需要进行布尔判断的只能使用Bool类型，而不同于在OC中，可以将任意非零值作为判断条件，例如你不能在Swift中使用一个整数当做判断条件。</p>
-
-<p><code>objectivec
-let alwaysTrue = true
-</code></p>
-
-<!--more-->
-
-
-<h2>Tuples(元组)</h2>
-
-<p>1.元组用来将多个值组成一个类型，但是不像类和结构体，你不需要显式的定义这个类型，如下，你可以通过索引来访问每个值，也可以通过索引来改变每个值（前提是你得元组的是可变的），而越界访问，编译器会报error。</p>
-
-<p><code>objectivec
-var address = (742, "Evergreen Terrace")
-print(address.0)
-print(address.1)
-address.0 = 744
-</code></p>
-
-<p>2.你也可以声明元组的类型，如下。如果想将元组的Int值类型改为Double有三种方式，同如下：</p>
-
-<p><code>objectivec
-var address: (Int, String) = (742, "Evergreen Terrace")
-//change Int to Double
-//1)using a type annotation
-var address1: (Double, String) = (742, "Evergreen Terrace")
-//2)by explicit creation of a Double
-var address2 = (Double(742), "Evergreen Terrace")
-//3)by using a double literal value
-var address3 = (742.0, "Evergreen Terrace")
-</code></p>
-
-<p>3.你也可以把元组解析成单个元素，而这也是一个copy操作，改变新值不会影响原始的元组值，如下：</p>
-
-<p><code>objectivec
-var address = (742, "Evergreen Terrace")
-let (house, street) = address
-print(house)
-print(street)
-</code></p>
-
-<p>4.此外，你可以为元组的每个值加一个key，提高可读性，同时上述的访问方法依然有效。</p>
-
-<p><code>objectivec
-var address = (number: 742, street: "Evergreen Terrace")
-print(address.number)
-print(address.street)
-</code></p>
-
-<p>5.元组只是一个类型，也可以进行嵌套，元组作为其他元组的一个元素，类和结构体虽然包含了元组的所有功能，但是在一些轻量的场景下，元组可以更加快速简单地去构建一个复合类型。</p>
-
-<!--more-->
-
-
-<h2>String interpolation</h2>
-
-<p>1.打印出一个类的信息，是常见的需求，例如OC中NSObject的description方法，如果我们想打印出上一节中元组的信息，我们可能这么做：</p>
-
-<p><code>objectivec
-var address = (742, "Evergreen Terrace")
-let (house, street) = address
-print("I live at " + String(house) + ", " + street)
-</code></p>
-
-<p>2.这利用了Swift的+拼接字符串的技术，不过在Swift中有更加方便的字符串拼接技术来处理这一场景，string interpolation，如下：</p>
-
-<p><code>objectivec
-var address = (742, "Evergreen Terrace")
-let (house, street) = address
-print("I live at \(house), \(street)")
-</code></p>
-
-<p>3.当然这不是打印日志专用的，在你需要从一系列变量中构建String时，都可使用。</p>
-
-<p>```objectivec
-import Foundation</p>
-
-<p>var address = (742, &ldquo;Evergreen Terrace&rdquo;)
-let (house, street) = address
-let str = &ldquo;I live at (house+10), (street.uppercaseString)&rdquo;
-```</p>
-
-<p>4.最后，如果想只打印出\时，请用\\转义。</p>
-
-<!--more-->
-
-
-<h2>Control flow</h2>
-
-<h3>For loops</h3>
-
-<p>1.首先要介绍的Swift中的for循环的新特性是closed range operator，即闭区间运算符，例子如下：</p>
-
-<p>```objectivec
-let greeting = &ldquo;Swift by Tutorials!&rdquo;
-for i in 1&hellip;5 {</p>
-
-<pre><code>print("\(i) - \(greeting)")
-</code></pre>
-
-<p>}
-```</p>
-
-<p>2.注意，其中的i并不是一个var类型的变量，而是每次循环创建一个let的常量，是不可被赋值的。<br/>
-3.1&hellip;5是一个Range类型，与for循环并无关系，下例说明了这一问题：</p>
-
-<p>```objectivec
-var range = 1&hellip;5
-for i in range {</p>
-
-<pre><code>print("\(i) - \(greeting)")
-</code></pre>
-
-<p>}
-//what&rsquo;s 1..5?
-var range = Range(start: 1, end: 6)
-```</p>
-
-<p>4.x&hellip;y只是Range类型的一个简化的语法糖，你可以用x..&lt;y来创建半开半闭的区间，最后一个值为y-1。</p>
-
-<p><code>objectivec
-//means 1,2,3,4,5
-var range1 = 1...5
-//means 1,2,3,4
-var range2 = 1..&lt;5
-</code></p>
-
-<p>5.那么还有个问题，for循环是怎么处理这个Range的？从而实现循环？其实是这样的，for循环可以处理很多可遍历的Swift类型，例如array、dictionary，还比如string也可以，所以range只是这些可遍历类型的其中之一而已。</p>
-
-<p>```objectivec
-for i in &ldquo;Swift&rdquo; {</p>
-
-<pre><code>print(i)
-</code></pre>
-
-<p>}
-```</p>
-
-<p>6.<strong>再挖的深一点，为什么String和Range一样可以被遍历？去看一下它们的定义就可以得知，它们都遵循了Sequence protocol，通过实现协议中的方法，就可以得到generator，继而循环请求其中的值，在第四章我们将自己创建类型来实现这一协议和利用generator。</strong></p>
-
-<h3>While loops</h3>
-
-<p>1.Swift同时支持while循环和do-while循环(<strong>Swift2.0将do-while改为了repeat-while</strong>)。</p>
-
-<p>```objectivec
-//while loop
-let greeting = &ldquo;Swift by Tutorials!&rdquo;
-var i = 0
-while i &lt; 5 {</p>
-
-<pre><code>print("\(i) - \(greeting)")
-i++
-</code></pre>
-
-<p>}
-//repeat-while loop
-let greeting = &ldquo;Swift by Tutorials!&rdquo;
-var i = 0
-repeat {</p>
-
-<pre><code>print("\(i) - \(greeting)")
-i++
-</code></pre>
-
-<p>} while i &lt; 5
-```</p>
-
-<h3>If statements</h3>
-
-<p>1.Swift支持常规的if-else用法，需要注意的就是前面提到过的，if的条件必须是Bool类型，而且<strong>还有一点就是即使只有一条执行的语句，也要用{}，这是Swift和其他语言if的一个区别，不然会报错，这也是为了避免{}误用或少写导致的bug</strong>，此外，还有一个和if有关的关于optional value的技巧会在下一章讲到。</p>
-
-<p>```objectivec
-import Foundation</p>
-
-<p>let greeting = &ldquo;Swift by Tutorials!&rdquo;</p>
-
-<p>for i in 1&hellip;5 {</p>
-
-<pre><code>if i == 5 {
-    print(greeting.uppercaseString)
-} else {
-    print(greeting)
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>Switch statements</h3>
-
-<p>1.Swift支持常规的switch语句，与OC不同的是，Swift的switch条件可以使任意类型，而OC只是原始类型，编译器来确保每个case的条件与switch条件类型一致。<br/>
-2.第二点，Swift中的switch不需要在每个case后添加break，这是因为在Swift中，每个case执行完后，会自动跳出switch，所以不需要手动添加break，同时这也是安全策略之一。</p>
-
-<p>```objectivec
-var direction = &ldquo;up"switch direction {</p>
-
-<pre><code>case "down":        println("Going Down!")  case "up":      println("Going Up!")    default:        println("Going Nowhere") }
-</code></pre>
-
-<p>```
-3.第三，Swift的switch相当智能，如果你提供的switch条件的可能值没有在case中被全部覆盖，会提示你添加default，如上例的String类型，不然会报error；而如果你的case覆盖了switch条件的所有值，如enum类型，那么不添加default也不会报错。<br/>
-4.如何在switch在一个case中匹配多个值，参照下例：</p>
-
-<p>```objectivec
-var direction = &ldquo;up"switch direction {</p>
-
-<pre><code>case "down", "up":      println("Going Somewhere!")     default:        println("Going Nowhere") }
-</code></pre>
-
-<p>```</p>
-
-<p>5.可以利用上一节介绍的Range来实现case的区间匹配：</p>
-
-<p>```objectivec
-var score = 570</p>
-
-<p>switch score {</p>
-
-<pre><code>case 1..&lt;10:
-    print("novice")
-case 10..&lt;100:
-    print("proficient")
-case 100..&lt;1000:
-    print("rock-star")
-default:
-    print("awesome")
-</code></pre>
-
-<p>}
-```</p>
-
-<p>6.另外switch与元组的结合，可以创造出更加复杂的场景处理：</p>
-
-<p>```objectivec
-let somePoint = (1, 1)
-switch somePoint {</p>
-
-<pre><code>case (0, 0):
-    print("(0, 0) is at the origin")
-case (_, 0):
-    print("(\(somePoint.0), 0) is on the x-axis")
-case (0, _):
-    print("(0,\(somePoint.1)) is on the y-axis")
-case (-2...2, -2...2):
-    print("(\(somePoint.0), \(somePoint.1)) is inside the box")
-default:
-    print("(\(somePoint.0), \(somePoint.1)) is outside the box")
-</code></pre>
-
-<p>}
-```</p>
-
-<p>7.利用value binding技术，可以在判断期间将tuple的元素赋值给let变量（当然也可以声明为var类型，且它的作用范围只存在该case中）：</p>
-
-<p>```objectivec
-let anotherPoint = (2, 0)
-switch anotherPoint {</p>
-
-<pre><code>case (let x, 0):
-    print("on the x-axis with an x value of \(x)")
-case (0, let y):
-    print("on the y-axis with an y value of \(y)")
-case let (x, y):
-    print("somewhere else at (\(x), \(y))")
-</code></pre>
-
-<p>}
-```</p>
-
-<p>8.switch可以添加where语句，为每个case添加额外的判断条件：</p>
-
-<p>```objectivec
-let yetAnotherPoint = (1, -1)
-switch yetAnotherPoint {</p>
-
-<pre><code>case let (x, y) where x == y:
-    print("(\(x), \(y)) is on the line x == y")
-case let (x, y) where x == -y:
-    print("(\(x), \(y)) is on the line x == -y")
-case let(x, y):
-    print("(\(x), \(y)) is just some arbitrary point")
-</code></pre>
-
-<p>}
-```</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Effective Objective-C读书笔记7]]></title>
-    <link href="http://lucifer1988.github.io/blog/2015/09/16/effective-objective-cdu-shu-bi-ji-7/"/>
-    <updated>2015-09-16T15:42:34+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2015/09/16/effective-objective-cdu-shu-bi-ji-7</id>
-    <content type="html"><![CDATA[<p>这是本书的最后一章了，集中讲解了有关Cocoa自带的system framework，这是开发中必须要使用的基本库，没有这些封装，很多基本的功能都无法实现，没有集合，也没有基类NSObject，可谓寸步难行，一些新的Api有时会节省我们很多工作量，同时这些库中的很多设计也是我们自己的代码需要学习的。</p>
-
-<!--more-->
-
-
-<h2>Item47 Familiarize Yourself with the System Frameworks</h2>
-
-<ol>
-<li>一个framework是将代码打包成一个动态库，会有头文件来描述接口，有时候也会有一些第三方的静态库（即.a文件），这些不能作为真正意义上的框架，但是被常常当做框架来用，所有的系统框架都使用了动态库。</li>
-<li>Cocoa或Cocoa Touch是框架集，其中的基本框架就是Foundation框架，Foundation Framework不但提供了基本类型和基本集合，而且还有很多复杂功能，比如字符串处理。</li>
-<li>除了另一个基础库是CoreFoundation，几乎就是Foundation的镜像库，只不过内部都是C接口和结构体，OC提供了一个名为toll-free bridging的转换特性，可以使OC对象和CF对象自由转化，toll-free bridging自身比较复杂，所以不建议自己去实现这一转化功能。除了上述两个基础框架，还有以下一些常用框架：</li>
-<li>CFNetwork：基于C的网络请求基本框架，基于BSD socket提供了很多易用的请求工具，Foundation通过对它的部分封装，提供了OC类型的网络接口。</li>
-<li>CoreAudio：提供了基于C的音频设备访问接口，本身是很复杂的，但OC的抽象将其变得易用不少。</li>
-<li>AVFoundation：提供了用于播放和录制音视频的OC对象，例如播放视频的UI类。</li>
-<li>CoreData：提供了用于数据持久化的OC对象，CoreData处理数据的存取，并能在Mac OS X与iOS之间通用。</li>
-<li>CoreText：提供了基于C的文字高效的类型设置和渲染的接口。</li>
-<li>使用一些C类型的框架，有时是必要的，因为通过绕过runtime，速度会更快，但是需要更加关注内存管理。</li>
-<li>AppKit和UIKit分别是Mac OS X 和iOS的UI框架，提供了基于Foundation和CoreFoundation的OC类型，在它的下面是CoreAnimation和CoreGraphics在支持。</li>
-<li>CoreAnimation基于OC类型，提供了渲染图像和展示动画的工具，它不是一个独立的框架，还是QuartzCore框架的一部分，但是很多情况CoreAnimation还是被优先使用。</li>
-<li>CoreGraphics是基于C类型的，提供了用于2D渲染的必不可少的结构体和函数，CGPoint，CGSize，CGRect都是在这儿定义的。</li>
-<li>UIKit的上层还有很多更高级的框架，例如：MapKit，Social framework。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item48 Prefer Block Enumeration to for Loops</h2>
-
-<p>1.遍历一个集合类型是常见需求，，而OC也有很多方式，从标准的C的for循环，到OC 1.0的NSEnumerator，到OC 2.0的快速遍历，block加入OC后，又出现了遍历直接传入block进行对象处理的新方法。<br/>
-2.For Loops：沿用最原始的C语言的循环，定义一个int型index，然后按照index去遍历每个对象，对于NSArray来说影响还不大，但是对于NSDictionary，NSSet来说，因为都是无序的，所以必须额外生成中间数组，这是额外的内存消耗，但倒序遍历只需要改变index为递减即可，还算方便。<br/>
-3.OC 1.0 NSEnumerator：NSEnumerator是一个基类，需要重写-(NSArray*)allObjects,&ndash;(id)nextObject两个方法，而Foundation框架的集合类型都支持了NSEnumerator，可以通过不断执行nextObject()来完成遍历，它的优势是所有的集合类型的遍历方式都是类似的，而且也支持不同的enumerator来实现不同顺序来遍历，缺点是还是需要额外的enumerator，而且不能得知当前的index。</p>
-
-<p>```objectivec
-//NSArray enumerator
-NSArray <em>anArray = /</em>&hellip;<em>/;
-NSEnumerator </em>enumerator = [anArray objectEnumerator];
-id object;
-while((object = [enumerator nextObject])!=nil){</p>
-
-<pre><code>//Do something with 'object'
-</code></pre>
-
-<p>}
-//NSDictionary enumerator
-NSDictionary <em>aDictionary = /</em>&hellip;*/;
-id key;
-while((key = [enumerator nextObject])!=nil){</p>
-
-<pre><code>id value = aDictionary[key];
-//Do something with 'key' and 'value'
-</code></pre>
-
-<p>}
-//NSArray reverse enumerator
-NSArray <em>anArray = /</em>&hellip;<em>/;
-NSEnumerator </em>enumerator = [anArray reverseObjectEnumerator];
-id object;
-while((object = [enumerator nextObject])!=nil){</p>
-
-<pre><code>//Do something with 'object'
-</code></pre>
-
-<p>}
-```</p>
-
-<p>4.Fast Enumeration：OC2.0引入了快速遍历，快速遍历详单与结合了for-loop和enumerator的双重特点，同时极大的简化了语法。实现这一技术是采用了NSFastEnumeration这一协议（只有一个方法），集合类型通过遵循这一协议，从而支持了快速遍历，实现协议中的方法使得类可以同时返回多个对象：</p>
-
-<p><code>objectivec
-//NSFastEnumeration
--(NSUInteger)countByEnumeratingWithState:(NSFastEnumerationState*)state objects:(id*)stackbuffer count:(NSUInteger)length;
-</code></p>
-
-<p>```objectivec
-//NSArray
-NSArray <em>anArray = /</em>&hellip;*/;
-for(id object in anArray){</p>
-
-<pre><code>//Do something with 'object'
-</code></pre>
-
-<p>}
-//NSDictionary
-NSDictionary <em>aDictionary = /</em>&hellip;*/;
-for(id key in aDictionary){</p>
-
-<pre><code>id value = aDictionary[key];
-//Do something with 'key' and value
-</code></pre>
-
-<p>}
-```</p>
-
-<p>如果需要反向遍历，可以通过下列方法，因为NSEnumerator也实现了NSFastEnumeration：</p>
-
-<p>```objectivec
-NSArray <em>anArray = /</em>&hellip;*/;
-for(id object in [anArray reverseObjectEnumerator]){</p>
-
-<pre><code>//Do something with 'object'
-</code></pre>
-
-<p>}
-```</p>
-
-<p>快速遍历的优点是效率很高，而且代码简洁，但是依然有两个缺陷，NSDictionary如果同时需要key和value的话，还是需要两步；同时index也是无法直接获取。</p>
-
-<p>5.Block-Based Enumeration：是在OC引入block后的遍历集合的最新方法，下面是NSArray的基本block遍历方法，前两个参数很明显，第三个参数是用来停止遍历的：</p>
-
-<p>```objectivec
-//NSArray
-&ndash;(void)enumerateObjectsUsingBlock:(void(^)(id object,NSUInteger idx,BOOL <em>stop))block;
-//NSDictionary
-&ndash;(void)enumerateLeysAndObjectsUsingBlock:(void(^)(id key,id object,BOOL </em>stop))block;
-//example
-NSArray <em>aArray = /</em>&hellip;<em>/;
-[aArray enumerateObjectsUsingBlock:^(id object,NSUInteger idx,BOOL </em>stop){</p>
-
-<pre><code>//Do something with 'object'
-if(shouldStop){
-    *stop = YES;
-}
-</code></pre>
-
-<p>}];
-```</p>
-
-<p>block遍历虽然看起来语法比快速遍历更复杂了，但是代码还是很整洁的，而且提供了方便的停止遍历的方法，而在其他方式中需要自己添加break，另外你可以现在一次性获得所有的信息，包括：NSArray的index，NSDictionary的key和value。</p>
-
-<p>如果NSDictionary的键值类型是确定的，那么你可以重写block中的id类型，也可以在类型出现异常时抛出警告，所以如果类型确定，还是推荐这么写的。</p>
-
-<p>```objectivec
-NSDictionary <em>aDictionary = /</em>&hellip;<em>/;
-[aDictionary enumerateKeysAndObjectsUsingBlock:^(NSString </em>key,NSString <em>obj,BOOL </em>stop){</p>
-
-<pre><code>//Do Something with 'key' and 'obj'
-</code></pre>
-
-<p>}];
-```</p>
-
-<p>除了这些，还有个最大的特点是，block遍历可以通过设置option（枚举类型）来实现各种各样的遍历方式，例如通过NSEnumerationConcurrent实现对集合中的对象并发执行方法（内部应该是利用了GCD的dispatch group），通过NSEnumerationReverse实现集合的逆向遍历，而且也可以通过位与操作，同时实现这两个option。</p>
-
-<p><code>objectivec
-//NSArray
--(void)enumerateObjectsWithOptions:(NSEnumerationOptions)options usingBlock:(void(^)(id object,NSUInteger idx,BOOL *stop))block;
-//NSDictionary
--(void)enumerateLeysAndObjectsWithOptions:(NSEnumerationOptions)options usingBlock:(void(^)(id key,id object,BOOL *stop))block;
-</code></p>
-
-<p>综上，block遍历虽然语法不及快速遍历简洁，但是对于NSArray获得index，对于NSDictionary获得key和value这些信息，通过option获得并发执行遍历，都是优于其他遍历方法的。</p>
-
-<!--more-->
-
-
-<h2>Item49 Using Toll-Free Bridging for Collections with Custom Memory-Management Semantics</h2>
-
-<p>1.Toll-Free Bridging是OC用来在Foundation定义的OC对象和CoreFoundation定义的对应的C结构体之间相互转化，使用了<strong>bridge关键字，相当于ARC依然持有OC对象，如果使用了</strong>bridge_retained，那么ARC就要交出持有权，那么在我们使用完CF指针后要执行CFRelease(aCFArray)来释放内存，反之你需要将CF指针转化为OC对象，并需要转移持有权时，要加上__bridge_transfer关键字，这三个关键字非常重要。</p>
-
-<p><code>objectivec
-NSArray *anNSArray = @[@1,@2,@3,@4,@5];
-CFArrayRef aCFArray = (__bridge CFArrayRef)anNSArray;
-NSLog(@"Size of array = %li", CFArrayGetCount(aCFArray));
-</code></p>
-
-<p>2.为什么要去使用CF结构体指针？当然绝大部分情况我们是不会刻意去使用的，作者列举了一个特殊的场景：NSDictionary的key是copy类型，而value是retain类型，也就意味着，不支持copy协议的类是不能作为NSDictionary的key的，如果我们需要一个value和key都是retain类型的dictionary，那要怎么办呢？<br/>
-3.作者列举了一种思路，重新构建一个CF的字典类型，因为在这一级，我们可以控制key和value的回调类型，然后再通过Toll-Free Bridging来转化为需要的NSMutableDictionary，从而达到目的。</p>
-
-<!--more-->
-
-
-<h2>Item50 Use NSCache Instead of NSDictionary for Caches</h2>
-
-<p>1.在网络请求中做缓存是常见的需求，因为一般会将data和url或者request对象做成键值对存储，所以一些年轻的程序员就会考虑用NSDictionary来做缓存，但是作者建议用NSCache来做这类缓存。<br/>
-2.NSCache的优势之一是，当系统资源吃紧时，cache会被自动释放，且会优先释放最近未被使用的缓存，如果NSDictionary想实现这一点，是需要做很多额外工作的。<br/>
-3.NSCache的优势之二是，NSDictionary的key是copy类型，而value是retain类型，而NSCache的key和value都是retain类型，这就意味着，NSCache可以将不实现copy协议的对象作为key，虽然根据Item49的做法，也可以把NSDictionary做成这种类型，但是实现起来很复杂。另外，NSCache是线程安全的，你可以在多个线程同时插值，在做缓存时，在主线程读取缓存，然后缓存不存在，在后台线程下载并赋值是常见的场景。<br/>
-4.你可以手动控制缓存的容量，通过设置缓存数量和大小来控制，如果缓存数量或大小超过限制，也会开始自动释放，但释放的顺序是不可控的，所以想通过改变最大容量来让缓存按照顺序释放是不现实的。<br/>
-5.需要注意的是，设置缓存大小容量，是基于加入缓存的对象的大小易于计算，如果计算对象大小成本过高的话，这就会影响效率，因为每次加入都会进行计算。例如去硬盘计算文件大小或去数据库查找大小就是耗时的操作，但如果是NSData作为缓存对象，那么获取它的大小代价就很小，只是读取一个property而已。<br/>
-6.下面是一个使用NSCache的实例：</p>
-
-<p>```objectivec
-@implementation EOCClass{</p>
-
-<pre><code>NSCache *_cache;
-</code></pre>
-
-<p>}
-&ndash;(id)init{</p>
-
-<pre><code>if((self = [super init])){
-    _cache = [NSCache new];
-    _cache.countLimit = 100;
-    _cache.totalCostLimit = 5*1024*1024;
-}
-return self;
-</code></pre>
-
-<p>}
-&ndash;(void)downloadDataForURL:(NSURL*)url{</p>
-
-<pre><code>NSData *cachedData = [_cache objectForKey:url];
-if(cacheData){
-    //Cache hit
-    [self useData:cachedData];
-} else {
-    //Cache miss
-    EOCNetworkFetcher *fetcher = [[EOCNetworkFetcher alloc] initWithURL:url];
-    [fetcher startWithCompletionHandler:^(NSData *data){
-        [_cache setObject:data forKey:url cost:data.length];
-        [self useData:data];
-    }];
-}
-</code></pre>
-
-<p>}
-@end
-```</p>
-
-<p>7.除了NSData，另一种可以和NSCache搭配的是NSPurgeableData，它是NSMutableData的子类，实现了NSDiscardableContent协议，NSPurgeableData的内存会在系统资源紧张时自动释放，<em>isContentDiscard</em>是协议中的一个方法，返回内存是否已释放。<br/>
-8.NSPurgeableData在使用之前要用<em>beginContentAccess</em>确保目前内存不被释放，然后使用完后调用<em>endContentAccess</em>告知系统可以被释放，这一对操作可以嵌套，类似retain/release。<br/>
-9.如果NSPurgeableData添加到NSCache，释放的对象会自动移出cache，这可以被<em>evictsObjectsWithDiscardedContent</em>这一property关闭或开启。<br/>
-10.下面是一个NSPurgeableData的实例，注意NSPurgeableData被创建时就相当于+1purge reference count与alloc类似，所以不必再加<em>beginContentAccess</em>，但用完要加<em>endContentAccess</em>。</p>
-
-<p>```objectivec
-&ndash;(void)downloadDataForURL:(NSURL*)url{</p>
-
-<pre><code>NSPurgeableData *cacheData = [_cache objectForKey:url];
-if(cachedData){
-    //Stop the data being purged
-    [cacheData beginContentAccess];
-    //Use the cached data
-    [self useData:cachedData];
-    //Mark that the data may be purged again
-    [cacheData endContentAccess];
-} else {
-    //Cache miss
-    EOCNetworkFetcher *fetcher = [[EOCNetworkFetcher alloc] initWithURL:url];
-    [fetcher startWithCompletionHandler:^(NSData *data){
-        NSPurgeableData *purgeableData = [NSPurgeableData dataWithData:data];
-        [_cache setObject:purgeableData forKey:url cost:purgeableData.length];
-        //Don't need to beginContentAccess as it begins with access already marked
-        [self useData:data];
-        //Mark that the data may be purged now
-        [purgeable endContentAccess];
-    }];
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<!--more-->
-
-
-<h2>Item51 Keep initialize and load Implementations Lean</h2>
-
-<ol>
-<li>一个类总会有有自己的初始化方法，由于OC中类型大部分继承于NSObject，所有有很多继承于NSObject的初始化方法，第一个就是<em>*(void)load</em>方法。</li>
-<li><em>load</em>方法在每个class和category中会且只会被调用一次，这个方法发生在包含该类的library在加载后，一般是应用加载中，而且只是iOS代码的独有的，Mac OS X有更灵活的dynamic loading，可以使library在应用加载后加载，而category的load在其原class加载后加载。</li>
-<li>想重写<em>load</em>方法的问题是，它运行时runtime处于不稳定的状态，所有父类的<em>load</em>方法是先于其他类的<em>load</em>调用的，所依赖库中的所有<em>load</em>方法会先调用。但在一个库中，这些类的<em>load</em>方法的调用顺序就是不可控的了。</li>
-<li>作者举例：EOCClassB中实现了<em>load</em>方法，它导入了Foundation.h和EOCClassA.h头文件，而EOCClassA和它同属一个库，EOCClassB在其<em>load</em>方法中使用了NSLog输出NSString，也实例化了EOCClassA并进行了操作。那么NSLog和NSString的使用是没问题的，因为Foundation.h中的class肯定先于EOCClassB的<em>load</em>方法，但使用EOCClassA就有问题了，你不能保证EOCClassA的<em>load</em>是否已经在EOCClassB的<em>load</em>方法之前调用了，因为有可能EOCClassA在<em>load</em>之前是不可用的。</li>
-<li><em>load</em>方法并不遵循于一般的继承规则，一个类没有实现<em>load</em>的话，是不会调用该方法的，即使它的父类实现了；<em>load</em>方法可同时存在于类和它的category中，且category的<em>load</em>会在本类的<em>load</em>之后调用。</li>
-<li>所以综上，<em>load</em>方法并不适合我们自己做初始化工作，因为我们不能确保所有的类型都已经加载，所以实际上它的用途最好仅停留在测试层面，因为如果在<em>load</em>中加载过多任务，也会影响应用的加载时间，是很影响用户体验的。</li>
-<li>第二个初始化方法是<em>+(void)initialize</em>方法，它也是会且只会被调用一次，它是被runtime调用的，而不能被直接调用，它与<em>load</em>有相似的地方，也有很多不同，概括有三点。</li>
-<li>区别一是<em>initialize</em>是懒加载，只有一个类被第一次用到之前才会调用，因此会出现一个类的<em>initialize</em>永远没被调用过的情况，这也意味着不像<em>load</em>会出现所有的<em>load</em>方法在同一时间加载，而且会阻塞应用加载。</li>
-<li>区别二是<em>initialize</em>在执行时，runtime是稳定状态，调用其他类的方法是安全的，而且runtime保证了<em>initialize</em>的线程安全，意味着只有执行<em>initialize</em>的线程可以和class和其实例交互，其他线程将会被阻塞，知道<em>initialize</em>完成。</li>
-<li>区别三是<em>initialize</em>与其他消息一样，如果类的<em>initialize</em>没实现，但是父类实现了，那么父类的<em>initialize</em>会被调用。</li>
-<li>作者举例父类实现了<em>initialize</em>，但是子类没有实现，但在log中会看到该方法被调用了两次，原因是使用一个类时，其父类的<em>initialize</em>会先调用，然后到子类时，由于没有实现该方法，所以继续沿响应链得知父类实现了该方法，所以又执行一次，为了避免这一问题，在<em>initialize</em>中加上<em>if(self == [EOCBaseClass class])</em>的判断就好了。</li>
-<li>虽然<em>initialize</em>比<em>load</em>灵活一些了，但是作者依然不推荐在<em>initialize</em>中做很复杂的初始化工作，原因也有三。</li>
-<li>原因一，一个类的<em>initialize</em>可能在任意线程，如果它发生在UI线程，而且<em>initialize</em>做了很多工作的话，可能导致主线程阻塞。预测哪个线程会先使用一个类是不可靠的，所以强制一个固定线程去触发类的<em>initialize</em>方法是不现实的。</li>
-<li>原因二，你不能控制一个类什么时候<em>initialize</em>，它是确定会在一个类被第一次使用之前调用，但是假设它会在某个固定时间执行是不可靠的，runtime可能会有所更新，导致细微改变类的初始化方式，那么你对类已经初始化完毕的设想可能是错误的。</li>
-<li>原因三，比较特殊，就是两个或多个类之间的初始化方法中出现了内部数据的相互调用，可能会出现，一个类需要另一个类初始化完毕，但是第二个类还依赖于第一个类的初始化完毕，造成了两个类之间的相互等待，和循环引用有一定程度的类似。</li>
-<li>综上，<em>initialize</em>中并不适合做大量的工作，尤其是调用其他类或自己的方法，如果自己的方法必须依赖自己已经初始化完毕，那么也会出现上述问题，所以<em>initialize</em>的正确用法是去初始化那些，无法在编译期间赋值的全局静态变量和全局变量，比如static NSMutableArray *kSomeObjects，因为这些OC对象必须等到runtime激活后才能使用。</li>
-<li>所以始终保持<em>initialize</em>和<em>load</em>方法简洁是一个好习惯，能避免大量的奇葩问题。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item52 Remember that NSTimer Retains Its Target</h2>
-
-<p>1.NSTimer是一个常用的类，用来定时执行一些方法，或循环执行一些方法，它是需要和一个run loop关联的，你既可以在当前run loop预设置，也可以自己创建NSTimer对象自行设置。<br/>
-2.NSTimer预设置的方法需要传入target和selector，timer会retain target，而会在timer失效时release它，一个timer可以通过直接调用invalidate（一般是循环的）或者启动后（一般是一次性的）就会失效。<br/>
-3.因为timer会retain target，所以在循环执行时特别容易出现循环引用，如下，startPolling后，便会出现EOCClass和timer相互引用的结果，目前想解决这一问题，只能通过要求调用方自行调用stopPolling，但如果这时一个对外使用的类的话，这是不可控的；而寄希望于dealloc去解开这一循环，是不现实的，因为对于循环引用的两个对象，是不会出现一方先释放的。而且如果这一引用存在，会一直循环去执行这个任务，带来的问题不光是内存泄露。</p>
-
-<p>```objectivec
- #import &lt;Foundation/Foundation.h>
-@interface EOCClass:NSObject
-&ndash;(void)startPolling;
-&ndash;(void)stopPolling;
-@end
-@implementation EOCClass{</p>
-
-<pre><code>NSTimer *_pollTimer;
-</code></pre>
-
-<p>}
-&ndash;(id)init{</p>
-
-<pre><code>return [super init];
-</code></pre>
-
-<p>}
-&ndash;(void)dealloc{</p>
-
-<pre><code>[_pollTimer invalidate];
-</code></pre>
-
-<p>}
-&ndash;(void)stopPolling{</p>
-
-<pre><code>[_pollTimer invalidate];
-_pollTimer = nil;
-</code></pre>
-
-<p>}
-&ndash;(void)startPolling{</p>
-
-<pre><code>_pollTimer = [NSTimer scheduledTimerWithTimeInterval:5.0 target:self selector:@selector(p_doPoll) userInfo:nil repeats:YES];
-</code></pre>
-
-<p>}
-&ndash;(void)p_doPoll{</p>
-
-<pre><code>//Poll the resource
-</code></pre>
-
-<p>}
-```</p>
-
-<p>4.那么要想解决这个问题，又不依赖外部，一个方案是做一个NSTimer的block分类，如下，block被设置为userInfo参数，timer也会对它retain，block要进行一次copy，从stack移到heap上，这在Item37说过，现在的target变成了NSTimer这个类本身，因为NSTimer作为一个类对象，是一个单例，所以不用担心释放问题，虽然也存在循环引用，但是没关系。</p>
-
-<p>```objectivec
- #import &lt;Foundation/Foundation.h>
-@interface NSTimer(EOCBlockSupport)
-+(NSTimer<em>)eoc_scheduledTimerWithTimeInterval:(NSTimeInterval)interval block:(void(^)())block repeats:(BOOL)repeats;
-@end
-@implementation NSTimer(EOCBlockSupport)
-+(NSTimer</em>)eoc_scheduledTimerWithTimeInterval:(NSTimeInterval)interval block:(void(^)())block repeats:(BOOL)repeats{</p>
-
-<pre><code>return [self scheduledTimerWithTimeInterval:interval target:self selector:@selector(eoc_blockInvoke:) userInfo:[block copy] repeats:repeats];
-</code></pre>
-
-<p>}
-+(void)eoc_blockInvoke:(NSTimer*)timer{</p>
-
-<pre><code>void(^block)()=timer.userInfo;
-if(block){
-    block();
-} 
-</code></pre>
-
-<p>}
-```</p>
-
-<p>5.回到新方法的使用，像下面这样直接调用的话，还是会导致循环引用，因为block会retain self，而timer会在userInfo处retain block，而timer本身被self引用，所以正确的做法是做一个self的weak变量，在block中再声明一个strong的临时变量，确保block retain一个weak对象，而在block内部又不会提前释放掉，这也是解决block retain cycle的常见策略。</p>
-
-<p>```objectivec
-//wrong
-&ndash;(void)startPolling{</p>
-
-<pre><code>_polTimer = [NSTimer eoc_scheduledTimerWithTimeInterval:5.0 block:^{
-    [self p_doPoll];
-}
-repeats:YES
-];
-</code></pre>
-
-<p>}
-//right
-&ndash;(void)startPolling{</p>
-
-<pre><code>__weak __typeof(self)weakSelf = self;
-_polTimer = [NSTimer eoc_scheduledTimerWithTimeInterval:5.0 block:^{
-    __strong __typeof(weakSelf)strongSelf = weakSelf; 
-    [strongSelf p_doPoll];
-}
-repeats:YES
-];
-</code></pre>
-
-<p>}
-```</p>
 ]]></content>
   </entry>
   
