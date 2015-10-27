@@ -1,10 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://lucifer1988.github.io/blog/2014/01/02/2013-summary-and-2014-plan/</loc>
-        <lastmod>2014-02-13T15:33:41+08:00</lastmod>
-    </url>
-    <url>
         <loc>
             http://lucifer1988.github.io/blog/2014/02/13/hello-world-octopressfa-bu-wen-zhang-bu-zou/
         </loc>
@@ -93,12 +89,6 @@
     <url>
         <loc>http://lucifer1988.github.io/blog/2015/10/15/swift-by-tutorials-generics/</loc>
         <lastmod>2015-10-20T16:40:16+08:00</lastmod>
-    </url>
-    <url>
-        <loc>
-            http://lucifer1988.github.io/blog/2015/10/20/swift-by-tutorials-functions-and-closures/
-        </loc>
-        <lastmod>2015-10-20T17:29:33+08:00</lastmod>
     </url>
     <url>
         <loc>http://lucifer1988.github.io/blog/2015/10/20/react-nativechu-tan-1/</loc>
