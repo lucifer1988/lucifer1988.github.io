@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-10-30T14:34:07+08:00</updated>
+  <updated>2015-10-31T11:43:38+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,1104 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[回答Sunny的55道iOS面试题2]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/10/30/hui-da-sunnyde-55dao-iosmian-shi-ti-2/"/>
+    <updated>2015-10-30T14:36:08+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/10/30/hui-da-sunnyde-55dao-iosmian-shi-ti-2</id>
+    <content type="html"><![CDATA[<p>百度知道的<a href="http://weibo.com/u/1364395395">微博@我就叫Sunny怎么了</a>出了55道iOS的面试题，很多题目是很有深度，这次会将剩下的题目完成解答。</p>
+
+<!--more-->
+
+
+<h3>25. <code>_objc_msgForward</code>函数是做什么的，直接调用它将会发生什么？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p><code>_objc_msgForward</code>用于消息的转发，直接调用会直接进入消息转发阶段。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<blockquote><p><code>_objc_msgForward</code>是 IMP 类型，用于消息转发的：当向一个对象发送一条消息，但它并没有实现的时候，<code>_objc_msgForward</code>会尝试做消息转发。</p></blockquote>
+
+<p>我们可以这样创建一个<code>_objc_msgForward</code>对象：</p>
+
+<pre><code>IMP msgForwardIMP = _objc_msgForward;
+</code></pre>
+
+<p>在<a href="http://lucifer1988.github.io/blog/2015/10/28/hui-da-sunnyde-55dao-iosmian-shi-ti-1/">上篇</a>中的《objc中向一个对象发送消息<code>[obj foo]</code>和<code>objc_msgSend()</code>函数之间有什么关系？》曾提到<code>objc_msgSend</code>在“消息传递”中的作用。在“消息传递”过程中，<code>objc_msgSend</code>的动作比较清晰：首先在 Class 中的缓存查找 IMP （没缓存则初始化缓存），如果没找到，则向父类的 Class 查找。如果一直查找到根类仍旧没有实现，则用<code>_objc_msgForward</code>函数指针代替 IMP 。最后，执行这个 IMP 。</p>
+
+<p>Objective-C运行时是开源的，所以我们可以看到它的实现。打开<a href="http://www.opensource.apple.com/tarballs/objc4/"> <strong><em>Apple Open Source 里Mac代码里的obj包</em></strong> </a>下载一个最新版本，找到 <code>objc-runtime-new.mm</code>，进入之后搜索<code>_objc_msgForward</code>。</p>
+
+<p><img src="http://i.imgur.com/rGBfaoL.png" alt="enter image description here" /></p>
+
+<p>里面有对<code>_objc_msgForward</code>的功能解释：</p>
+
+<p><img src="http://i.imgur.com/vcThcdA.png" alt="enter image description here" /></p>
+
+<p><code>objectivec
+/***********************************************************************
+* lookUpImpOrForward.
+* The standard IMP lookup.
+* initialize==NO tries to avoid +initialize (but sometimes fails)
+* cache==NO skips optimistic unlocked lookup (but uses cache elsewhere)
+* Most callers should use initialize==YES and cache==YES.
+* inst is an instance of cls or a subclass thereof, or nil if none is known.
+*   If cls is an un-initialized metaclass then a non-nil inst is faster.
+* May return _objc_msgForward_impcache. IMPs destined for external use
+*   must be converted to _objc_msgForward or _objc_msgForward_stret.
+*   If you don't want forwarding at all, use lookUpImpOrNil() instead.
+**********************************************************************/
+</code></p>
+
+<p>对 <code>objc-runtime-new.mm</code>文件里与<code>_objc_msgForward</code>有关的三个函数使用伪代码展示下：</p>
+
+<p>```objectivec
+//  objc-runtime-new.mm 文件里与 _objc_msgForward 有关的三个函数使用伪代码展示
+//  Created by <a href="https://github.com/ChenYilong">https://github.com/ChenYilong</a>
+//  Copyright &copy;  微博@iOS程序犭袁(<a href="http://weibo.com/luohanchenyilong/">http://weibo.com/luohanchenyilong/</a>). All rights reserved.
+//  同时，这也是 obj_msgSend 的实现过程</p>
+
+<p>id objc_msgSend(id self, SEL op, &hellip;) {</p>
+
+<pre><code>if (!self) return nil;
+IMP imp = class_getMethodImplementation(self-&gt;isa, SEL op);
+imp(self, op, ...); //调用这个函数，伪代码...
+</code></pre>
+
+<p>}</p>
+
+<p>//查找IMP
+IMP class_getMethodImplementation(Class cls, SEL sel) {</p>
+
+<pre><code>if (!cls || !sel) return nil;
+IMP imp = lookUpImpOrNil(cls, sel);
+if (!imp) return _objc_msgForward; //_objc_msgForward 用于消息转发
+return imp;
+</code></pre>
+
+<p>}</p>
+
+<p>IMP lookUpImpOrNil(Class cls, SEL sel) {</p>
+
+<pre><code>if (!cls-&gt;initialize()) {
+    _class_initialize(cls);
+}
+
+Class curClass = cls;
+IMP imp = nil;
+do { //先查缓存,缓存没有时重建,仍旧没有则向父类查询
+    if (!curClass) break;
+    if (!curClass-&gt;cache) fill_cache(cls, curClass);
+    imp = cache_getImp(curClass, sel);
+    if (imp) break;
+} while (curClass = curClass-&gt;superclass);
+
+return imp;
+</code></pre>
+
+<p>}
+<code>``
+虽然Apple没有公开</code>_objc_msgForward`的实现源码，但是我们还是能得出结论：</p>
+
+<blockquote><p><code>_objc_msgForward</code>是一个函数指针（和 IMP 的类型一样），是用于消息转发的：当向一个对象发送一条消息，但它并没有实现的时候，<code>_objc_msgForward</code>会尝试做消息转发。</p>
+
+<p>在<a href="http://lucifer1988.github.io/blog/2015/10/28/hui-da-sunnyde-55dao-iosmian-shi-ti-1/">上篇</a>中的《objc中向一个对象发送消息<code>[obj foo]</code>和<code>objc_msgSend()</code>函数之间有什么关系？》曾提到<code>objc_msgSend</code>在“消息传递”中的作用。在“消息传递”过程中，<code>objc_msgSend</code>的动作比较清晰：首先在 Class 中的缓存查找 IMP （没缓存则初始化缓存），如果没找到，则向父类的 Class 查找。如果一直查找到根类仍旧没有实现，则用<code>_objc_msgForward</code>函数指针代替 IMP 。最后，执行这个 IMP 。</p></blockquote>
+
+<p>为了展示消息转发的具体动作，这里尝试向一个对象发送一条错误的消息，并查看一下<code>_objc_msgForward</code>是如何进行转发的。</p>
+
+<p>首先开启调试模式、打印出所有运行时发送的消息：
+可以在代码里执行下面的方法：</p>
+
+<p><code>objectivec
+(void)instrumentObjcMessageSends(YES);
+</code></p>
+
+<p>或者断点暂停程序运行，并在 gdb 中输入下面的命令：</p>
+
+<p><code>objectivec
+call (void)instrumentObjcMessageSends(YES)
+</code></p>
+
+<p>以第二种为例，操作如下所示：</p>
+
+<p><img src="http://i.imgur.com/uEwTCC4.png" alt="enter image description here" /></p>
+
+<p>之后，运行时发送的所有消息都会打印到<code>/tmp/msgSend-xxxx</code>文件里了。</p>
+
+<p>终端中输入命令前往：</p>
+
+<p><code>objectivec
+open /private/tmp
+</code></p>
+
+<p><img src="http://i.imgur.com/Fh5hhCw.png" alt="enter image description here" /></p>
+
+<p>可能看到有多条，找到最新生成的，双击打开</p>
+
+<p>在模拟器上执行执行以下语句（这一套调试方案仅适用于模拟器，真机不可用，关于该调试方案的拓展链接：<a href="http://stackoverflow.com/a/10750398/3395008"> <strong><em>Can the messages sent to an object in Objective-C be monitored or printed out?</em></strong> </a>），向一个对象发送一条错误的消息：</p>
+
+<p>```objectivec
+//
+//  main.m
+//  CYLObjcMsgForwardTest
+//
+//  Created by <a href="http://weibo.com/luohanchenyilong/.">http://weibo.com/luohanchenyilong/.</a>
+//  Copyright &copy; 2015年 微博@iOS程序犭袁. All rights reserved.
+//</p>
+
+<h1>import &lt;UIKit/UIKit.h></h1>
+
+<h1>import &ldquo;AppDelegate.h&rdquo;</h1>
+
+<h1>import &ldquo;CYLTest.h&rdquo;</h1>
+
+<p>int main(int argc, char * argv[]) {</p>
+
+<pre><code>@autoreleasepool {
+    CYLTest *test = [[CYLTest alloc] init];
+    [test performSelector:(@selector(iOS程序犭袁))];
+    return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
+}
+</code></pre>
+
+<p>}</p>
+
+<p>```</p>
+
+<p><img src="http://i.imgur.com/UjbmVvB.png" alt="enter image description here" /></p>
+
+<p>你可以在<code>/tmp/msgSend-xxxx</code>（我这一次是<code>/tmp/msgSend-9805</code>）文件里，看到打印出来：</p>
+
+<p><img src="http://i.imgur.com/AAERz1T.png" alt="enter image description here" /></p>
+
+<p><code>objectivec
++ CYLTest NSObject initialize
++ CYLTest NSObject alloc
+- CYLTest NSObject init
+- CYLTest NSObject performSelector:
++ CYLTest NSObject resolveInstanceMethod:
++ CYLTest NSObject resolveInstanceMethod:
+- CYLTest NSObject forwardingTargetForSelector:
+- CYLTest NSObject forwardingTargetForSelector:
+- CYLTest NSObject methodSignatureForSelector:
+- CYLTest NSObject methodSignatureForSelector:
+- CYLTest NSObject class
+- CYLTest NSObject doesNotRecognizeSelector:
+- CYLTest NSObject doesNotRecognizeSelector:
+- CYLTest NSObject class
+</code></p>
+
+<p>结合<a href="https://developer.apple.com/library/prerelease/watchos/documentation/Cocoa/Reference/Foundation/Classes/NSObject_Class/#//apple_ref/doc/uid/20000050-SW11">《NSObject官方文档》</a>，排除掉 NSObject 做的事，剩下的就是<code>_objc_msgForward</code>消息转发做的几件事：</p>
+
+<ol>
+<li><p>调用<code>resolveInstanceMethod:</code>方法 (或 <code>resolveClassMethod:</code>)。允许用户在此时为该 Class 动态添加实现。如果有实现了，则调用并返回YES，那么重新开始<code>objc_msgSend</code>流程。这一次对象会响应这个选择器，一般是因为它已经调用过<code>class_addMethod</code>。如果仍没实现，继续下面的动作。</p></li>
+<li><p>调用<code>forwardingTargetForSelector:</code>方法，尝试找到一个能响应该消息的对象。如果获取到，则直接把消息转发给它，返回非 nil 对象。否则返回 nil ，继续下面的动作。注意，这里不要返回 self ，否则会形成死循环。</p></li>
+<li><p>调用<code>methodSignatureForSelector:</code>方法，尝试获得一个方法签名。如果获取不到，则直接调用<code>doesNotRecognizeSelector</code>抛出异常。如果能获取，则返回非nil：创建一个 NSlnvocation 并传给<code>forwardInvocation:</code>。</p></li>
+<li><p>调用<code>forwardInvocation:</code>方法，将第3步获取到的方法签名包装成 Invocation 传入，如何处理就在这里面了，并返回非ni。</p></li>
+<li><p>调用<code>doesNotRecognizeSelector:</code> ，默认的实现是抛出异常。如果第3步没能获得一个方法签名，执行该步骤。</p></li>
+</ol>
+
+
+<p>上面前4个方法均是模板方法，开发者可以override，由 runtime 来调用。最常见的实现消息转发：就是重写方法3和4，吞掉一个消息或者代理给其他对象都是没问题的</p>
+
+<p>也就是说<code>_objc_msgForward</code>在进行消息转发的过程中会涉及以下这几个方法：</p>
+
+<ol>
+<li><p><code>resolveInstanceMethod:</code>方法 (或 <code>resolveClassMethod:</code>)。</p></li>
+<li><p><code>forwardingTargetForSelector:</code>方法</p></li>
+<li><p><code>methodSignatureForSelector:</code>方法</p></li>
+<li><p><code>forwardInvocation:</code>方法</p></li>
+<li><p><code>doesNotRecognizeSelector:</code> 方法</p></li>
+</ol>
+
+
+<p>为了能更清晰地理解这些方法的作用，git仓库里也给出了一个Demo，名称叫“ <code>_objc_msgForward_demo</code> ”,可运行起来看看。</p>
+
+<p>下面回答下第二个问题“直接<code>_objc_msgForward</code>调用它将会发生什么？”</p>
+
+<p>直接调用<code>_objc_msgForward</code>是非常危险的事，如果用不好会直接导致程序Crash，但是如果用得好，能做很多非常酷的事。</p>
+
+<p>就好像跑酷，干得好，叫“耍酷”，干不好就叫“作死”。</p>
+
+<p>正如前文所说：</p>
+
+<blockquote><p><code>_objc_msgForward</code>是 IMP 类型，用于消息转发的：当向一个对象发送一条消息，但它并没有实现的时候，<code>_objc_msgForward</code>会尝试做消息转发。</p></blockquote>
+
+<p>如何调用<code>_objc_msgForward</code>？<br/>
+<code>_objc_msgForward</code>隶属 C 语言，有三个参数 ：</p>
+
+<table>
+<thead>
+<tr>
+<th>序号</th>
+<th> <code>_objc_msgForward</code>参数</th>
+<th> 类型 </th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td> 1. </td>
+<td> 所属对象 </td>
+<td> id类型</td>
+</tr>
+<tr>
+<td> 2. </td>
+<td>方法名 </td>
+<td> SEL类型 </td>
+</tr>
+<tr>
+<td> 3. </td>
+<td>可变参数 </td>
+<td>可变参数类型</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>首先了解下如何调用 IMP 类型的方法，IMP类型是如下格式：</p>
+
+<p>为了直观，我们可以通过如下方式定义一个 IMP类型 ：</p>
+
+<p><code>objectivec
+typedef void (*voidIMP)(id, SEL, ...)
+</code>
+一旦调用<code>_objc_msgForward</code>，将跳过查找 IMP 的过程，直接触发“消息转发”，</p>
+
+<p>如果调用了<code>_objc_msgForward</code>，即使这个对象确实已经实现了这个方法，你也会告诉<code>objc_msgSend</code>：</p>
+
+<blockquote><p>“我没有在这个对象里找到这个方法的实现”</p></blockquote>
+
+<p>想象下<code>objc_msgSend</code>会怎么做？通常情况下，下面这张图就是你正常走<code>objc_msgSend</code>过程，和直接调用<code>_objc_msgForward</code>的前后差别：</p>
+
+<p><img src="http://ww1.sinaimg.cn/bmiddle/6628711bgw1eecx3jef23g206404tkbi.gif" alt="enter image description here" /></p>
+
+<p>有哪些场景需要直接调用<code>_objc_msgForward</code>？最常见的场景是：你想获取某方法所对应的<code>NSInvocation</code>对象。举例说明：</p>
+
+<p><a href="https://github.com/bang590/JSPatch">JSPatch （Github 链接）</a>就是直接调用<code>_objc_msgForward</code>来实现其核心功能的：</p>
+
+<blockquote><p> JSPatch 以小巧的体积做到了让JS调用/替换任意OC方法，让iOS APP具备热更新的能力。</p></blockquote>
+
+<p>作者的博文<a href="http://blog.cnbang.net/tech/2808/">《JSPatch实现原理详解》</a>详细记录了实现原理，有兴趣可以看下。</p>
+
+<h3>26. runtime如何实现weak变量的自动置nil？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>原理不清楚。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<blockquote><p>runtime 对注册的类， 会进行布局，对于 weak 对象会放入一个 hash 表中。 用 weak 指向的对象内存地址作为 key，当此对象的引用计数为0的时候会 dealloc，假如 weak 指向的对象内存地址是a，那么就会以a为键， 在这个 weak 表中搜索，找到所有以a为键的 weak 对象，从而设置为 nil。</p></blockquote>
+
+<p>在<a href="http://lucifer1988.github.io/blog/2015/10/28/hui-da-sunnyde-55dao-iosmian-shi-ti-1/">上篇</a>中的《runtime 如何实现 weak 属性》有论述。（注：在<a href="http://lucifer1988.github.io/blog/2015/10/28/hui-da-sunnyde-55dao-iosmian-shi-ti-1/">上篇</a>的《使用runtime Associate方法关联的对象，需要在主对象dealloc的时候释放么？》里给出的“对象的内存销毁时间表”也提到<code>__weak</code>引用的解除时间。）</p>
+
+<p>我们可以设计一个函数（伪代码）来表示上述机制：</p>
+
+<p><code>objc_storeWeak(&amp;a, b)</code>函数：</p>
+
+<p><code>objc_storeWeak</code>函数把第二个参数&mdash;赋值对象（b）的内存地址作为键值key，将第一个参数&mdash;weak修饰的属性变量（a）的内存地址（&amp;a）作为value，注册到 weak 表中。如果第二个参数（b）为0（nil），那么把变量（a）的内存地址（&amp;a）从weak表中删除，</p>
+
+<p>你可以把<code>objc_storeWeak(&amp;a, b)</code>理解为：<code>objc_storeWeak(value, key)</code>，并且当key变nil，将value置nil。</p>
+
+<p>在b非nil时，a和b指向同一个内存地址，在b变nil时，a变nil。此时向a发送消息不会崩溃：在Objective-C中向nil发送消息是安全的。</p>
+
+<p>而如果a是由assign修饰的，则：
+在b非nil时，a和b指向同一个内存地址，在b变nil时，a还是指向该内存地址，变野指针。此时向a发送消息极易崩溃。</p>
+
+<p>下面我们将基于<code>objc_storeWeak(&amp;a, b)</code>函数，使用伪代码模拟“runtime如何实现weak属性”：</p>
+
+<p>```objectivec
+// 使用伪代码模拟：runtime如何实现weak属性
+// <a href="http://weibo.com/luohanchenyilong/">http://weibo.com/luohanchenyilong/</a>
+// <a href="https://github.com/ChenYilong">https://github.com/ChenYilong</a></p>
+
+<p> id obj1;
+ objc_initWeak(&amp;obj1, obj);
+/<em>obj引用计数变为0，变量作用域结束</em>/
+ objc_destroyWeak(&amp;obj1);
+```</p>
+
+<p>下面对用到的两个方法<code>objc_initWeak</code>和<code>objc_destroyWeak</code>做下解释：</p>
+
+<p>总体说来，作用是：
+通过<code>objc_initWeak</code>函数初始化“附有weak修饰符的变量（obj1）”，在变量作用域结束时通过<code>objc_destoryWeak</code>函数释放该变量（obj1）。</p>
+
+<p>下面分别介绍下方法的内部实现：</p>
+
+<p><code>objc_initWeak</code>函数的实现是这样的：在将“附有weak修饰符的变量（obj1）”初始化为0（nil）后，会将“赋值对象”（obj）作为参数，调用<code>objc_storeWeak</code>函数。</p>
+
+<p><code>objectivec
+obj1 = 0；
+obj_storeWeak(&amp;obj1, obj);
+</code></p>
+
+<p>也就是说：</p>
+
+<blockquote><p> weak 修饰的指针默认值是 nil （在Objective-C中向nil发送消息是安全的）</p></blockquote>
+
+<p>然后<code>obj_destroyWeak</code>函数将0（nil）作为参数，调用<code>objc_storeWeak</code>函数。</p>
+
+<p><code>objc_storeWeak(&amp;obj1, 0);</code></p>
+
+<p>前面的源代码与下列源代码相同。</p>
+
+<p>```objectivec
+// 使用伪代码模拟：runtime如何实现weak属性
+// <a href="http://weibo.com/luohanchenyilong/">http://weibo.com/luohanchenyilong/</a>
+// <a href="https://github.com/ChenYilong">https://github.com/ChenYilong</a></p>
+
+<p>id obj1;
+obj1 = 0;
+objc_storeWeak(&amp;obj1, obj);
+/<em> &hellip; obj的引用计数变为0，被置nil &hellip; </em>/
+objc_storeWeak(&amp;obj1, 0);
+```</p>
+
+<p><code>objc_storeWeak</code>函数把第二个参数&mdash;赋值对象（obj）的内存地址作为键值，将第一个参数&mdash;weak修饰的属性变量（obj1）的内存地址注册到 weak 表中。如果第二个参数（obj）为0（nil），那么把变量（obj1）的地址从weak表中删除。</p>
+
+<h3>27. 能否向编译后得到的类中增加实例变量？能否向运行时创建的类中添加实例变量？为什么？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>不能向编译后得到的类添加实例变量，可以向运行时创建的类添加实例变量，OC是动态语言，可以在运行时向类添加实例变量和方法，原理不知道。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<ul>
+<li>不能向编译后得到的类中增加实例变量；</li>
+<li>能向运行时创建的类中添加实例变量；</li>
+</ul>
+
+
+<p>解释下：</p>
+
+<ul>
+<li><p>因为编译后的类已经注册在 runtime 中，类结构体中的 <code>objc_ivar_list</code> 实例变量的链表 和 <code>instance_size</code> 实例变量的内存大小已经确定，同时runtime 会调用 <code>class_setIvarLayout</code> 或 <code>class_setWeakIvarLayout</code> 来处理 strong weak 引用。所以不能向存在的类中添加实例变量；</p></li>
+<li><p>运行时创建的类是可以添加实例变量，调用 <code>class_addIvar</code> 函数。但是得在调用 <code>objc_allocateClassPair</code> 之后，<code>objc_registerClassPair</code> 之前，原因同上。</p></li>
+</ul>
+
+
+<h3>28. runloop和线程有什么关系？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>额，看大神的。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>总的说来，Run loop，正如其名，loop表示某种循环，和run放在一起就表示一直在运行着的循环。实际上，run loop和线程是紧密相连的，可以这样说run loop是为了线程而生，没有线程，它就没有存在的必要。Run loops是线程的基础架构部分， Cocoa 和 CoreFundation 都提供了 run loop 对象方便配置和管理线程的 run loop （以下都以 Cocoa 为例）。每个线程，包括程序的主线程（ main thread ）都有与之相应的 run loop 对象。</p>
+
+<p> runloop 和线程的关系：</p>
+
+<ol>
+<li>主线程的run loop默认是启动的。</li>
+</ol>
+
+
+<p> iOS的应用程序里面，程序启动后会有一个如下的main()函数</p>
+
+<p>```objectivec
+int main(int argc, char * argv[]) {</p>
+
+<pre><code>@autoreleasepool {
+    return UIApplicationMain(argc, argv, nil, NSStringFromClass([AppDelegate class]));
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p> 重点是UIApplicationMain()函数，这个方法会为main thread设置一个NSRunLoop对象，这就解释了：为什么我们的应用可以在无人操作的时候休息，需要让它干活的时候又能立马响应。</p>
+
+<ol>
+<li><p>对其它线程来说，run loop默认是没有启动的，如果你需要更多的线程交互则可以手动配置和启动，如果线程只是去执行一个长时间的已确定的任务则不需要。</p></li>
+<li><p>在任何一个 Cocoa 程序的线程中，都可以通过以下代码来获取到当前线程的 run loop 。</p></li>
+</ol>
+
+
+<p><code>objectivec
+NSRunLoop *runloop = [NSRunLoop currentRunLoop];
+</code></p>
+
+<p>参考链接：<a href="http://blog.csdn.net/wzzvictory/article/details/9237973">《Objective-C之run loop详解》</a>。</p>
+
+<h3>29. runloop的mode作用是什么？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>额，继续看大神的。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>model 主要是用来指定事件在运行循环中的优先级的，分为：</p>
+
+<ul>
+<li>NSDefaultRunLoopMode（kCFRunLoopDefaultMode）：默认，空闲状态</li>
+<li>UITrackingRunLoopMode：ScrollView滑动时</li>
+<li>UIInitializationRunLoopMode：启动时</li>
+<li>NSRunLoopCommonModes（kCFRunLoopCommonModes）：Mode集合</li>
+</ul>
+
+
+<p>苹果公开提供的 Mode 有两个：</p>
+
+<ol>
+<li>NSDefaultRunLoopMode（kCFRunLoopDefaultMode）</li>
+<li>NSRunLoopCommonModes（kCFRunLoopCommonModes）</li>
+</ol>
+
+
+<h3>30. 以+ scheduledTimerWithTimeInterval&hellip;的方式触发的timer，在滑动页面上的列表时，timer会暂定回调，为什么？如何解决？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>应该和上面的Runloop的mode优先级有关，具体原因不明。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>RunLoop只能运行在一种mode下，如果要换mode，当前的loop也需要停下重启成新的。利用这个机制，ScrollView滚动过程中NSDefaultRunLoopMode（kCFRunLoopDefaultMode）的mode会切换到UITrackingRunLoopMode来保证ScrollView的流畅滑动：只能在NSDefaultRunLoopMode模式下处理的事件会影响scrllView的滑动。</p>
+
+<p>如果我们把一个NSTimer对象以NSDefaultRunLoopMode（kCFRunLoopDefaultMode）添加到主运行循环中的时候,
+ScrollView滚动过程中会因为mode的切换，而导致NSTimer将不再被调度。</p>
+
+<p>同时因为mode还是可定制的，所以：</p>
+
+<p> Timer计时会被scrollView的滑动影响的问题可以通过将timer添加到NSRunLoopCommonModes（kCFRunLoopCommonModes）来解决。代码如下：</p>
+
+<p>```objectivec
+//
+// <a href="http://weibo.com/luohanchenyilong/">http://weibo.com/luohanchenyilong/</a> (微博@iOS程序犭袁)
+// <a href="https://github.com/ChenYilong">https://github.com/ChenYilong</a></p>
+
+<p>//将timer添加到NSDefaultRunLoopMode中
+NSTimer *timer = [NSTimer scheduledTimerWithTimeInterval:1.0</p>
+
+<pre><code> target:self
+ selector:@selector(timerTick:)
+ userInfo:nil
+ repeats:YES];
+</code></pre>
+
+<p>//然后再添加到NSRunLoopCommonModes里
+NSTimer *timer = [NSTimer timerWithTimeInterval:1.0</p>
+
+<pre><code> target:self
+ selector:@selector(timerTick:)
+ userInfo:nil
+ repeats:YES];
+</code></pre>
+
+<p>[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+```</p>
+
+<h3>31. 猜想runloop内部是如何实现的？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>额，继续看大神的。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<blockquote><p>一般来讲，一个线程一次只能执行一个任务，执行完成后线程就会退出。如果我们需要一个机制，让线程能随时处理事件但并不退出，通常的代码逻辑
+是这样的：</p></blockquote>
+
+<pre><code>function loop() {
+    initialize();
+    do {
+        var message = get_next_message();
+        process_message(message);
+    } while (message != quit);
+}
+</code></pre>
+
+<p>或使用伪代码来展示下:</p>
+
+<pre><code>// 
+// http://weibo.com/luohanchenyilong/ (微博@iOS程序犭袁)
+// https://github.com/ChenYilong
+int main(int argc, char * argv[]) {
+ //程序一直运行状态
+ while (AppIsRunning) {
+      //睡眠状态，等待唤醒事件
+      id whoWakesMe = SleepForWakingUp();
+      //得到唤醒事件
+      id event = GetEvent(whoWakesMe);
+      //开始处理事件
+      HandleEvent(event);
+ }
+ return 0;
+}
+</code></pre>
+
+<p>参考链接：</p>
+
+<ol>
+<li><a href="http://blog.ibireme.com/2015/05/18/runloop/#base">《深入理解RunLoop》</a></li>
+<li>摘自博文<a href="https://github.com/ming1016/study/wiki/CFRunLoop"><strong><em>CFRunLoop</em></strong></a>，原作者是<a href="http://weibo.com/u/1364395395">微博@我就叫Sunny怎么了</a></li>
+</ol>
+
+
+<h3>32. objc使用什么机制管理对象内存？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>通过retain count，即引用计数，来管理对象内存，当retain count大于0时对象内存就不会释放，而retain count为0时对象会自动释放内存，通过retain、release来增加/减少retain count。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>通过 retainCount 的机制来决定对象是否需要释放。
+每次 runloop 的时候，都会检查对象的 retainCount，如果retainCount 为 0，说明该对象没有地方需要继续使用了，可以释放掉了。</p>
+
+<h3>33. ARC通过什么方式帮助开发者管理内存？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>ARC引入了新的关键字strong、weak来描述对象的持有关系，更加简化了对象对内存的占有关系，而在实现时还是使用retain count机制，只是编译器会自动添加内存相关的代码，而且很多地方作了特殊的优化，比如：对象创建方法和普通方法返回对象时，会添加不同的内存关键字，所以ARC还是强烈推荐的。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p> <p><del>编译时根据代码上下文，插入 retain/release
+</del></p>
+ARC相对于MRC，不是在编译时添加retain/release/autorelease这么简单。应该是编译期和运行期两部分共同帮助开发者管理内存。</p>
+
+<p>在编译期，ARC用的是更底层的C接口实现的retain/release/autorelease，这样做性能更好，也是为什么不能在ARC环境下手动retain/release/autorelease，同时对同一上下文的同一对象的成对retain/release操作进行优化（即忽略掉不必要的操作）；ARC也包含运行期组件，这个地方做的优化比较复杂，但也不能被忽略。【TODO:后续更新会详细描述下】</p>
+
+<h3>34. 不手动指定autoreleasepool的前提下，一个autorealese对象在什么时刻释放？（比如在一个vc的viewDidLoad中创建）</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>该对象加入最近创建的的autoreleasepool中，而该autoreleasepool会在当前runloop循环结束时，执行drain操作，而此时其内的对象都会被执行一次release操作。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>分两种情况：手动干预释放时机、系统自动去释放。</p>
+
+<ol>
+<li>手动干预释放时机&mdash;指定autoreleasepool
+就是所谓的：当前作用域大括号结束时释放。</li>
+<li>系统自动去释放&mdash;不手动指定autoreleasepool</li>
+</ol>
+
+
+<p>  Autorelease对象出了作用域之后，会被添加到最近一次创建的自动释放池中，并会在当前的 runloop 迭代结束时释放。</p>
+
+<p>释放的时机总结起来，可以用下图来表示：</p>
+
+<p><img src="http://i61.tinypic.com/28kodwp.jpg" alt="autoreleasepool与 runloop 的关系图" /></p>
+
+<p>下面对这张图进行详细的解释：</p>
+
+<p>从程序启动到加载完成是一个完整的运行循环，然后会停下来，等待用户交互，用户的每一次交互都会启动一次运行循环，来处理用户所有的点击事件、触摸事件。</p>
+
+<p>我们都是知道：
+<strong>所有 autorelease 的对象，在出了作用域之后，会被自动添加到最近创建的自动释放池中。</strong></p>
+
+<p>但是如果每次都放进应用程序的 <code>main.m</code> 中的 autoreleasepool 中，迟早有被撑满的一刻。这个过程中必定有一个释放的动作。何时？</p>
+
+<p>在一次完整的运行循环结束之前，会被销毁。</p>
+
+<p>那什么时间会创建自动释放池？运行循环检测到事件并启动后，就会创建自动释放池。</p>
+
+<p>子线程的 runloop 默认是不工作，无法主动创建，必须手动创建。</p>
+
+<p>自定义的 NSOperation 和 NSThread 需要手动创建自动释放池。比如： 自定义的 NSOperation 类中的 main 方法里就必须添加自动释放池。否则出了作用域后，自动释放对象会因为没有自动释放池去处理它，而造成内存泄露。</p>
+
+<p>但对于 blockOperation 和 invocationOperation 这种默认的Operation ，系统已经帮我们封装好了，不需要手动创建自动释放池。</p>
+
+<p>@autoreleasepool 当自动释放池被销毁或者耗尽时，会向自动释放池中的所有对象发送 release 消息，释放自动释放池中的所有对象。</p>
+
+<p> 如果在一个vc的viewDidLoad中创建一个 Autorelease对象，那么该对象会在 viewDidAppear 方法执行前就被销毁了。</p>
+
+<p>参考链接：<a href="http://blog.sunnyxx.com/2014/10/15/behind-autorelease/">《黑幕背后的Autorelease》</a></p>
+
+<h3>35. BAD_ACCESS在什么情况下出现？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>当所访问的对象指针指向的内存已经释放，但指针没有置nil，成为野指针，会报BAD_ACCESS错误。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>访问了野指针，比如对一个已经释放的对象执行了release、访问已经释放对象的成员变量或者发消息。</p>
+
+<h3>36. 苹果是如何实现autoreleasepool的？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>autoreleasepool在内存中是以栈的形式储存的，在顶端的的pool会最先经行drain操作。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>autoreleasepool 以一个队列数组的形式实现,主要通过下列三个函数完成.</p>
+
+<ol>
+<li><code>objc_autoreleasepoolPush</code></li>
+<li><code>objc_autoreleasepoolPop</code></li>
+<li><code>objc_autorelease</code></li>
+</ol>
+
+
+<p>看函数名就可以知道，对 autorelease 分别执行 push，和 pop 操作。销毁对象时执行release操作。</p>
+
+<p>举例说明：我们都知道用类方法创建的对象都是 Autorelease 的，那么一旦 Person 出了作用域，当在 Person 的 dealloc 方法中打上断点，我们就可以看到这样的调用堆栈信息：</p>
+
+<p> <img src="http://i60.tinypic.com/15mfj11.jpg" alt="enter image description here" /></p>
+
+<h3>37. 使用block时什么情况会发生引用循环，如何解决？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>当block本身作为类的强引用，而在block内部又对self的属性进行的使用，因为block会默认retain包含的对象，所以此时block会与self相互引用，而导致循环引用，解决方法一般是声明__weak属性的self替代，而在block内部使用weak替代，这样block就不会对self有强引用，从而解除这一循环。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>一个对象中强引用了block，在block中又使用了该对象，就会发射循环引用。
+解决方法是将该对象使用<strong>weak或者</strong>block修饰符修饰之后再在block中使用。</p>
+
+<ol>
+<li>id weak weakSelf = self;
+或者 weak __typeof(&amp;*self)weakSelf = self该方法可以设置宏</li>
+<li>id __block weakSelf = self;</li>
+</ol>
+
+
+<h3>38. 在block内如何修改block外部变量？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>使用__block关键字来修饰需要改变的对象，该对象可在block内修改。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>默认情况下，在block中访问的外部变量是复制过去的，即：<strong>写操作不对原变量生效</strong>。但是你可以加上<code>__block</code>来让其写操作生效，示例代码如下:</p>
+
+<pre><code>__block int a = 0;
+void  (^foo)(void) = ^{ 
+    a = 1; 
+}
+f00(); 
+//这里，a的值被修改为1
+</code></pre>
+
+<p>参考链接：<a href="http://weibo.com/tangqiaoboy">微博@唐巧_boy</a>的著作《iOS开发进阶》中的第11.2.3章节</p>
+
+<h3>39. 使用系统的某些block api（如UIView的block版本写动画时），是否也考虑引用循环问题？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>不需要，因为这些block并不被当前类型实例持有，即使在内部使用了self的实例变量，也不会造成引用循环。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>系统的某些block api中，UIView的block版本写动画时不需要考虑，但也有一些api 需要考虑：</p>
+
+<p>所谓“引用循环”是指双向的强引用，所以那些“单向的强引用”（block 强引用 self ）没有问题，比如这些：</p>
+
+<p><code>objectivec
+[UIView animateWithDuration:duration animations:^{ [self.superview layoutIfNeeded]; }];
+</code></p>
+
+<p><code>objectivec
+[[NSOperationQueue mainQueue] addOperationWithBlock:^{ self.someProperty = xyz; }];
+</code></p>
+
+<p>```objectivec
+[[NSNotificationCenter defaultCenter] addObserverForName:@&ldquo;someNotification&rdquo;</p>
+
+<pre><code>                                              object:nil 
+                       queue:[NSOperationQueue mainQueue]
+                                          usingBlock:^(NSNotification * notification) {
+                                                self.someProperty = xyz; }]; 
+</code></pre>
+
+<p>```</p>
+
+<p>这些情况不需要考虑“引用循环”。</p>
+
+<p>但如果你使用一些参数中可能含有 ivar 的系统 api ，如 GCD 、NSNotificationCenter就要小心一点：比如GCD 内部如果引用了 self，而且 GCD 的其他参数是 ivar，则要考虑到循环引用：</p>
+
+<p><code>objectivec
+__weak __typeof__(self) weakSelf = self;
+dispatch_group_async(_operationsGroup, _operationsQueue, ^
+{
+__typeof__(self) strongSelf = weakSelf;
+[strongSelf doSomething];
+[strongSelf doSomethingElse];
+} );
+</code>
+类似的：</p>
+
+<p>```objectivec
+  <strong>weak </strong>typeof<em>_(self) weakSelf = self;
+  </em>observer = [[NSNotificationCenter defaultCenter] addObserverForName:@&ldquo;testKey&rdquo;</p>
+
+<pre><code>                                                            object:nil
+                                                             queue:nil
+                                                        usingBlock:^(NSNotification *note) {
+  __typeof__(self) strongSelf = weakSelf;
+  [strongSelf dismissModalViewControllerAnimated:YES];
+</code></pre>
+
+<p>  }];
+```
+self &mdash;> _observer &mdash;> block &mdash;> self 显然这也是一个循环引用。</p>
+
+<h3>40. GCD的队列（<code>dispatch_queue_t</code>）分哪两种类型？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>执行的时候分同步和异步。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<ol>
+<li>串行队列Serial Dispatch Queue</li>
+<li>并行队列Concurrent Dispatch Queue</li>
+</ol>
+
+
+<h3>41. 如何用GCD同步若干个异步调用？（如根据若干个url异步加载多张图片，然后在都下载完成后合成一张整图）</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>使用dispatch group技术，将多个dispatch queue加入同一group中，然后在group任务结束时，统一执行合成任务。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>使用Dispatch Group追加block到Global Group Queue,这些block如果全部执行完毕，就会执行Main Dispatch Queue中的结束处理的block。</p>
+
+<p>```objectivec
+dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+dispatch_group_t group = dispatch_group_create();
+dispatch_group_async(group, queue, ^{ /<em>加载图片1 </em>/ });
+dispatch_group_async(group, queue, ^{ /<em>加载图片2 </em>/ });
+dispatch_group_async(group, queue, ^{ /<em>加载图片3 </em>/ });
+dispatch_group_notify(group, dispatch_get_main_queue(), ^{</p>
+
+<pre><code>    // 合并图片
+</code></pre>
+
+<p>});
+```</p>
+
+<h3>42. <code>dispatch_barrier_async</code>的作用是什么？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>是用来阻塞当前queue内的并发线程，然后执行阻塞的任务，任务执行完后，继续并发操作。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p> 在并行队列中，为了保持某些任务的顺序，需要等待一些任务完成后才能继续进行，使用 barrier 来等待之前任务完成，避免数据竞争等问题。
+ <code>dispatch_barrier_async</code> 函数会等待追加到Concurrent Dispatch Queue并行队列中的操作全部执行完之后，然后再执行 <code>dispatch_barrier_async</code> 函数追加的处理，等 <code>dispatch_barrier_async</code> 追加的处理执行结束之后，Concurrent Dispatch Queue才恢复之前的动作继续执行。</p>
+
+<p>打个比方：比如你们公司周末跟团旅游，高速休息站上，司机说：大家都去上厕所，速战速决，上完厕所就上高速。超大的公共厕所，大家同时去，程序猿很快就结束了，但程序媛就可能会慢一些，即使你第一个回来，司机也不会出发，司机要等待所有人都回来后，才能出发。 <code>dispatch_barrier_async</code> 函数追加的内容就如同 “上完厕所就上高速”这个动作。</p>
+
+<p>（注意：使用 <code>dispatch_barrier_async</code> ，该函数只能搭配自定义并行队列 <code>dispatch_queue_t</code> 使用。不能使用： <code>dispatch_get_global_queue</code> ，否则 <code>dispatch_barrier_async</code> 的作用会和 <code>dispatch_async</code> 的作用一模一样。 ）</p>
+
+<h3>43. 苹果为什么要废弃<code>dispatch_get_current_queue</code>？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>因为<code>dispatch_get_current_queue</code>并不能保证获取到的queue就是代码逻辑上正在运行的queue，尤其在dispatch互相嵌套时，按照<code>dispatch_get_current_queue</code>来判断，容易造成死锁。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p><code>dispatch_get_current_queue</code>容易造成死锁</p>
+
+<h3>44. 以下代码运行结果如何？</h3>
+
+<pre><code>- (void)viewDidLoad
+{
+    [super viewDidLoad];
+    NSLog(@"1");
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        NSLog(@"2");
+    });
+    NSLog(@"3");
+}
+</code></pre>
+
+<p><strong>我的解答：</strong></p>
+
+<p>输出1，造成死锁。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>只输出：1 。发生主线程锁死。</p>
+
+<h3>45. addObserver:forKeyPath:options:context:各个参数的作用分别是什么，observer中需要实现哪个方法才能获得KVO回调？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>observer是监听者，keyPath是要监听的字段，option可以定义值以何种情况下改变触发监听，context不常用，实现的回调是：</p>
+
+<p><code>objectivec
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context;
+</code></p>
+
+<p><strong>大神解答：</strong></p>
+
+<p><code>objectivec
+// 添加键值观察
+/*
+1 观察者，负责处理监听事件的对象
+2 观察的属性
+3 观察的选项
+4 上下文
+*/
+[self.person addObserver:self forKeyPath:@"name" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:@"Person Name"];
+</code>
+observer中需要实现一下方法：</p>
+
+<p><code>objectivec
+// 所有的 kvo 监听到事件，都会调用此方法
+/*
+ 1. 观察的属性
+ 2. 观察的对象
+ 3. change 属性变化字典（新／旧）
+ 4. 上下文，与监听的时候传递的一致
+ */
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context;
+</code></p>
+
+<h3>46. 如何手动触发一个value的KVO</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>改变所监听属性的值即可触发。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>所谓的“手动触发”是区别于“自动触发”：</p>
+
+<p>自动触发是指类似这种场景：在注册 KVO 之前设置一个初始值，注册之后，设置一个不一样的值，就可以触发了。</p>
+
+<p>想知道如何手动触发，必须知道自动触发 KVO 的原理：</p>
+
+<p>键值观察通知依赖于 NSObject 的两个方法:  <code>willChangeValueForKey:</code> 和 <code>didChangevlueForKey:</code> 。在一个被观察属性发生改变之前，  <code>willChangeValueForKey:</code> 一定会被调用，这就
+会记录旧的值。而当改变发生后，  <code>didChangeValueForKey:</code> 会被调用，继而 <code>observeValueForKey:ofObject:change:context:</code> 也会被调用。如果可以手动实现这些调用，就可以实现“手动触发”了。</p>
+
+<p>那么“手动触发”的使用场景是什么？一般我们只在希望能控制“回调的调用时机”时才会这么做。</p>
+
+<p>具体做法如下：</p>
+
+<p>如果这个  <code>value</code> 是  表示时间的 <code>self.now</code> ，那么代码如下：最后两行代码缺一不可。</p>
+
+<p>```objectivec
+//  .m文件
+//  Created by <a href="https://github.com/ChenYilong">https://github.com/ChenYilong</a>
+//  微博@iOS程序犭袁(<a href="http://weibo.com/luohanchenyilong/">http://weibo.com/luohanchenyilong/</a>).
+//  手动触发 value 的KVO，最后两行代码缺一不可。</p>
+
+<p>//@property (nonatomic, strong) NSDate *now;
+&ndash; (void)viewDidLoad
+{</p>
+
+<pre><code>[super viewDidLoad];
+[self willChangeValueForKey:@"now"]; // “手动触发self.now的KVO”，必写。
+[self didChangeValueForKey:@"now"]; // “手动触发self.now的KVO”，必写。
+</code></pre>
+
+<p>}
+```</p>
+
+<p>但是平时我们一般不会这么干，我们都是等系统去“自动触发”。“自动触发”的实现原理：</p>
+
+<blockquote><p>比如调用 <code>setNow:</code> 时，系统还会以某种方式在中间插入 <code>wilChangeValueForKey:</code> 、 <code>didChangeValueForKey:</code>  和 <code>observeValueForKeyPath:ofObject:change:context:</code> 的调用。</p></blockquote>
+
+<p>大家可能以为这是因为 <code>setNow:</code> 是合成方法，有时候我们也能看到人们这么写代码:</p>
+
+<p>```objectivec
+&ndash; (void)setNow:(NSDate *)aDate {</p>
+
+<pre><code>[self willChangeValueForKey:@"now"]; // 没有必要
+_now = aDate;
+[self didChangeValueForKey:@"now"];// 没有必要
+</code></pre>
+
+<p>}
+<code>``
+这是完全没有必要的代码，不要这么做，这样的话，KVO代码会被调用两次。KVO在调用存取方法之前总是调用</code>willChangeValueForKey:<code> ，之后总是调用</code>didChangeValueForkey:` 。怎么做到的呢?答案是通过 isa 混写（isa-swizzling）。下文《apple用什么方式实现对一个对象的KVO？》会有详述。</p>
+
+<p>参考链接： <a href="https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/KeyValueObserving/Articles/KVOCompliance.html#//apple_ref/doc/uid/20002178-SW3">Manual Change Notification&mdash;-Apple 官方文档</a></p>
+
+<h3>47. 若一个类有实例变量 <code>NSString *_foo</code> ，调用setValue:forKey:时，可以以foo还是 <code>_foo</code> 作为key？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>都行。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>都可以。</p>
+
+<h3>48. KVC的keyPath中的集合运算符如何使用？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>没用过。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<ol>
+<li>必须用在集合对象上或普通对象的集合属性上</li>
+<li>简单集合运算符有@avg， @count ， @max ， @min ，@sum，</li>
+<li>格式 @&ldquo;@sum.age"或 @"集合属性.@max.age&rdquo;</li>
+</ol>
+
+
+<h3>49. KVC和KVO的keyPath一定是属性么？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>不清楚有其他类型。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>KVO支持实例变量</p>
+
+<h3>50. 如何关闭默认的KVO的默认实现，并进入自定义的KVO实现？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>额，不知道。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>不常用，大神也没解释，请参考：<a href="http://tech.glowing.com/cn/implement-kvo/">《如何自己动手实现 KVO》</a></p>
+
+<h3>51. apple用什么方式实现对一个对象的KVO？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>额，不清楚。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p><a href="https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/KeyValueObserving/Articles/KVOImplementation.html">Apple 的文档</a>对 KVO 实现的描述：</p>
+
+<blockquote><p>Automatic key-value observing is implemented using a technique called isa-swizzling&hellip; When an observer is registered for an attribute of an object the isa pointer of the observed object is modified, pointing to an intermediate class rather than at the true class &hellip;</p></blockquote>
+
+<p>从<a href="https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/KeyValueObserving/Articles/KVOImplementation.html">Apple 的文档</a>可以看出：Apple 并不希望过多暴露 KVO 的实现细节。不过，要是借助 runtime 提供的方法去深入挖掘，所有被掩盖的细节都会原形毕露：</p>
+
+<blockquote><p>当你观察一个对象时，一个新的类会被动态创建。这个类继承自该对象的原本的类，并重写了被观察属性的 setter 方法。重写的 setter 方法会负责在调用原 setter 方法之前和之后，通知所有观察对象：值的更改。最后通过 <code>isa 混写（isa-swizzling）</code> 把这个对象的 isa 指针 ( isa 指针告诉 Runtime 系统这个对象的类是什么 ) 指向这个新创建的子类，对象就神奇的变成了新创建的子类的实例。我画了一张示意图，如下所示：</p></blockquote>
+
+<p><img src="http://i62.tinypic.com/sy57ur.jpg" alt="enter image description here" /></p>
+
+<p> KVO 确实有点黑魔法：</p>
+
+<blockquote><p>Apple 使用了 <code>isa 混写（isa-swizzling）</code>来实现 KVO 。</p></blockquote>
+
+<p>下面做下详细解释：</p>
+
+<p>键值观察通知依赖于 NSObject 的两个方法:  <code>willChangeValueForKey:</code> 和 <code>didChangevlueForKey:</code> 。在一个被观察属性发生改变之前，  <code>willChangeValueForKey:</code> 一定会被调用，这就会记录旧的值。而当改变发生后，  <code>didChangeValueForKey:</code> 会被调用，继而 <code>observeValueForKey:ofObject:change:context:</code> 也会被调用。可以手动实现这些调用，但很少有人这么做。一般我们只在希望能控制回调的调用时机时才会这么做。大部分情况下，改变通知会自动调用。</p>
+
+<p> 比如调用 <code>setNow:</code> 时，系统还会以某种方式在中间插入 <code>wilChangeValueForKey:</code> 、 <code>didChangeValueForKey:</code>  和 <code>observeValueForKeyPath:ofObject:change:context:</code> 的调用。大家可能以为这是因为 <code>setNow:</code> 是合成方法，有时候我们也能看到人们这么写代码:</p>
+
+<p>```objectivec
+&ndash; (void)setNow:(NSDate *)aDate {</p>
+
+<pre><code>[self willChangeValueForKey:@"now"]; // 没有必要
+_now = aDate;
+[self didChangeValueForKey:@"now"];// 没有必要
+</code></pre>
+
+<p>}
+<code>``
+这是完全没有必要的代码，不要这么做，这样的话，KVO代码会被调用两次。KVO在调用存取方法之前总是调用</code>willChangeValueForKey:<code> ，之后总是调用</code>didChangeValueForkey:<code>。怎么做到的呢?答案是通过 isa 混写（isa-swizzling）。第一次对一个对象调用</code>addObserver:forKeyPath:options:context:` 时，框架会创建这个类的新的 KVO 子类，并将被观察对象转换为新子类的对象。在这个 KVO 特殊子类中， Cocoa 创建观察属性的 setter ，大致工作原理如下:</p>
+
+<p>```objectivec
+&ndash; (void)setNow:(NSDate *)aDate {</p>
+
+<pre><code>[self willChangeValueForKey:@"now"];
+[super setValue:aDate forKey:@"now"];
+[self didChangeValueForKey:@"now"];
+</code></pre>
+
+<p>}
+```
+这种继承和方法注入是在运行时而不是编译时实现的。这就是正确命名如此重要的原因。只有在使用KVC命名约定时，KVO才能做到这一点。</p>
+
+<p>KVO 在实现中通过 <code>isa 混写（isa-swizzling）</code> 把这个对象的 isa 指针 ( isa 指针告诉 Runtime 系统这个对象的类是什么 ) 指向这个新创建的子类，对象就神奇的变成了新创建的子类的实例。这在<a href="https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/KeyValueObserving/Articles/KVOImplementation.html">Apple 的文档</a>可以得到印证：</p>
+
+<blockquote><p>Automatic key-value observing is implemented using a technique called isa-swizzling&hellip; When an observer is registered for an attribute of an object the isa pointer of the observed object is modified, pointing to an intermediate class rather than at the true class &hellip;</p></blockquote>
+
+<p>然而 KVO 在实现中使用了 <code>isa 混写（ isa-swizzling）</code> ，这个的确不是很容易发现：Apple 还重写、覆盖了 <code>-class</code> 方法并返回原来的类。 企图欺骗我们：这个类没有变，就是原本那个类。。。</p>
+
+<p>但是，假设“被监听的对象”的类对象是 <code>MYClass</code> ，有时候我们能看到对 <code>NSKVONotifying_MYClass</code> 的引用而不是对  <code>MYClass</code>  的引用。借此我们得以知道 Apple 使用了 <code>isa 混写（isa-swizzling）</code>。具体探究过程可参考<a href="https://www.mikeash.com/pyblog/friday-qa-2009-01-23.html"> 这篇博文 </a>。</p>
+
+<h3>52. IBOutlet连出来的视图属性为什么可以被设置成weak?</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>忘了。如果做成strong，需要手动去释放这些控件。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>参考链接：<a href="http://stackoverflow.com/questions/7678469/should-iboutlets-be-strong-or-weak-under-arc"> <strong><em>Should IBOutlets be strong or weak under ARC?</em></strong> </a></p>
+
+<p>文章告诉我们：</p>
+
+<blockquote><p>因为既然有外链那么视图在xib或者storyboard中肯定存在，视图已经对它有一个强引用了。</p></blockquote>
+
+<p>不过这个回答漏了个重要知识，使用storyboard（xib不行）创建的vc，会有一个叫_topLevelObjectsToKeepAliveFromStoryboard的私有数组强引用所有top level的对象，所以这时即便outlet声明成weak也没关系</p>
+
+<h3>53. IB中User Defined Runtime Attributes如何使用？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>可以对控件添加额外的属性。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<p>它能够通过KVC的方式配置一些你在interface builder 中不能配置的属性。当你希望在IB中作尽可能多得事情，这个特性能够帮助你编写更加轻量级的viewcontroller</p>
+
+<h3>54. 如何调试BAD_ACCESS错误</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>通过开启NSZombies，可以在对象释放后创建其对应的Zombie对象，并记录对其发送的消息，然后打印给开发者，从而告知开发者造成内存泄露的对象类型和方法。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<ol>
+<li>重写object的respondsToSelector方法，现实出现EXEC_BAD_ACCESS前访问的最后一个object</li>
+<li><p>通过 Zombie
+<img src="http://i.stack.imgur.com/ZAdi0.png" alt="enter image description here" /></p></li>
+<li><p>设置全局断点快速定位问题代码所在行</p></li>
+<li>Xcode 7 已经集成了BAD_ACCESS捕获功能：<strong>Address Sanitizer</strong>。
+用法如下：在配置中勾选✅Enable Address Sanitizer
+<img src="https://developer.apple.com/library/prerelease/ios/documentation/DeveloperTools/Conceptual/WhatsNewXcode/Art/xc7-asan_2x.png" alt="enter image description here" /></li>
+</ol>
+
+
+<h3>55. lldb（gdb）常用的调试命令？</h3>
+
+<p><strong>我的解答：</strong></p>
+
+<p>用过po命令打印出当前对象的值。</p>
+
+<p><strong>大神解答：</strong></p>
+
+<ul>
+<li>breakpoint 设置断点定位到某一个函数</li>
+<li>n 断点指针下一步</li>
+<li>po打印对象</li>
+</ul>
+
+
+<p>更多 lldb（gdb） 调试命令可查看</p>
+
+<ol>
+<li><a href="http://lldb.llvm.org/lldb-gdb.html"> <strong><em>The LLDB Debugger</em></strong> </a>；</li>
+<li>苹果官方文档：<a href="https://developer.apple.com/library/ios/technotes/tn2239/_index.html"> <strong><em>iOS Debugging Magic</em></strong> </a>。</li>
+</ol>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[回答Sunny的55道iOS面试题1]]></title>
@@ -3268,206 +4366,6 @@ private var treasures: [Treasure] = []private var foundLocations: [GeoLocation] 
 
 <p>5.internal一般是不会显式声明的，如果是一个library被多个app使用，你可能会将内部类声明为internal，这样就不会被其他app中的代码使用了。<br/>
 6.访问控制标志是表达你代码意图的很好的方式，可以使代码更易维护，也会减少Bug，</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Swift by Tutorials--Language Basics II]]></title>
-    <link href="http://lucifer1988.github.io/blog/2015/10/10/swift-by-tutorials-language-basics-ii/"/>
-    <updated>2015-10-10T14:41:12+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2015/10/10/swift-by-tutorials-language-basics-ii</id>
-    <content type="html"><![CDATA[<p>继上一篇后，本章将继续介绍Swift的基础知识，但是相比第一章会有所提升，包括了Optional类型对象的用法、Swift中的Collection类型用法以及与OC的Collection的不同之处。</p>
-
-<!--more-->
-
-
-<h2>Optionals</h2>
-
-<p>1.空指针是一个困扰着各类语言的常见问题，在Java中，调用了空指针会直接抛出异常，在OC中向nil指针发送消息会返回nil，也就是说空指针是安全的，但有很多时候你并不希望指针为空，一般会加判断对象是否为nil的断言判断，但在Swift中，针对这个问题，有了新的解决方案。<br/>
-2.Swift在对没有初始化赋值的变量使用时，会直接报错，而且像String类型也不能初始化直接赋nil值，这也保证了空指针不会出现。但是如果我们真的需要一个空值的变量怎么办呢？可以使用optional机制，它是用来指明一个变量是可能有值的，相当于给变量一个nil的默认值，这也是空指针的问题所在，它是一个合法的指针，但没有指向一个合法的对象。</p>
-
-<h3>Declaring optionals</h3>
-
-<p>1.使用optional很简单，如下，不赋值的话str默认为nil，在这里你可以把String?理解为一个不同于String的类型，所以能给String?直接赋值String类型实际上是Swift在内部进行了封装，Swift将String的值封装到了一个String?类型的实例中，然后再赋值给了str。</p>
-
-<p><code>objectivec
-//no assignment
-var str: String?
-//an assignment
-var str: String? = "Swift by Tutorials!"
-</code></p>
-
-<p>2.如果你现在对str使用uppercaseString方法，会报错，这也验证了上面所说String?已是另一个类型的说法，那么如何让str使用String的方法呢？如下即可，通过if语句对str进行解封，并将其赋值给一个let型的String，这就是optional和if在Swift中的经典配合，这么做的好处就是让开发者可以在必选确认指针不为空的时候强制去进行空指针的检查。</p>
-
-<p>```objectivec
-if let unwrappedStr = str {</p>
-
-<pre><code>print("Unwrapped! \(unwrappedStr.uppercaseString)")
-</code></pre>
-
-<p>} else {</p>
-
-<pre><code>print("Was nil")
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>Forced unwrapping</h3>
-
-<p>1.在你了解optional机制下，在一些optional中你确定有值的时候，你可以使用强制解封，如下：</p>
-
-<p><code>objectivec
-var str: String? = "Swift by Tutorials!"
-print("Force unwrapped! \(str!.uppercaseString)")
-</code></p>
-
-<p>2.但是需要注意的是，如果optional类型中的是nil值，那么会出现runtime error，所以使用强制解封，<strong>一定要在你100%确定你的optional对象不是空值</strong>。</p>
-
-<h3>Implicit unwrapping</h3>
-
-<p>1.你也可以不用!或者let来进行optional解封，使用以下方法，可以直接对变量使用方法，这看起来和没使用optional差不多，但是它在实质上和上述两种解封方法是一致的，只是语法不通而已，如果不去初始化赋值，那么你会得到和强制解封一个nil的optional的值一样的error。</p>
-
-<p><code>objectivec
-var str: String! = "Swift by Tutorials!"
-str = str.lowercaseString
-print(str)
-</code></p>
-
-<p>2.你也可以通过if来检查隐式解封的optional值，但你会发现这和OC中的做法一样，只不过在OC中你拿nil作为一个false的判断条件，而在Swift中你将nil作为一个无值的状态来判断。</p>
-
-<p>```objectivec
-if str != nil {</p>
-
-<pre><code>str = str.lowercaseString
-print(str)
-</code></pre>
-
-<p>}
-```</p>
-
-<p>3.<strong>最后注意，你要将隐式解封和强制解封一样重视，因为除了声明的地方，它和普通变量是一样的，这很容易忽视。</strong></p>
-
-<h3>Optional chaining</h3>
-
-<p>1.最后要介绍的是Optional chaining，这是上述三个解封方式之外的另一种optional来执行方法的方式，它的设计参照了OC中常用的delegate模式，即在optional类型变量执行方法时会先判断它是否为nil，不是nil的话直接执行，而如果是nil的话，则直接返回nil，其实和OC中对nil发送消息的处理是一样的。</p>
-
-<p><code>objectivec
-var maybeString: String? = "Swift by Tutorials!"
-let uppercase = maybeString?.uppercaseString
-</code></p>
-
-<p>2.由于在对象声明和方法执行时两次使用optional，所以形成了Optional chaining。</p>
-
-<!--more-->
-
-
-<h2>Collection</h2>
-
-<p>1.任何语言都会有集合类型，OC中有NSArray、NSDictionary、NSSet，其中包含可变和不可变类型，而在Swift中只保留了Array和Dictionary两种类型。</p>
-
-<h3>Arrays</h3>
-
-<p>1.Swift的Array有着其他语言中共同的特性，如下：</p>
-
-<p><code>objectivec
-//initialize array
-var array = [1, 2, 3, 4, 5]
-print(array[2])
-//add an element
-array.append(6)
-print(array)
-</code></p>
-
-<p>2.Swift中你可以通过添加一个序列来扩展一个Array，比如上一节提到的Range。</p>
-
-<p><code>objectivec
-//add 7,8,9,10
-//Swift2.0中将extend()改为了appendContentsOf()
-//array.extend(7...10)
-array.appendContentsOf(7...10)
-</code></p>
-
-<p>3.在上述数组中试图添加一个String，会直接报错，这在OC中可能是很正常的需求，可以在一个数组中添加不同类型的对象，但在Swift中只能在一个数组中添加同一类型的对象，在上面的Array初始化中是使用了type interface，如果制定类型声明的话应该是<em>var array: Array<Int> = [1, 2, 3, 4, 5]</em>（会在第四章详细说明），不过更常见的写法是<em>var arrray: [Int] = [1, 2, 3, 4, 5]</em>，这是Apple的语法糖，用来简化语法。</p>
-
-<p><code>objectivec
-//Array Initializer
-var array: Array&lt;Int&gt; = [1, 2, 3, 4, 5]
-var arrray: [Int] = [1, 2, 3, 4, 5]
-</code></p>
-
-<p>4.当然也可以让Array像NSArray那样工作，可以将类型声明为Array<Any>，但是仍然不推荐这么做，因为这样Swift的很多Array方法会因为类型不一而不能使用，而且也会失去Swift的提供的安全性保护。</p>
-
-<p><code>objectivec
-//add multiple type instance
-var array: Array&lt;Any&gt; = []
-array.append(6)
-array.append("Swift By Tutorials!")
-</code></p>
-
-<h3>Dictionaries</h3>
-
-<p>1.Swift的Dictionary与OC的NSDicionary大致相同，只是语法上略有变化，但需要注意的是，Dictionary也存在只能添加固定类型的键值对的情况，与上述的Array相同。</p>
-
-<p><code>objectivec
-var dictionary = [1: "Dog", 2: "Cat"]
-//Another Initializer
-//var dictionary: Dictionary&lt;Int:String&gt; = [1: "Dog", 2: "Cat"]
-//var dictionary: [Int:String] = [1: "Dog", 2: "Cat"]
-print(dictionary[1])
-dictionary[3] = "Mouse"
-print(dictionary)
-dictionary[3] = nil
-print(dictionary)
-</code></p>
-
-<p>2.从Dictionary中通过key直接获取值时，该值是optional类型的，因为有可能是不存在该key对应的值的，所以推荐读取Dictionary时还是使用上一章中介绍的安全拆解的方法，这又是Swift强制开发者随时考虑安全问题的一个表现。</p>
-
-<p>```objectivec
-if let value = dictionary[1] {</p>
-
-<pre><code>print("Value is \(value)")
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>Reference and copies</h3>
-
-<p>1.这一节讨论Dictionary和Array在Swift中与OC所不同的内存管理策略，如下，从结果发现，Swift中将一个Dictionary直接赋值给另外的变量或常量，都是执行copy操作的，即改变新变量，并不会影响原来的Dictionary。</p>
-
-<p><code>objectivec
-var dictionaryA = [1: 1, 2: 4, 3: 9, 4: 16]
-var dictionaryB = dictionaryA
-print(dictionaryA)
-print(dictionaryB)
-dictionaryB[4] = nil
-print(dictionaryA)
-print(dictionaryB)
-</code></p>
-
-<p>2.那么关于Array呢？答案是一样的，Array也是会执行copy操作，这与OC中的NSDictionary和NSArray的指针赋值是完全不同的，所以单独强调一下。</p>
-
-<p><code>objectivec
-var arrayA = [1, 2, 3, 4, 5]
-var arrayB = arrayA
-print(arrayA)
-print(arrayB)
-arrayB.removeAtIndex(0)
-print(arrayA)
-print(arrayB)
-</code></p>
-
-<h3>Constant collection</h3>
-
-<p>1.上面都是定义的var类型的Dictionary和Array，那么如果定义为let的话，Dictionary和Array是不能进行任何修改操作的（其实就是OC中的不可变类型）。</p>
-
-<p><code>objectivec
-let constantArray = [1, 2, 3, 4, 5]
-//error
-constantArray.append(6)
-constantArray.removeAtIndex(0)
-</code></p>
 ]]></content>
   </entry>
   
