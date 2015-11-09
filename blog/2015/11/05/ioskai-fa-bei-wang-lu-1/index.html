@@ -1,0 +1,431 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>iOS开发备忘录1 - 刘毅的技术博客</title>
+  <meta name="author" content="刘毅">
+
+  
+  <meta name="description" content="总结一些iOS开发必备的知识点，结构可能会比较杂，可以当做备忘录使用，不断更新中。 1.library和framework的比较 library也就是我们常用的.a文件，而framework就是.framework文件，当然还有.dylib这样的文件。 静态库和动态库的区别 静态库： &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucifer1988.github.io/blog/2015/11/05/ioskai-fa-bei-wang-lu-1">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="刘毅的技术博客" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<script type="text/javascript">
+
+function addBlankTargetForLinks () {
+
+  $('a[href^="http"]').each(function(){
+
+      $(this).attr('target', '_blank');
+
+  });
+
+}
+
+$(document).bind('DOMNodeInserted', function(event) {
+
+  addBlankTargetForLinks();
+
+});
+
+</script>
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">刘毅的技术博客</a></h1>
+  
+    <h2>记录自己的学习生活点滴，也希望和大家交流分享！</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucifer1988.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">首页</a></li>
+  <li><a href="/blog/archives">所有文章</a></li>
+  <li><a href="/blog/categories/ios">iOS开发专题</a></li>
+  <li><a href="http://weibo.com/u/2638849461" target="_blank">我的微博</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">iOS开发备忘录1</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-05T13:41:03+08:00" pubdate data-updated="true">Nov 5<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>总结一些iOS开发必备的知识点，结构可能会比较杂，可以当做备忘录使用，不断更新中。</p>
+
+<!--more-->
+
+
+<h2>1.library和framework的比较</h2>
+
+<p>library也就是我们常用的.a文件，而framework就是.framework文件，当然还有.dylib这样的文件。</p>
+
+<h3>静态库和动态库的区别</h3>
+
+<ul>
+<li>静态库：链接时完整地拷贝至可执行文件夹中，被多次使用时会有多份冗余拷贝。</li>
+<li>动态库：链接时不复制，程序运行是由系统动态加载到内存，供程序调用，系统只加载一次，多个程序共用，节省内存。</li>
+</ul>
+
+
+<h3>iOS库的形式</h3>
+
+<ul>
+<li>静态库：.a和.framework</li>
+<li>动态库：.dylib和.framework</li>
+<li>系统提供的.framework是动态的，而自己开发的.framework是静态的</li>
+</ul>
+
+
+<h3>.a和.framework区别</h3>
+
+<ul>
+<li>.a就是一个纯二进制的文件，而.framework还会包含头文件和资源文件</li>
+<li>.a一般是要配合.h头文件使用的，.framework是可以直接使用的</li>
+<li>实际上.framework = .a + .h + sourceFile</li>
+</ul>
+
+
+<h3>需要注意的问题</h3>
+
+<ul>
+<li>注意理解：无论是.a静态库还.framework静态库，我们需要的都是二进制文件+.h+其它资源文件的形式，不同的是，.a本身就是二进制文件，需要我们自己配上.h和其它文件才能使用，而.framework本身已经包含了.h和其它文件，可以直接使用。</li>
+<li>图片资源的处理：两种静态库，一般都是把图片文件单独的放在一个.bundle文件中，一般.bundle的名字和.a或.framework的名字相同。.bundle文件很好弄，新建一个文件夹，把它改名为.bundle就可以了，右键，显示包内容可以向其中添加图片资源。</li>
+<li>category是我们实际开发项目中经常用到的，把category打成静态库是没有问题的，但是在用这个静态库的工程中，调用category中的方法时会有找不到该方法的运行时错误（selector not recognized），解决办法是：在使用静态库的工程中配置other linker flags的值为-ObjC。</li>
+<li>如果一个静态库很复杂，需要暴露的.h比较多的话，就可以在静态库的内部创建一个.h文件（一般这个.h文件的名字和静态库的名字相同），然后把所有需要暴露出来的.h文件都集中放在这个.h文件中，而那些原本需要暴露的.h都不需要再暴露了，只需要把.h暴露出来就可以了。</li>
+<li>创建.a文件的一篇<a href="http://www.raywenderlich.com/41377/creating-a-static-library-in-ios-tutorial">博客</a>，创建.framework的一篇<a href="http://www.raywenderlich.com/65964/create-a-framework-for-ios">博客</a>。</li>
+</ul>
+
+
+<!--more-->
+
+
+<h2>2.事件响应链The Responder Chain</h2>
+
+<h3>事件的传递顺序</h3>
+
+<p>当用户触发的一个事件发生，UIKit会创建一个包含要处理的事件信息的事件对象。然后她会将事件对象放入active app’s（应用程序对象，每个程序对应唯一一个）事件队列。对于触摸事件，事件对象就是UIEvent对象封装的一系列触摸集合。对于动作事件，这个事件对象依赖于使用的framework和你关心哪种动作事件。</p>
+
+<h3>事件类型</h3>
+
+<p>事件通过特殊的路径传递直到被传递到一个可以处理该事件的对象。首先，单例的UIApplication对象从顶层的队列中获取事件，然后分发。典型的，它将事件发送到App的key window对象，window则为了处理该事件而发送它到初始化对象（initial object），这个初始化对像依靠事件类型。</p>
+
+<ul>
+<li>触摸事件（Touch events）。对于触摸事件，window对象首先会尝试将事件传递给事件发生的view。这个view就是所谓的hit-test view。寻找hit-test view的方法叫hit-testing，具体描述见<a href="https://developer.apple.com/library/ios/documentation/EventHandling/Conceptual/EventHandlingiPhoneOS/event_delivery_responder_chain/event_delivery_responder_chain.html#//apple_ref/doc/uid/TP40009541-CH4-SW4">Apple文档</a>。</li>
+<li>动作事件和远程控制事件（Motion and remote control events）。在这些事件中，window对象发送事件到第一个响应器。第一个响应器的具体描述见<a href="https://developer.apple.com/library/ios/documentation/EventHandling/Conceptual/EventHandlingiPhoneOS/event_delivery_responder_chain/event_delivery_responder_chain.html#//apple_ref/doc/uid/TP40009541-CH4-SW1">Apple文档</a>。</li>
+</ul>
+
+
+<p>事件传递路径的最终目的时找出能处理和响应该事件的对象。因此，UIKit给适合处理该事件的对象发送事件。对于触摸事件，这个对象就是hit-test view，对于其他事件，这个对象就是第一个响应器（first responder）。</p>
+
+<h3>触摸事件的响应链</h3>
+
+<p>iOS使用hit-testing寻找触摸的view。 Hit-Testing通过检查触摸点是否在关联的view边界内，如果在，则递归地（recursively）检查该view的所有子view。在层级上处于lowest（就是用户直接接触view）且边界范围包含触摸点的view成为hit-test view。确定hit-test view后，它传递触摸事件给该view。</p>
+
+<p>举例说明，假设用户触摸了图中的view E。iOS通过如下顺序查找hit-test view。</p>
+
+<p><img src="https://developer.apple.com/library/ios/documentation/EventHandling/Conceptual/EventHandlingiPhoneOS/Art/hit_testing_2x.png" alt="image" /></p>
+
+<ol>
+<li>触摸点在view A中，所以要检查子view B和C。</li>
+<li>触摸点不在view B中，但在C中，所以检查C的子view D和E。</li>
+<li>触摸点不在D中，但在E中。</li>
+</ol>
+
+
+<p><a href="https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIView_Class/index.html#//apple_ref/occ/instm/UIView/hitTest:withEvent:">hitTest:withEvent:</a>方法通过传递进来CGPoint和UIEvent返回hit test view。该方法调用<a href="https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIView_Class/index.html#//apple_ref/occ/instm/UIView/pointInside:withEvent:">pointInside:withEvent:</a>方法，如果传入hitTest:withEvent:的point在view的边界范围内，则pointInside:withEvent:返回YES。然后，这个方法会在view的所有子view中递归的调用hitTest:withEvent:。</p>
+
+<p>如果传入hitTest:withEvent:的point不在view的边界范围内，则pointInside:withEvent:返回NO。这个point会被忽略，hitTest:withEvent:返回nil。如果一个子view返回NO，则它所在的view的层级上的分支的子view都会被忽略。</p>
+
+<p>Hit-test view是处理触摸事件的第一选择，如果hit-test view不能处理事件，该事件将从事件响应链中寻找响应器，直到系统找到一个处理事件的对象。</p>
+
+<h3>响应器链</h3>
+
+<p>一些类型的事件的传递依赖响应器链。响应器链（responder chain）是一系列相关的响应器对象。它开始于第一个响应器终止于应用对象（application object）。如果第一个responder不处理事件，则会根据responder chain将event传递给下一个responder。</p>
+
+<p>Responder object，即可以响应和处理事件的对象。UIResponder类是所有responder对象的基类，它定义了动态的接口，不仅处理事件也包括处理响应行为。包括UIApplication，UIViewController，和UIView类都是responder，这意味着所有view和大部分关键的controller对象都是responder。但是Core Animation layers不是responders。</p>
+
+<p>First responder被设计来第一个接收事件。典型的，first responder是一个view object。之所以成为第一个responder由于两个原因：</p>
+
+<ol>
+<li>覆盖canBecomeFirstResponder方法，返回YES。</li>
+<li>接收becomeFirstResponder消息。如果必须，一个object能发送给自身这个消息。</li>
+</ol>
+
+
+<h3>响应器链的传输路径</h3>
+
+<p>如果初始化对象（initial object）—— 即hit-test view或者first responder —— 不处理事件，UIKit会将事件传递给responder chain的下一个responder。每个responder决定它是传递事件还是通过nextResponder方法传递给它的下一个responder。这个操作继续直到一个responder处理event或者没有responder了。</p>
+
+<p>Responder chain 序列在iOS确定一个事件并将它传递给initial object（通常是view）时开始。所以initial view有处理事件的第一个机会。下图描述了两个不同的事件传递路径（因为不同的app 设置）。一个App的事件传递路径由app特殊的构成决定，但事件传递路径会遵守相同的规则。</p>
+
+<p><img src="/images/responser_chain.jpeg"></p>
+
+<h3>手动指定当前view不响应事件</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">BOOL</span><span class="p">)</span><span class="nf">pointInside:</span><span class="p">(</span><span class="n">CGPoint</span><span class="p">)</span><span class="nv">point</span> <span class="nf">withEvent:</span><span class="p">(</span><span class="n">UIEvent</span> <span class="o">*</span><span class="p">)</span><span class="nv">event</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="n">UIView</span> <span class="o">*</span><span class="n">view</span> <span class="k">in</span> <span class="n">self</span><span class="p">.</span><span class="n">subviews</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">view</span><span class="p">.</span><span class="n">hidden</span> <span class="o">&amp;&amp;</span> <span class="n">view</span><span class="p">.</span><span class="n">userInteractionEnabled</span> <span class="o">&amp;&amp;</span> <span class="p">[</span><span class="n">view</span> <span class="nl">pointInside:</span><span class="p">[</span><span class="n">self</span> <span class="nl">convertPoint:</span><span class="n">point</span> <span class="nl">toView:</span><span class="n">view</span><span class="p">]</span> <span class="nl">withEvent:</span><span class="n">event</span><span class="p">])</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">YES</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">NO</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>总结</h3>
+
+<p>事件的传递和响应分两个链：</p>
+
+<ul>
+<li>传递链：由系统向离用户最近的view传递。UIKit –> active app’s event queue –> window –> root view –>……–>lowest view</li>
+<li>响应链：由离用户最近的view向系统传递。initial view –> super view –> …..–> view controller –> window –> Application</li>
+</ul>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">刘毅</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-05T13:41:03+08:00" pubdate data-updated="true">Nov 5<span>th</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ios/'>iOS</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <style>
+    .flash-video{display:none;}
+</style>
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <span class="jiathis_txt">分享到：</span>
+  <a class="jiathis_button_qzone">QQ空间</a>
+  <a class="jiathis_button_tsina">新浪微博</a>
+  <a class="jiathis_button_tqq">腾讯微博</a>
+  <a class="jiathis_button_renren">人人网</a>
+  <a class="jiathis_button_douban">豆瓣</a>
+  <a class="jiathis_button_weixin">微信</a>
+  <a href="http://www.jiathis.com/share?uid=1885095" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript">
+var jiathis_config = {data_track_clickback:'true'};
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1885095" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+
+<br />
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1885095"></script>
+<!-- UY END -->
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/10/30/hui-da-sunnyde-55dao-iosmian-shi-ti-2/" title="Previous Post: 回答Sunny的55道iOS面试题2">&laquo; 回答Sunny的55道iOS面试题2</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/11/05/ioskai-fa-bei-wang-lu-1/">iOS开发备忘录1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/30/hui-da-sunnyde-55dao-iosmian-shi-ti-2/">回答Sunny的55道iOS面试题2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/28/hui-da-sunnyde-55dao-iosmian-shi-ti-1/">回答Sunny的55道iOS面试题1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/20/react-nativechu-tan-1/">React Native初探1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/20/swift-by-tutorials-functions-and-closures/">Swift by Tutorials--Functions and Closures</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/15/swift-by-tutorials-generics/">Swift by Tutorials--Generics</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/12/swift-by-tutorials-classes-and-structs/">Swift by Tutorials--Classes and Structs</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/10/swift-by-tutorials-language-basics-ii/">Swift by Tutorials--Language Basics II</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/08/swift-by-tutorials-language-basics-i/">Swift by Tutorials--Language Basics I</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/16/effective-objective-cdu-shu-bi-ji-7/">Effective Objective-C读书笔记7</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>About Me</h1>
+    <p> iOS开发, 菜鸟程序猿, Dotar<br/>
+      <br/>我的经历:
+      <br/>2007.9 进入吉大学习高端大气的电子信息工程
+      <br/>2011.9 考研失利,转投中传计算机专业,接触iOS
+      <br/>2013.8 入职盘古,以iOS程序员的身份开始职业生涯<br/>
+      <br/>我的微博: <a href="http://weibo.com/u/2638849461" target="_blank">JamesRaynor-刘毅</a>
+      <br/>我的git主页: <a href="https://github.com/lucifer1988" target="_blank">lucifer1988</a>
+      <br/>
+      <br/><span id="wb_follow_btn"></span>
+  </p>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - 刘毅 -
+  <span class="credit">Powered by <a href="http://octopress.org" target="_blank">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=3350288267" type="text/javascript" charset="utf-8"></script>
+<script>
+    WB2.anyWhere(function(W){
+        W.widget.followButton({
+            'uid': 2638849461,
+            'nick_name': 'JamesRaynor-刘毅',
+            'id': "wb_follow_btn",
+            'show_head' : true, 
+            'show_name' : true, 
+            'show_cancel': false
+        });
+    });
+</script>
+6vvqnj09Z6
+
+</body>
+</html>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-10-31T11:43:38+08:00</updated>
+  <updated>2015-11-09T09:54:13+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,148 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[iOS开发备忘录1]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/11/05/ioskai-fa-bei-wang-lu-1/"/>
+    <updated>2015-11-05T13:41:03+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/11/05/ioskai-fa-bei-wang-lu-1</id>
+    <content type="html"><![CDATA[<p>总结一些iOS开发必备的知识点，结构可能会比较杂，可以当做备忘录使用，不断更新中。</p>
+
+<!--more-->
+
+
+<h2>1.library和framework的比较</h2>
+
+<p>library也就是我们常用的.a文件，而framework就是.framework文件，当然还有.dylib这样的文件。</p>
+
+<h3>静态库和动态库的区别</h3>
+
+<ul>
+<li>静态库：链接时完整地拷贝至可执行文件夹中，被多次使用时会有多份冗余拷贝。</li>
+<li>动态库：链接时不复制，程序运行是由系统动态加载到内存，供程序调用，系统只加载一次，多个程序共用，节省内存。</li>
+</ul>
+
+
+<h3>iOS库的形式</h3>
+
+<ul>
+<li>静态库：.a和.framework</li>
+<li>动态库：.dylib和.framework</li>
+<li>系统提供的.framework是动态的，而自己开发的.framework是静态的</li>
+</ul>
+
+
+<h3>.a和.framework区别</h3>
+
+<ul>
+<li>.a就是一个纯二进制的文件，而.framework还会包含头文件和资源文件</li>
+<li>.a一般是要配合.h头文件使用的，.framework是可以直接使用的</li>
+<li>实际上.framework = .a + .h + sourceFile</li>
+</ul>
+
+
+<h3>需要注意的问题</h3>
+
+<ul>
+<li>注意理解：无论是.a静态库还.framework静态库，我们需要的都是二进制文件+.h+其它资源文件的形式，不同的是，.a本身就是二进制文件，需要我们自己配上.h和其它文件才能使用，而.framework本身已经包含了.h和其它文件，可以直接使用。</li>
+<li>图片资源的处理：两种静态库，一般都是把图片文件单独的放在一个.bundle文件中，一般.bundle的名字和.a或.framework的名字相同。.bundle文件很好弄，新建一个文件夹，把它改名为.bundle就可以了，右键，显示包内容可以向其中添加图片资源。</li>
+<li>category是我们实际开发项目中经常用到的，把category打成静态库是没有问题的，但是在用这个静态库的工程中，调用category中的方法时会有找不到该方法的运行时错误（selector not recognized），解决办法是：在使用静态库的工程中配置other linker flags的值为-ObjC。</li>
+<li>如果一个静态库很复杂，需要暴露的.h比较多的话，就可以在静态库的内部创建一个.h文件（一般这个.h文件的名字和静态库的名字相同），然后把所有需要暴露出来的.h文件都集中放在这个.h文件中，而那些原本需要暴露的.h都不需要再暴露了，只需要把.h暴露出来就可以了。</li>
+<li>创建.a文件的一篇<a href="http://www.raywenderlich.com/41377/creating-a-static-library-in-ios-tutorial">博客</a>，创建.framework的一篇<a href="http://www.raywenderlich.com/65964/create-a-framework-for-ios">博客</a>。</li>
+</ul>
+
+
+<!--more-->
+
+
+<h2>2.事件响应链The Responder Chain</h2>
+
+<h3>事件的传递顺序</h3>
+
+<p>当用户触发的一个事件发生，UIKit会创建一个包含要处理的事件信息的事件对象。然后她会将事件对象放入active app’s（应用程序对象，每个程序对应唯一一个）事件队列。对于触摸事件，事件对象就是UIEvent对象封装的一系列触摸集合。对于动作事件，这个事件对象依赖于使用的framework和你关心哪种动作事件。</p>
+
+<h3>事件类型</h3>
+
+<p>事件通过特殊的路径传递直到被传递到一个可以处理该事件的对象。首先，单例的UIApplication对象从顶层的队列中获取事件，然后分发。典型的，它将事件发送到App的key window对象，window则为了处理该事件而发送它到初始化对象（initial object），这个初始化对像依靠事件类型。</p>
+
+<ul>
+<li>触摸事件（Touch events）。对于触摸事件，window对象首先会尝试将事件传递给事件发生的view。这个view就是所谓的hit-test view。寻找hit-test view的方法叫hit-testing，具体描述见<a href="https://developer.apple.com/library/ios/documentation/EventHandling/Conceptual/EventHandlingiPhoneOS/event_delivery_responder_chain/event_delivery_responder_chain.html#//apple_ref/doc/uid/TP40009541-CH4-SW4">Apple文档</a>。</li>
+<li>动作事件和远程控制事件（Motion and remote control events）。在这些事件中，window对象发送事件到第一个响应器。第一个响应器的具体描述见<a href="https://developer.apple.com/library/ios/documentation/EventHandling/Conceptual/EventHandlingiPhoneOS/event_delivery_responder_chain/event_delivery_responder_chain.html#//apple_ref/doc/uid/TP40009541-CH4-SW1">Apple文档</a>。</li>
+</ul>
+
+
+<p>事件传递路径的最终目的时找出能处理和响应该事件的对象。因此，UIKit给适合处理该事件的对象发送事件。对于触摸事件，这个对象就是hit-test view，对于其他事件，这个对象就是第一个响应器（first responder）。</p>
+
+<h3>触摸事件的响应链</h3>
+
+<p>iOS使用hit-testing寻找触摸的view。 Hit-Testing通过检查触摸点是否在关联的view边界内，如果在，则递归地（recursively）检查该view的所有子view。在层级上处于lowest（就是用户直接接触view）且边界范围包含触摸点的view成为hit-test view。确定hit-test view后，它传递触摸事件给该view。</p>
+
+<p>举例说明，假设用户触摸了图中的view E。iOS通过如下顺序查找hit-test view。</p>
+
+<p><img src="https://developer.apple.com/library/ios/documentation/EventHandling/Conceptual/EventHandlingiPhoneOS/Art/hit_testing_2x.png" alt="image" /></p>
+
+<ol>
+<li>触摸点在view A中，所以要检查子view B和C。</li>
+<li>触摸点不在view B中，但在C中，所以检查C的子view D和E。</li>
+<li>触摸点不在D中，但在E中。</li>
+</ol>
+
+
+<p><a href="https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIView_Class/index.html#//apple_ref/occ/instm/UIView/hitTest:withEvent:">hitTest:withEvent:</a>方法通过传递进来CGPoint和UIEvent返回hit test view。该方法调用<a href="https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIView_Class/index.html#//apple_ref/occ/instm/UIView/pointInside:withEvent:">pointInside:withEvent:</a>方法，如果传入hitTest:withEvent:的point在view的边界范围内，则pointInside:withEvent:返回YES。然后，这个方法会在view的所有子view中递归的调用hitTest:withEvent:。</p>
+
+<p>如果传入hitTest:withEvent:的point不在view的边界范围内，则pointInside:withEvent:返回NO。这个point会被忽略，hitTest:withEvent:返回nil。如果一个子view返回NO，则它所在的view的层级上的分支的子view都会被忽略。</p>
+
+<p>Hit-test view是处理触摸事件的第一选择，如果hit-test view不能处理事件，该事件将从事件响应链中寻找响应器，直到系统找到一个处理事件的对象。</p>
+
+<h3>响应器链</h3>
+
+<p>一些类型的事件的传递依赖响应器链。响应器链（responder chain）是一系列相关的响应器对象。它开始于第一个响应器终止于应用对象（application object）。如果第一个responder不处理事件，则会根据responder chain将event传递给下一个responder。</p>
+
+<p>Responder object，即可以响应和处理事件的对象。UIResponder类是所有responder对象的基类，它定义了动态的接口，不仅处理事件也包括处理响应行为。包括UIApplication，UIViewController，和UIView类都是responder，这意味着所有view和大部分关键的controller对象都是responder。但是Core Animation layers不是responders。</p>
+
+<p>First responder被设计来第一个接收事件。典型的，first responder是一个view object。之所以成为第一个responder由于两个原因：</p>
+
+<ol>
+<li>覆盖canBecomeFirstResponder方法，返回YES。</li>
+<li>接收becomeFirstResponder消息。如果必须，一个object能发送给自身这个消息。</li>
+</ol>
+
+
+<h3>响应器链的传输路径</h3>
+
+<p>如果初始化对象（initial object）—— 即hit-test view或者first responder —— 不处理事件，UIKit会将事件传递给responder chain的下一个responder。每个responder决定它是传递事件还是通过nextResponder方法传递给它的下一个responder。这个操作继续直到一个responder处理event或者没有responder了。</p>
+
+<p>Responder chain 序列在iOS确定一个事件并将它传递给initial object（通常是view）时开始。所以initial view有处理事件的第一个机会。下图描述了两个不同的事件传递路径（因为不同的app 设置）。一个App的事件传递路径由app特殊的构成决定，但事件传递路径会遵守相同的规则。</p>
+
+<p><img src="http://lucifer1988.github.io/images/responser_chain.jpeg"></p>
+
+<h3>手动指定当前view不响应事件</h3>
+
+<p>```objectivec
+&ndash;(BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {</p>
+
+<pre><code>for (UIView *view in self.subviews) {
+    if (!view.hidden &amp;&amp; view.userInteractionEnabled &amp;&amp; [view pointInside:[self convertPoint:point toView:view] withEvent:event])
+        return YES;
+}
+return NO;
+</code></pre>
+
+<p>}
+```</p>
+
+<h3>总结</h3>
+
+<p>事件的传递和响应分两个链：</p>
+
+<ul>
+<li>传递链：由系统向离用户最近的view传递。UIKit –> active app’s event queue –> window –> root view –>……–>lowest view</li>
+<li>响应链：由离用户最近的view向系统传递。initial view –> super view –> …..–> view controller –> window –> Application</li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[回答Sunny的55道iOS面试题2]]></title>
@@ -3463,909 +3605,417 @@ error =&gt; {
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[Swift by Tutorials--Generics]]></title>
-    <link href="http://lucifer1988.github.io/blog/2015/10/15/swift-by-tutorials-generics/"/>
-    <updated>2015-10-15T11:05:56+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2015/10/15/swift-by-tutorials-generics</id>
-    <content type="html"><![CDATA[<p>经过前三章，基本对Swift的基本语法有了较全面的介绍，接下来会分别就Swift比较重要的几个技术要点介绍，这一节将讨论一个比较流行的语言特性，generics，即泛型。对于类型安全的编程语言，希望代码可以在一个场景下运行，但又想要在其他场景中也可以是合法的，比如对于一个加法函数，Int和Float类型的函数形式是一样的，只是变量类型不同，在强调类型的语言中，你必须分开定义这两个方法。很多语言为这一问题提供了解决方案，C++是使用了模板，而Swift、Java、C#是使用了泛型，也就是这一章的主角，配合主题这一章将创建一个Flickr照片搜素App来实践这一技术。</p>
+    <title type="html"><![CDATA[Swift by Tutorials--Functions and Closures]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/10/20/swift-by-tutorials-functions-and-closures/"/>
+    <updated>2015-10-20T17:28:15+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/10/20/swift-by-tutorials-functions-and-closures</id>
+    <content type="html"><![CDATA[<p>函数是现代编程的一个重要部分，它将执行一个特定任务的逻辑打包到一个单元，可以复用，也可以提供给其他开发者作为黑盒接入使用。Swift支持全局的函数和类以及结构体的方法，还支持闭包，可以当做对象来传递。在这一章，会深入介绍Swift的函数，包括语法、类型及参数，还有Swift的命名习惯如何受OC的影响。最后，还有巧妙和灵活的闭包，这也是Swift作为一个函数式语言的重要原因。</p>
 
 <!--more-->
 
 
-<h2>Introducing generics</h2>
+<h2>Functions</h2>
 
-<p>1.泛型是什么？举例来说Array和Dictionary就是类型安全的泛型应用实例。在OC中Array和Dictionary是可以存放不同类型的对象的，当然这有时是提供了很多方便，但当你去使用一个Array或Dictionary时，你如何知道其中的类型？只能通过文档或其他代码，而且没有任何办法去控制在runtime中出现数据异常。<br/>
-2.而Swift中对Array和Dictionary中类型是固定的，编译器会完成类型检查，而你的代码本身也对自己做了注释，比较下处理点击的方法在OC和Swift中的区别，在OC中调用这一方法，你一般是需要将set中的对象转化为UITouch类型，而Swift不仅省去你这一操作，代码可读性也更优。</p>
+<h3>Your first functon</h3>
 
-<p><code>objectivec
-//in OC
--(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event;
-//in Swift
-func touchesBegan(touches: [UITouch]!, withEvent event: UIEvent!)
-</code></p>
-
-<p>2.所以说泛型就是类似Array这样，所有的Array运作方式都是一致的，都是将数据存在一张有序的表中，但泛型的Array将值的类型作为了参数，也就是不论Array中类型如何，都可以执行Array的方法。</p>
-
-<!--more-->
-
-
-<h2>Generics in action</h2>
-
-<p>1.本章的实例项目是要从Flickr的搜索接口获取对应图片，并进行展示的一个App，其中网络访问部分大神已经写好了。</p>
-
-<!--more-->
-
-
-<h2>Ordered dictionaries</h2>
-
-<p>1.第一个需求就是希望将用户最近搜索的图片放在前面，那么如果正常来讲，我们要用Array来存数据源，而不是Dictionary或Set，因为后两者是无序的，而这里为了应用泛型，打算自己创建一个有序的Dictionary，实际上就是想把key作为顺序。</p>
-
-<h3>The initial data structure</h3>
-
-<p>1.首先声明有序字典为Struct类型，并声明它的泛型类型参数，KeyType和ValueType并不是真实的类型，只是两个你用来替代类型的参数，一般用T来表示，如果单词表示的话用驼峰式大写首字母来表示。</p>
-
-<p><code>objectivec
-struct OrderedDictionary&lt;KeyType, ValueType&gt; {
-}
-</code></p>
-
-<p>2.创建一个有序字典最简单的方法是，在内部同时维护一个Dictionary和Array，这里使用了typealias分别给[KeyType]和[KeyType: ValueType]做了类型名替代，这样下面声明Array和Dictionary就可以直接用替代类型名来定义，同理这个也可以用在替换函数类型和闭包等比较长的类型的替换。</p>
+<p>1.定义一个全局函数，Swift的函数全部是全局的，而方法是被定义在类或结构体中的，这与其他绝大多数语言室相同的。</p>
 
 <p>```objectivec
-typealias ArrayType = [KeyType]
-typealias DictionaryType = [KeyType: ValueType]</p>
+func square(number: Double) &ndash;> Double {</p>
 
-<p>var array = ArrayType()
-var dictionary = DictionaryType()
-```</p>
-
-<p>3.对比Dictionary的定义，KeyType需要遵循Hashable协议，因为Dictionary需要对key做hash，所以在定义泛型那儿要加上遵循该协议。</p>
-
-<p><code>objectivec
-struct OrderedDictionary&lt;KeyType: Hashable, ValueType&gt;
-</code></p>
-
-<h3>Keys, values and all that jazz</h3>
-
-<p>1.第一个要加入的方法是insert方法，因为是有序字典，所以有所不同。</p>
-
-<p>```objectivec
-mutating func insert(value: ValueType, forKey key: KeyType, atIndex index: Int) &ndash;> ValueType? {
-  var adjustedIndex = index</p>
-
-<p>  let existingValue = self.dictionary[key]
-  if existingValue != nil {</p>
-
-<pre><code>let existingIndex = self.array.indexOf(key)!
-if existingIndex &lt; index {
-  adjustedIndex--
-}
-self.array.removeAtIndex(existingIndex)
-</code></pre>
-
-<p>  }</p>
-
-<p>  self.array.insert(key, atIndex:adjustedIndex)
-  self.dictionary[key] = value</p>
-
-<p>  return existingValue
-}
-```</p>
-
-<p>2.有几点需要说明，首先，该方法前的mutating关键字，因为Struct默认是不可变的，也就是是说你不能在实例方法中修改struct的成员变量，加上mutating是为了告诉编译器该方法可以修改struct成员变量，使编译器在适当的时候对struct做copy操作(前面说过，实际上是copy-on-write)，同时也增加了可读性。<br/>
-3.然后是remove方法，这里先对index是否越界做了判断，可以像OC中使用Assertions断言，也可以如下使用precondition，如果失败，会退出App。</p>
-
-<p><code>objectivec
-mutating func removeAtIndex(index: Int) -&gt; (KeyType, ValueType) {
-  precondition(index &lt; self.array.count, "Index out-of-bounds")
-  let key = self.array.removeAtIndex(index)
-  let value = self.dictionary.removeValueForKey(key)!
-  return (key, value)
-}
-</code></p>
-
-<p>4.这里在结束后会返回一个元组类型的删除值，使之与Swift的Array和Dictionary的remove方法保持一致。</p>
-
-<h3>Accessing values</h3>
-
-<p>1.上一节为有序字典添加了写入的方法，接下来添加一些读取的方法，首先是获取count的方法，如下，使用了前面提到的computed property技术。</p>
-
-<p><code>objectivec
-var count: Int {
-  return self.array.count
-}
-</code></p>
-
-<p>2.在Swift中我们一般使用subscript来访问变量，类似dictionary[1]，一般是见于Array和Dictionary，不过我们计划在我们的有序字典也加入这一特性。</p>
-
-<p>```objectivec
-subscript(key: KeyType) &ndash;> ValueType? {
-  get {</p>
-
-<pre><code>return self.dictionary[key]
-</code></pre>
-
-<p>  }
-  set {</p>
-
-<pre><code>if let index = self.array.indexOf(key) {
-} else {
-  self.array.append(key)
-}
-self.dictionary[key] = newValue
-</code></pre>
-
-<p>  }
-}
-```</p>
-
-<p>3.上述代码就是如何在自己的Struct中加入subscript行为，类似computed property，subscript有两个闭包，分别是getter和setter。<br/>
-4.因为这是一个有序数组，我们打算让他支持通过index来访问，需要注意的是：一，无论setter，getter都需要判断index是否越界；二，setter中输入的值newValue是一个元组类型，所以需要用let (key, value) = newValue将键值取出来。</p>
-
-<p>```objectivec
-subscript(index: Int) &ndash;> (KeyType, ValueType) {
-  get {</p>
-
-<pre><code>precondition(index &lt; self.array.count, "Index out-of-bounds")
-let key = self.array[index]
-let value = self.dictionary[key]!
-return (key, value)
-</code></pre>
-
-<p>  }
-  set {</p>
-
-<pre><code>precondition(index &lt; self.array.count, "Index out-of-bounds")
-let (key, value) = newValue
-let originalKey = self.array[index]
-self.dictionary[originalKey] = nil
-self.array[index] = key
-self.dictionary[key] = value
-</code></pre>
-
-<p>  }
-}
-```</p>
-
-<p>5.这里可能有个疑问，就是如果使用者使用Int作为KeyType呢？因为Int也遵循hashable，完全可以作为key，那么编译器如何判断该用哪组方法呢？遇到这种情况，setter方法当然没问题，因为赋值也不同，那么getter方法只能在取值时就声明返回值的类型，这样编译器会通过这个类型选择使用哪个方法。</p>
-
-<p><code>objectivec
-var dict = OrderedDictionary&lt;Int, String&gt;()
-dict.insert("dog", forKey: 1, atIndex: 0)
-dict.insert("cat", forKey: 2, atIndex: 1)
-print(dict.array.description + " : " + dict.dictionary.description)
-//"[1, 2] : [2: "cat", 1: "dog"]"
-var byIndex: (Int, String) = dict[0]
-print(byIndex)
-//"(1, "dog")"
-var byKey: String? = dict[2]
-print(byKey)
-//"Optional("cat")"
-</code></p>
-
-<p>6.在使用type interface时，编译器需要明确知道返回值的类型，如果出现上述相同方法，返回值类型不同的情况，必须caller指明类型，否则编译器是不会知道该返回那个值的。</p>
-
-<!--more-->
-
-
-<h2>Aside: Assertions &amp; preconditions</h2>
-
-<p>1.assertions和precondition都是判断程序是否能继续执行时的判断条件，不同的是，assertion是不会在release build时编译的，而precondition可以；assertion是被用于在开发时获取bug，而precondition是用于当一个条件不满足时，抛出严重异常的。<br/>
-2.assertion的一个使用场景是有多个创建view的方法共同来构建页面，但其中一些依赖于另一些完成，这时要使用assertion。</p>
-
-<p>```objectivec
-private func configureTableView() {</p>
-
-<pre><code>self.tableView = UITableView(frame: CGRectZero) 
-self.tableView.delegate = self 
-self.tableView.dataSource = self 
-self.view.addSubview(self.tableView)}private func configureHeader() {   assert(self.tableView != nil)   let headerView = UIView(frame: CGRectMake(0, 0, 320, 50))   headerView.backgroundColor = UIColor.clearColor()   let label = UILabel(frame: CGRectZero)  label.text = "My Table"     label.sizeToFit()   label.frame = CGRectMake(0, 0, label.bounds.size.width, label.bounds.size.height) headerView.addSubview(label)  self.tableView.tableHeaderView = headerView }
-</code></pre>
-
-<p>```</p>
-
-<p>3.关于assertion一个有趣的现象是编译器允许在release build时假设assertion是true，有时也会导致一些bug，如下，输入0时，在debug下没问题，会触发断言；而在release中，编译器自动认为assertion是true，然后optimizer就会跳过if，直接进入>0的分支。</p>
-
-<p>```objectivec
-func foo(value: Int) {</p>
-
-<pre><code>assert(value &gt; 0)   if value &gt; 0 {      print("Yes, it's greater than zero")    } else { 
-    print("Nope")   } }
-</code></pre>
-
-<p>```</p>
-
-<p>4.再来看下precondition，它和assertion做的是一样的工作，但是可以在release下运行，使用它是为了确保一些必要的条件，如下例，数组越界即使不加precondition，也会crash，但是通过precondition，可以获取到自定义的log信息，方便调试。</p>
-
-<p>```objectivec
-func fetchPeopleBetweenIndexes(start: Int, end: Int) &ndash;> [Person] {</p>
-
-<pre><code>precondition(start &lt; end)   precondition(start &gt;= 0)    precondition(end &lt;= self.people.count)  return Array(self.people[start..&lt;end]) 
+<pre><code>return number * number
 </code></pre>
 
 <p>}
 ```</p>
 
-<p>5.一般的经验是，在你release时可以跳过，但是希望在debug阶段获取失败信息时使用assertion；而在将会导致数据损坏或者其他严重问题前，使用precondition。同时在你开发一些第三方库时，在容易出现数据输入错误这些位置可以使用precondition来提示开发者。</p>
+<h3>Functions are first-class</h3>
 
-<!--more-->
-
-
-<h2>Adding image search</h2>
-
-<p>1.创建App的数据源，使用的就是之前自定义的有序字典，你可能注意到使用了Flickr.photo，Photo是一个定义在Flickr中的类，这样的机制非常有用，在保持类名尽量短的基础上实现了命名空间，在Flickr类中，可以单独使用Photo类。</p>
+<p>1.函数在Swift中是一级对象，也就意味着它可以赋值，可以作为函数参数，也可以作为函数结果返回，这也是第七章要讲的函数式编程的基础。<br/>
+2.从前面几章得知，Swift是非常强调类型的安全性，那么函数的类型是什么呢？</p>
 
 <p><code>objectivec
-var searches = OrderedDictionary&lt;String, [Flickr.Photo]&gt;()
-</code></p>
-
-<p>2.然后实现tableView的委托和数据源协议。</p>
-
-<p>```objectivec
-func tableView(tableView: UITableView, numberOfRowsInSection section: Int) &ndash;> Int {
-  return self.searches.count
-}</p>
-
-<p>func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) &ndash;> UITableViewCell {
-  let cell = tableView.dequeueReusableCellWithIdentifier(&ldquo;Cell&rdquo;, forIndexPath: indexPath) as UITableViewCell
-  let (term, photos) = self.searches[indexPath.row]
-  cell.textLabel!.text = &ldquo;(term) ((photos.count))&rdquo;
-  return cell
-}
-```</p>
-
-<p>3.然后是UISearchBarDelegate，这里调用Flickr的search方法是使用了Trailing Closures技术，即如果closure作为一个方法最后一个变量，那么可以写到所调用方法的外面（后面），如下：</p>
-
-<p>```objectivec
-func searchBarSearchButtonClicked(searchBar: UISearchBar!) {
-  searchBar.resignFirstResponder()
-  let searchTerm = searchBar.text
-  Flickr.search(searchTerm!) {</p>
-
-<pre><code>switch ($0) {
-case .Error:
-  break
-case .Results(let results):
-  self.searches.insert(results, forKey: searchTerm!, atIndex: 0)
-  self.tableView.reloadData()
-}
-</code></pre>
-
-<p>  }
-}
-```</p>
-
-<p>```objectivec
-func someFunctionThatTakesAClosure(closure: () &ndash;> Void) {</p>
-
-<pre><code>// function body goes here
-</code></pre>
-
-<p>}
-// here&rsquo;s how you call this function without using a trailing closure:
-someFunctionThatTakesAClosure({</p>
-
-<pre><code>// closure's body goes here
-</code></pre>
-
-<p>})
-// here&rsquo;s how you call this function with a trailing closure instead:
-someFunctionThatTakesAClosure() {</p>
-
-<pre><code>// trailing closure's body goes here
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>Show me the photos!</h3>
-
-<p>1.这一节来完成详情页，先是在prepareForSegue方法中设置DetailViewController。</p>
-
-<p>```objectivec
-override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
-  if segue.identifier == &ldquo;showDetail&rdquo; {</p>
-
-<pre><code>if let indexPath = self.tableView.indexPathForSelectedRow {
-  let (_, photos) = self.searches[indexPath.row]
-  (segue.destinationViewController as! DetailViewController).photos = photos
-}
-</code></pre>
-
-<p>  }
-}
-```</p>
-
-<h3>Deleting searches</h3>
-
-<p>1.为搜索页添加滑动删除功能。</p>
-
-<p><code>objectivec
-self.navigationItem.leftBarButtonItem = self.editButtonItem()
+let operation = square
 </code></p>
 
 <p><code>objectivec
-override func setEditing(editing: Bool, animated: Bool)  {
-  super.setEditing(editing, animated: animated)
-  self.tableView.setEditing(editing, animated: animated)
-}
+let operation:(Double) -&gt; Double = square
+</code></p>
+
+<p>3.面对一些函数类型中嵌套过于复杂，可以考虑使用typealias来梳理代码。</p>
+
+<p><code>objectivec
+func doMath(operation:(Double) -&gt; Double) -&gt; Double {...}
 </code></p>
 
 <p><code>objectivec
-func tableView(tableView: UITableView, canEditRowAtIndexPath indexPath: NSIndexPath) -&gt; Bool {
-  return true
-}
+typealias OperationType = (Double) -&gt; Double
+func doMath(operation:OperationType) -&gt; Double {...}
 </code></p>
 
-<p>```objectivec
-func tableView(tableView: UITableView, commitEditingStyle editingStyle: UITableViewCellEditingStyle, forRowAtIndexPath indexPath: NSIndexPath) {
-  if editingStyle == .Delete {</p>
+<h3>Function syntax</h3>
 
-<pre><code>self.searches.removeAtIndex(indexPath.row)
-tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: .Fade)
+<p>1.除了一些常见的参数和返回结果这些必须条件，Swift函数无返回值时，<strong>Void</strong>并不是一个关键字，而是一个类型。</p>
+
+<p>```objectivec
+func logDouble(number: Double) &ndash;> Void {</p>
+
+<pre><code>print(String(format: "%.2f", number))
 </code></pre>
 
-<p>  }
-}
+<p>}
 ```</p>
-
-<!--more-->
-
-
-<h2>Generic functions and protocols</h2>
-
-<p>1.这一节介绍泛型的函数和协议，之前一直使用的find方法就是一个泛型方法，这是一个全局方法，泛型参数C定义了domain参数，也间接定义了value参数的类型，且返回值也和C有关：</p>
 
 <p><code>objectivec
-func find&lt;C: Collection where C.GeneratorType.Element: Equatable&gt; (domain: C, value: C.GeneratorType.Element) -&gt; C.IndexType?
+typealias Void = ()
 </code></p>
 
-<p>2.我们之前定义的有序字典的insert方法中这么使用了find()，没有指出C，其实这又是type interface的体现，通过第一个参数推断出了C的类型。</p>
-
-<p><code>objectivec
-let existingIndex = find(self.array, key)!
-</code></p>
-
-<p>3.那么GeneratorType是什么？上述的Collection协议，同时也遵从于SequenceType协议，如下，要实现该协议，必须有个typealias名为Generator，且遵从于GeneratorType协议，同时实现generate()方法返回Generator类型。</p>
+<p>2.所以你可以将返回空的函数返回值写为<strong>()</strong>，其实也可以不写返回符号和类型，但是函数类型没变，还是<strong>(Double) &ndash;> ()</strong>。</p>
 
 <p>```objectivec
-protocol SequenceType { typealias Generator : GeneratorType</p>
+func logDouble(number: Double) &ndash;> () {</p>
 
-<pre><code>public func generate() -&gt; Self.Generator}
+<pre><code>print(String(format: "%.2f", number))
 </code></pre>
 
-<p>```</p>
-
-<p>4.那么在自定义的有序数组上实验下SeqenceType，首先定义typealias名为Generator，使用AnyGenerator这个泛型类。</p>
+<p>}
+```</p>
 
 <p>```objectivec
-extension OrderedDictionary: SequenceType {
-  typealias Generator = AnyGenerator&lt;(KeyType, ValueType)>
-  func generate() &ndash;> AnyGenerator&lt;(KeyType, ValueType)> {</p>
+func logDouble(number: Double) {</p>
 
-<pre><code>var index = 0
-return anyGenerator {
-  if index &lt; self.array.count {
-    let key = self.array[index++]
-    return (key, self.dictionary[key]!)
-  } else {
-    return nil
-  }
+<pre><code>print(String(format: "%.2f", number))
+</code></pre>
+
+<p>}
+```</p>
+
+<h3>Overloading and generics</h3>
+
+<p>1.Swift是支持重载的，如下两个方法是可以共存的。</p>
+
+<p>```objectivec
+func checkAreEqual(value: Int, expected: Int, message: String) {</p>
+
+<pre><code>if expected != value {
+    print(message)
 }
 </code></pre>
 
-<p>  }
+<p>}
+func checkAreEqual(value: String, expected: String, message: String) {</p>
+
+<pre><code>if expected != value {
+    print(message)
 }
+</code></pre>
+
+<p>}
 ```</p>
 
-<p>5.而在实现generate()方法中，通过调用了anyGenerator方法，该方法只有一个closure参数，所以使用了Trailing Closures技术，这个closure会在每次调用next()时调用，在closure中，你完成自己的遍历方法。</p>
+<p>2.这里复习下重载（overload）和重写（override）的区别，overload是指在同一类中同样方法名，但参数与返回结果可以不同；而重写是指子类覆盖父类的方法，方法名、参数、返回都相同，实现不同，重写Overriding是父类与子类之间多态性的一种表现，重载Overloading是一个类中多态性的一种表现。<br/>
+3.但是其实更好的解决方案是泛型，上一章也介绍过。</p>
+
+<p>```objectivec
+func checkAreEqual&lt;T: Equatable> (value: T, expected: T, message: String) {</p>
+
+<pre><code>if value != expected {
+    print(message)
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>4.经测试会出现这一现象，这一现象出现的原因是checkAreEqual会对前两个参数类型进行检查，一是其类型必须遵循Equatable协议，二是两个参数类型必须相同，第一个出现error就是因为类型不同造成的，而后者成功是因为45并没有指明类型，所以Swift通过"cat"推测出T应该是String类型，所以45也被推测为String类型，所以通过。</p>
 
 <p><code>objectivec
-public func anyGenerator&lt;Element&gt;(body: () -&gt; Element?) -&gt; AnyGenerator&lt;Element&gt;
-</code></p>
-
-<p>6.实现了SequenceType Protocol，你可以使用for-in来遍历字典，其实typealias Generator = AnyGenerator&lt;(KeyType, ValueType)>这句可以删除，因为Swift从func generate() &ndash;> AnyGenerator&lt;(KeyType, ValueType)>()返回值推断出了该类型。<br/>
-7.实际上SequenceType Protocol就是一个泛型协议，只不过因为protocol不能使用&lt;>关键字，而像Java和C#是可以的，原因也很简单，Protocols本身就是定义给class或struct实现的，这本身就是带有泛型的性质，Swift的思想就是protocol定义接口，而class和struct定义类型、泛型或其他。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Swift by Tutorials--Classes and Structs]]></title>
-    <link href="http://lucifer1988.github.io/blog/2015/10/12/swift-by-tutorials-classes-and-structs/"/>
-    <updated>2015-10-12T15:26:48+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2015/10/12/swift-by-tutorials-classes-and-structs</id>
-    <content type="html"><![CDATA[<p>继上两章对Swift的基本类型的学习，这一章开始介绍Swift中的Class和Struct，Class对所有面向对象的语言都不陌生，而Struct可能用的比较少，因为大部分用于C中，但Swift中的Struct与C还有很多不同，这章会一一介绍，而且同时会讲到Class与Struct之间的不同与使用场景，以及它们的扩展，也是这一章的重点。</p>
-
-<!--more-->
-
-
-<h2>Getting started</h2>
-
-<h3>The class concept</h3>
-
-<p>1.类是通过总结一些对象的共同特点，定义基本类型，通过继承来创建具体使用的子类型，它拥有自己的数据和方法，可以视为数据的容器。</p>
-
-<h2>My first class</h2>
-
-<p>1.介绍示例项目的Class设计。</p>
-
-<h3>Creating the class</h3>
-
-<p>1.import语句用于导入Swift的库文件，记性好的话，之前Apple在OC中加入了@import来替代#import（如：@import Foundation;替代#import &lt;Foundation/Foundation.h>），其实Swift中的import是和这个一致的。<br/>
-2.定义一个类如下即可，但是如果如下，有未初始化赋值的非optional变量，那么会提示你增加初始化方法。</p>
-
-<p>```objectivec
-class Treasure {</p>
-
-<pre><code>let what: String
-let latitude: Double
-let longitude:Double
-</code></pre>
-
-<p>}
-init(what: String, latitude: Double, longitude: Double) {</p>
-
-<pre><code>self.what = waht
-self.latitude = latitude
-self.longitude = longitude
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>A struct-ural improvement</h3>
-
-<p>1.下一步的优化是把经纬度信息做成一个结构体，那么就涉及到了Swift中的Struct，Swift中Struct和Class一样，都可以存储数据和拥有自己的方法，但要记住Struct始终是一个数值型的容器，它的用途只是持有数据，不要让它承担更多的功能。</p>
-
-<p>```objectivec
-struct GeoLocation {</p>
-
-<pre><code>var latitude: Double
-var longitude: Double
-</code></pre>
-
-<p>}
-```</p>
-
-<p>2.在Swift中，在工程中的文件是相互自动import的，所以你不用再去手动导入，这一点在你开发library和framework也是一样的。</p>
-
-<h3>Reference types vs. value types</h3>
-
-<p>1.Swift中，Struct与Class的最大区别是，Class在本质上是指针引用类型，而Struct是值类型，在赋值过程中，Class传递的是指针，而Struct则会copy一份新值，从如下的例子即可看出。</p>
-
-<p>```objectivec
-struct MyStruct {</p>
-
-<pre><code>var foo: Double = 0.0
-</code></pre>
-
-<p>}
-class MyClass {</p>
-
-<pre><code>var foo: Double = 0.0
-</code></pre>
-
-<p>}
-var structA = MyStruct()
-var structB = structA
-structB.foo = 1.0
-print(structA.foo)
-//0.0
-print(structB.foo)
-//1.0
-var classA = MyClass()
-var classB = classA
-classB.foo = 1.0
-print(classA.foo)
-//1.0
-print(classB.foo)
-//0.0
-```</p>
-
-<p>2.需要说明的一点，Swift在copy一个Struct时是很智能的，只会在确定必要的时候copy，也就是说structB = structA并不会创建出拷贝，只有你开始改变其中一个值时，runtime会开始执行copy。<br/>
-3.另外关于let类型的Struct和Class还有一些细微的区别，对于二者的var实例，是没有区别的，都可以改变各自的属性或将自身赋值给其他实例，但对于let实例，Class依然可以修改自己的属性变量，但是不能将自己赋值给其他实例，而Struct既不能改变自己的属性变量，也不能将自己赋值给其他实例，这也是为什么Array和Dictionary是Struct而不是Class。</p>
-
-<p>```objectivec
-struct MyStruct {</p>
-
-<pre><code>var foo: Double = 0.0
-</code></pre>
-
-<p>}
-class MyClass {</p>
-
-<pre><code>var foo: Double = 0.0
-</code></pre>
-
-<p>}
-var classA = MyClass()
-let classB = MyClass()
-classA.foo = 1.0
-classB.foo = 1.0
-classB = classA
 //error
-var structA = MyStruct()
-let structB = MyStruct()
-structA.foo = 1.0
-structB.foo = 1.0
-//error
-structB = structA
-//error
-```</p>
-
-<h3>Convenience initializers</h3>
-
-<p>1.在实例中其实还是不必要将GeoLocation暴露给使用者，可以直接给出更方便的初始化方法，这就用到了convenience initializer，在该初始化方法中跳转到了原初始化方法中，也称为designated initializer。</p>
-
-<p>```objectivec
-convenience init(what: String, latitude: Double, longitude: Double) {</p>
-
-<pre><code>let location = GeoLocation(latitude: latitude, longitude: longitude)
-self.init(what: what, location: location)
-</code></pre>
-
-<p>}
-```</p>
-
-<p>2.Struct不需要显式的初始化方法，Swift为你自动添加了，你只需要按Struct的属性顺序一一初始化就行了，这也是为什么上述方法中可以自动初始化GeoLocation。</p>
-
-<h3>Class inheritance</h3>
-
-<p>1.Swift中的继承是怎样的？如下例：</p>
-
-<p>```objectivec
-class HistoryTreasure: Treasure {</p>
-
-<pre><code>let yaer: Int
-init(what: String, year: Int, latitude: Double, longitude: Double) {
-    self.year = year
-    let location = GeoLocation(latitude: latitude, longitude: longitude)
-    super.init(what: what, location: location)
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>2.子类如果有自己新的属性时，需要自己的designated initializer，而子类的designated initializer必须引用父类的一个designated initializer（注意不可以是convenience initializer），所以和上一节比较相当于做了重复工作。<br/>
-3.这里有与OC不同的一点，在OC中子类的init()方法中，是先调用父类的init()，再进行子类属性的赋值，而在Swift中是最后调用父类的init()，因为在Swift中是initializer来初始化所有属性，最后交给父类来处理，父类的init()要放在最后，是因为它不知道子类中声明的新属性，必须在它之前把这些新属性初始化。</p>
-
-<!--more-->
-
-
-<h2>Swift and MapKit</h2>
-
-<p>1.重写父类方法，Swift中需要在方法前加上override关键字，增加了可读性，同时如果你写的方法不存在于父类，那么编译器会报error通知你。</p>
-
-<p>```objectivec
-override func viewDidLoad() {</p>
-
-<pre><code>super.viewDidLoad()
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>Class extensions and computed properties</h3>
-
-<p>1.示例中需要将Treasure类型的变量显示在MKMapView上，那么就要使Treasure遵循MKAnnotation协议，我们使用了extension来实现：</p>
-
-<p>```objectivec
-import MapKit
-extension Treasure: MKAnnotation {</p>
-
-<pre><code>var coordinate: CLLocationCoordinate2D {
-    return self.location.coordinate
-}
-var title: String {
-    return self.what
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>2.extension类似OC的category，都是扩展类的技术，但是优于category，因为extension不但可以添加方法，还可以添加新属性。<br/>
-3.这里添加的两个property有些特别，它们是Swift中的computed properties，每次访问它们都会执行后面的方法，用法与普通的properties是一致的。</p>
-
-<h3>Your first struct extension</h3>
-
-<p>1.Struct也可以添加extension，下例中的extension起到了分割代码，增加可读性的作用，这是extension的习惯用法。</p>
-
-<p>```objectivec
-import MapKit
-extension GeoLocation {</p>
-
-<pre><code>var coordinate: CLLocationCoordinate2D {
-    return CLLocationCoordinate2DMake(self.latitude, self.longitude)
-}
-var mapPoint: MKMapPoint {
-    return MKMapPointForCoordinate(self.coordinate)
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>Inheriting from NSObject</h3>
-
-<p>1.类遵循MKAnnotation同时，也应该遵循NSObject协议，因为MKAnnotation继承自NSObject协议。</p>
-
-<h3>Pinning the map</h3>
-
-<p>1.在viewDidLoad()中添加以下代码，完成mapView上打点的工作。</p>
-
-<p><code>objectivec
-self.mapView.delegate = self
-self.mapView.addAnnotations(self.treasures)
+checkAreEqual(Int(45), expected: "cat", message: "is not cat")
+//success
+checkAreEqual(45, expected: "cat", message: "is not cat")
 </code></p>
 
-<p>2.然后添加viewController的extension，并实现MKMapViewDelegate的方法：</p>
+<h3>In-out variables</h3>
+
+<p>1.开发中有些情况是需要我们改变参数值的，比如下面的square方法</p>
 
 <p>```objectivec
-extension ViewController: MKMapViewDelegate {</p>
+func square(number: Double) {</p>
 
-<pre><code>func mapView(mapView: MKMapView, viewForAnnotation annotation: MKAnnotation) -&gt; MKAnnotationView
-{
-    if let treasure = annotation as? Treasure {
-        var view = mapView.dequeueReusableAnnotationViewWithIdentifier("pin") as! MKPinAnnotationView!
-        if view = nil {
-            view = MKPinAnnotationView(annotation: annotation, reuseIdentifier: "pin")
-            view.canShowCallout = true
-            view.animatesDrop = false
-            view.calloutOffset = CGPoint(x: -5, y: 5)
-            view.rightCalloutAccessoryView = UIButton(type: .DetailDisclosure) as UIView
-        } else {
-            view.annotation = annotation
+<pre><code>number = number*number
+</code></pre>
+
+<p>}
+```</p>
+
+<p>2.但是这么写会直接报错，因为Swift中传入方法的参数类型默认都是let常量，是不可改变的，所以我们先将number改为var类型。</p>
+
+<p>```objectivec
+func square(var number: Double) {</p>
+
+<pre><code>number = number*number
+</code></pre>
+
+<p>}
+```</p>
+
+<p>3.这次编译通过了，但是结果测试不对，仍输出原值，其实这里Swift与其他主流语言（OC、Java、C#、JS）一样，虽然表面上允许参数值修改，但是其实修改的是参数的本地copy，并不影响原值。<br/>
+4.但是Swift还是支持直接修改原参数的，通过添加inout关键字，就可以将参数的指针地址直接传入，从而修改参数，如下：</p>
+
+<p>```objectivec
+func square(inout number: Double) {</p>
+
+<pre><code>number = number*number
+</code></pre>
+
+<p>}
+var a = 5.0
+square(&amp;a)
+print(a)
+```</p>
+
+<p>5.但是作者还是推荐谨慎使用，尤其在调用者对该技术不了解时，可能会造成困惑。</p>
+
+<h3>Classes and structures as function parameters</h3>
+
+<p>1.这一节讨论下类和结构体作为函数参数时的区别，首先看下Class作为参数的情况。</p>
+
+<p>```objectivec
+class Person {</p>
+
+<pre><code>var age = 34, name = "Colin"
+func growOlder() {
+    self.age++
+}
+</code></pre>
+
+<p>}
+func celebrateBirthday(person: Person) {</p>
+
+<pre><code>print("Happy Birthday \(person.name)")
+person.growOlder()
+</code></pre>
+
+<p>}
+let person = Person()
+celebrateBirthday(person)
+print(person.age)
+```</p>
+
+<p>2.结果person成功完成了age的增加，因为函数参数person和声明的实例person都是常量，并引用了相同的实例，当函数将class作为参数类型时，swift会将该类的实例的指针传入函数。<br/>
+3.再看下结构体的实现，显然结构体和上一节的基本数据类型是一样的，仍需要声明参数为inout，而且在修改自身变量时需要在方法前加mutating关键字。</p>
+
+<p>```objectivec
+struct Person {</p>
+
+<pre><code>var age = 34, name = "Colin"
+mutating func growOlder() {
+    self.age++
+}
+</code></pre>
+
+<p>}
+func celebrateBirthday(inout person: Person) {</p>
+
+<pre><code>print("Happy Birthday \(person.name)")
+person.growOlder()
+</code></pre>
+
+<p>}
+var person = Person()
+celebrateBirthday(&amp;person)
+print(person.age)
+```</p>
+
+<p>4.另外由于array和dictionary都是struct，所以需要在函数中，他们作为参数并允许被修改时，也需要inout关键字。</p>
+
+<h3>Variadics</h3>
+
+<p>1.这一节来讨论有变长参数的函数类型，下面就是一个用例：</p>
+
+<p>```objectivec
+func longestWord(words: String&hellip;) &ndash;> String? {</p>
+
+<pre><code>var currentLongest: String?
+for word in words {
+    if currentLongest != nil {
+        if word.characters.count &gt; currentLongest!.characters.count {
+            currentLongest = word
         }
-        return view
+    } else {
+        currentLongest = word
     }
-    return nil
+}
+return currentLongest
+</code></pre>
+
+<p>}
+let long = longestWord(&ldquo;chick&rdquo;, &ldquo;fish&rdquo;, &ldquo;cat&rdquo;, &ldquo;elephant&rdquo;)
+print(long)
+```</p>
+
+<p>2.words相当于一个常量数组，在函数中可以直接使用for-in来遍历其成员，可变长参数可能并不常用，但是在特定场景下还是一种比较优雅的实现方式。<br/>
+3.这里补充一点，计算String长度的函数已经从<strong>countElements(word)【Swift1.0】</strong> &ndash;> <strong>count(word)【Swift1.2】</strong> &ndash;> <strong>word.characters.count【Swift2.0】</strong>，经历了这一变化。<br/>
+4.如果结合第七章要讲的函数式编程，其实该方法可以用reduce函数来实现，如下：</p>
+
+<p>```objectivec
+func longestWord(words: String&hellip;) &ndash;> String? {</p>
+
+<pre><code>return words.reduce(String?()) {
+(longest, word) in
+longest == nil || word.characters.count &gt; longest!.characters.count
+    ? word : longest
 }
 </code></pre>
 
 <p>}
 ```</p>
 
-<p>3.在实现的mapView:viewForAnnotation方法中，annotation参数类型为MKAnnotation!，是一个隐式拆解的optional类型，但是我们还是进行了if/let的检查，因为这个方法是OC的API，是没有optional的，所以为了兼容Swift只能声明为这个类型，所以还需要显式拆解。<br/>
-4.同时除了检查是否为nil，我们还要注意传入的类型是否为Treasure类型，这儿用到了inline downcasting技术，也是Swift的一种简写语法，if let treasure = annotation as？ Treasure{}，如果annotation不是Treasure类型，那么也不会进入if，这是Swift中确保类型正确的一种技术。<br/>
-5.获取MKPinAnnotationView利用了一贯的复用技术，另外此处又一次用到了downcast技术，只不过因为返回的类型肯定可以确定都是MKPinAnnotationView，所以用了非optional版本。</p>
+<h3>External parameter names</h3>
 
-<h3>The reduce algorithm</h3>
-
-<p>1.这一节是为了解决app载入后不能直接定位到目标位置，而要先定位自己的位置这个bug。</p>
+<p>1.有时一些参数的作用表示的不是很明确，Swift不像OC，习惯在每个参数前写一段方法名，比如上述的比较字符串输入验证，光从调用来看无法得知那个是需要的名称。</p>
 
 <p><code>objectivec
-let rectToDisplay = self.treasures.reduce(MKMapRectNull) {
-  (mapRect: MKMapRect, treasure: Treasure) -&gt; MKMapRect in
-  let treasurePointRect = MKMapRect(origin: treasure.location.mapPoint, size: MKMapSize(width: 0, height: 0))
-  return MKMapRectUnion(mapRect, treasurePointRect)
-}
-self.mapView.setVisibleMapRect(rectToDisplay, edgePadding: UIEdgeInsetsMake(74, 10, 10, 10), animated: false)
-</code></p>
-
-<p>2.为了达到这一优化，实际就是要获取可以展示全部treasures的最小地图范围，然后在地图绘制这一区域。而输入是一个数组，需要一个它们逐个计算的结果，这里使用了函数式编程中的Reduce函数，这是处理这一问题的最佳方案，下面是Swift中reduce的原型，需要一个初始值initial，这里对应的是MKMapRectNull，是一个空区域，然后combine的方法是(mapRect: MKMapRect, treasure: Treasure) &ndash;> MKMapRect类型的方法，mapRect是每次执行后的返回值，初始值就是initial，而treasure是array每个元素的遍历，最后可以得到一个MKMapRect类型的区域，包含了所有元素的最小区域，然后setVisibleMapRect()，并加了边距来适应其他页面元素，最终达到了目的，Swift中的函数式编程还会在第七章继续讲解。</p>
-
-<p><code>objectivec
-reduce(initial: U, combine: (U, T) -&gt; U) -&gt; U
-</code></p>
-
-<!--more-->
-
-
-<h2>Polymorphism</h2>
-
-<p>1.现在又有新需求了，需要不同类型的Treasure在地图上显示Annotation颜色不同，这可以通过多态来实现，首先在父类中添加方法，再在子类中重写该方法：</p>
-
-<p><code>objectivec
-//in parent class
-func pinColor() -&gt; MKPinAnnotationColor  {
-  return MKPinAnnotationColor.Red
-}
-//in subclass
-override func pinColor() -&gt; MKPinAnnotationColor  {
-  return MKPinAnnotationColor.Purple
-}
-</code></p>
-
-<p>2.然后在绘制MKPinAnnotationView那儿调用该方法：</p>
-
-<p><code>objectivec
-view.pinColor = treasure.pinColor()
-</code></p>
-
-<h3>Dynamic dispatch and final classes</h3>
-
-<p>1.对于上面的Treasure多态，runtime是怎么执行的呢？是靠dynamic dispatch实现的，这一技术其实在OC里用的很普遍，OC作为动态语言，可以在runtime修改所传递的消息，甚至消息的接收者，都是靠动态分发(详细过程可参照前一部的Effective Objective-C2.0的笔记)。<br/>
-2.Dynamic dispatch在Swift中依然存在，就是为了实现多态这类特性，不同于OC的消息分发机制，Swift的分发更像C++，它通过virtual tables(简称vtables)来实现。<br/>
-3.如上例，当编译器遇到pinColor()调用，因为Treasure有很多子类，它便会去使用vtable去查找，而如果是Treasure的子类调用pinColor()，编译器依然会去先去查找vtable，而不是直接去调用pinColor()方法，因为它并不知道有没有类继续在继承，虽然开发者知道它是没有子类的。<br/>
-4.所以通过告知编译器某些类没有子类，会提高app的效率，缩短运行时间，我们可以通过在类型前加final关键字来告知编译器这一信息。</p>
-
-<p><code>objectivec
-final class HistoryTreasure: Treasure
-</code></p>
-
-<!--more-->
-
-
-<h2>Adding annotations</h2>
-
-<p>1.继续，新的需求是用户点击每个annotation时弹出一个alertView来告知用户一些信息。因为每个alert提示的信息不同，所以打算将生成alert的任务交给treasure，然后viewController负责显示，采用的是利用protocol技术。<br/>
-2.首先在Treasure.swift文件中声明Alertable协议，然后Treasure的子类分别遵循并实现其中的方法。</p>
+checkAreEqual("cat", "dog", "Incorrect input")
+</code>
+2.为了解决这一问题，Swift允许开发者添加供外部使用的参数名，可以和内部的参数名共存，内部外部各自使用不同的参数名：</p>
 
 <p>```objectivec
-@objc protocol Alertable {</p>
+func checkAreEqual(value val: String, expected exp: String, message msg: String) {</p>
 
-<pre><code>fun alert() -&gt; UIAlertController
+<pre><code>if exp != val {
+    print(msg)
+}
+</code></pre>
+
+<p>}
+checkAreEqual(value: &ldquo;cat&rdquo;, expected: &ldquo;dog&rdquo;, message: &ldquo;Incorrect input&rdquo;)
+```</p>
+
+<p>3.但是需要注意的是，即使是使用了另外一套参数名，调用的顺序还是要和原来一致，像下面的调用是不会成功的。</p>
+
+<p><code>objectivec
+checkAreEqual(expected: "dog", value: "cat", message: "Incorrect input")
+</code></p>
+
+<p>4.如果你的内外部参数名一致，而且也确实需要外部参数名，可以在参数名前加#来使内外部参数名相同。</p>
+
+<p>```objectivec
+func checkAreEqual(#value: String, #expected: String, #message: String) {   if expected != value {</p>
+
+<pre><code>    println(message)
+} 
+</code></pre>
+
+<p>}checkAreEqual(value: &ldquo;dog&rdquo;, expected: &ldquo;cat&rdquo;, message:&ldquo;Incorrect input&rdquo;)
+```</p>
+
+<p>2.当然这是一些场景下的问题，很多方法其实从函数名即可推断出参数的意义，而有些方法则是必须加参数名的，这一决定由具体情况来决定，<strong>大部分需要添加的属于有多个相同类型的参数</strong>。</p>
+
+<p><code>objectivec
+//purpose is clear
+dateFromString("2014-03-14")
+//not clear, which is row? which is colume?
+convertCellAt(42, 13)
+//to be clear
+convertCellAt(column: 42, row: 13)
+</code></p>
+
+<h2>Methods</h2>
+
+<p>与函数相对的是方法，方法是与类、结构体、枚举关联的函数，本章会对各类方法进行讨论。</p>
+
+<h3>Instance methods</h3>
+
+<p>1.下面是一个名叫cell的类，其中包含单个参数和多个参数的方法。</p>
+
+<p>```objectivec
+class Cell: CustomStringConvertible {</p>
+
+<pre><code>private(set) var row = 0
+private(set) var column = 0
+func move(x: Int = 0, y: Int = 0) {
+    row += y
+    column += x
+}
+func moveByX(x: Int) {
+    column += x
+}
+func moveByY(y: Int) {
+    row += y
+}
+var description: String {
+    get {
+        return "Cell [row=\(row), col=\(column)]"
+    }
+}
 </code></pre>
 
 <p>}
 ```</p>
 
-<p>```objectivec
-extension HistoryTreasure: Alertable {<br/>
-  func alert() &ndash;> UIAlertController {</p>
+<p>2.调用单个参数方法与函数没有区别，而调用多参数时需要在第二个参数后加上外部变量名，这与函数是不同的。其原因是函数默认是不添加外部参数名的，而方法除了第一个参数，后面的参数都是默认添加外部参数名，且与内部参数名一致，这一点也是从OC的命名风格继承而来。</p>
 
-<pre><code>let alert = UIAlertController(title: "History", message: "From \(self.year):\n\(self.what)", preferredStyle: UIAlertControllerStyle.Alert)
-return alert
-</code></pre>
+<p><code>objectivec
+let cell = Cell()
+cell.moveByX(4)
+cell.move(4, y: 7)
+</code></p>
 
-<p>  }
-}
-```</p>
-
-<p>3.然后在viewController中实现MapView点击Annotation的委托方法。</p>
+<p>3.你可以通过在参数前加<strong> _ </strong>来禁止这一默认添加外部参数名的行为，如下：</p>
 
 <p>```objectivec
-func mapView(mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
-  if let treasure = view.annotation as? Treasure {</p>
+func move(x: Int, _ y: Int) {</p>
 
-<pre><code>if let alertable = treasure as? Alertable {
-  let alert = alertable.alert()
-  alert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-  self.presentViewController(alert, animated: true, completion: nil)
-}
+<pre><code>row += y    column += x 
 </code></pre>
 
-<p>  }
-}
+<p>}
+cell.move(4, 7)
 ```</p>
 
-<!--more-->
-
-
-<h2>Sorting an array</h2>
-
-<p>1.新需求，用户可以在找到第一个treasure后能有选项可以使其找到下一个最近的treasure。首先我们给GeoLocation添加一个计算点之间的方法。</p>
-
-<p><code>objectivec
-func distanceBetween(other: GeoLocation) -&gt; Double {
-  let locationA = CLLocation(latitude: self.latitude, longitude: self.longitude)
-  let locationB = CLLocation(latitude: other.latitude, longitude: other.longitude)
-  return locationA.distanceFromLocation(locationB)
-}
-</code></p>
-
-<p>2.该方法是直接定义在struct的定义中的，Swift中的Struct可以定义方法，这也是它与C的Struct的最大区别，C中的Struct只能定义变量，导致与之相关的方法只能定义为全局方法，而如何按照类型归纳这些方法就需要开发者手工将其写到一个头文件中，这显然费时也不合理，而Swift真正实现了Struct中可以真正拥有自己的方法。<br/>
-3.像用户点击Annotation后弹出的alert再添加一个Find Nearest的选项，并实现找到离该点最近的Treasure。</p>
+<p>4.还有一个酷的特性是可以为参数赋默认值，这样调用时可以只输入单个参数，如下：</p>
 
 <p>```objectivec
-alert.addAction(UIAlertAction(title: &ldquo;Find Nearest&rdquo;, style: UIAlertActionStyle.Default) { action in
-  var sortedTreasures = self.treasures
-  sortedTreasures.sortInPlace {</p>
+func move(x: Int = 0, y: Int = 0) {</p>
 
-<pre><code>let distanceA = treasure.location.distanceBetween($0.location)
-let distanceB = treasure.location.distanceBetween($1.location)
-return distanceA &lt; distanceB
+<pre><code>row += y
+column += x
 </code></pre>
 
-<p>  }
-  mapView.deselectAnnotation(treasure, animated: true)
-  mapView.selectAnnotation(sortedTreasures[1], animated: true)
-  })
+<p>}
+cell.move(4, y: 7)
+cell.move(2)
+cell.move(y: 3)
 ```</p>
 
-<p>4.上述代码的核心是sortedTreasures的排序，利用了sort()方法(Swift中改为sortInPlace())，$1和$2分别代表了传入方法的第一和第二参数，是简写形式，分别计算出两点距离当前treasure的距离，然后返回Bool告知是否已按照小大顺序排好，最后数组排序后，展示第二个元素，来展示最近的treasure。</p>
+<h3>Methods are first-class,too</h3>
+
+<p>1.与function类似，Method也是第一类对象，同样可以作为参数、返回结果、或则赋值给其他变量。</p>
 
 <p><code>objectivec
-public mutating func sortInPlace(@noescape isOrderedBefore: (Self.Generator.Element, Self.Generator.Element) -&gt; Bool)
+var cell = Cell()var instanceFunc = cell.moveByY
+instanceFunc(34)
 </code></p>
 
-<!--more-->
-
-
-<h2>Equality and operator overload</h2>
-
-<p>1.照例，新需求，需要标记用户发现treasure的路径并在用户在已发现的treasure上操作时提示用户。<br/>
-2.创建已找到Treasure的数组和要绘制的地图线，并实现MKMapViewDelegate的一个方法。</p>
+<p>2.除此之外，还有一个函数式编程的特性，直接通过类获取方法，在调用时需要绑定一个类的实例，这被称为柯里化函数，会在第七章的函数式编程介绍。</p>
 
 <p><code>objectivec
-private var foundLocations: [GeoLocation] = []
-private var polyline: MKPolyline!
+var cell = Cell()var moveFunc = Cell.moveByY
+moveFunc(cell)(34)
 </code></p>
 
-<p>```objectivec
-func mapView(mapView: MKMapView, rendererForOverlay overlay: MKOverlay) &ndash;> MKOverlayRenderer {
-  if let polylineOverlay = overlay as? MKPolyline {</p>
+<h2>Closures</h2>
 
-<pre><code>let renderer = MKPolylineRenderer(polyline: polylineOverlay)
-renderer.strokeColor = UIColor.blueColor()
-return renderer
-</code></pre>
+<p>闭包如同函数和方法一样，是一组代码，可以被调用或传递，但是闭包是匿名的，而且它会将它范围内的值进行持有，这是它的特性。</p>
 
-<p>  }
-  return nil
-}
-```</p>
+<h3>Closure expressions as anonymous function</h3>
 
-<p>3.在上一节添加alert的位置再添加Found项，再创建markTreasureAsFound()方法来标记已找到的Treasure，并绘制新的MKPolyline。</p>
+<ol>
+<li></li>
+</ol>
 
-<p><code>objectivec
-alert.addAction(UIAlertAction(title: "Found", style: UIAlertActionStyle.Default) { action in
-  self.markTreasureAsFound(treasure)
-  })
-</code></p>
-
-<p>```objectivec
-private func markTreasureAsFound(treasure: Treasure) {
-  if let index = self.foundLocations.indexOf(treasure.location) {</p>
-
-<pre><code>let alert = UIAlertController(title: "Oops!", message: "You've already found this treasure (at step \(index + 1))! Try again!", preferredStyle: .Alert)
-alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: nil))
-self.presentViewController(alert, animated: true, completion: nil)
-</code></pre>
-
-<p>  } else {</p>
-
-<pre><code>self.foundLocations.append(treasure.location)
-if self.polyline != nil {
-  self.mapView.removeOverlay(self.polyline)
-}
-var coordinates = self.foundLocations.map { $0.coordinate }
-self.polyline = MKPolyline(coordinates: &amp;coordinates, count: coordinates.count)
-self.mapView.addOverlay(self.polyline)
-</code></pre>
-
-<p>  }
-}
-```</p>
-
-<p>4.首先利用find()函数（Swift2.0已弃用，改为collection的indexOf()方法）来获取目前位置是否已在foundLocations中，返回值为optional类型，所以需要if/let判断，这里就体现了这一技术的便利。<br/>
-5.在创建MKPolyline时，先对foundLocations使用了map方法，map如前面提到的reduce一样，也是函数式编程的一种，它的作用是从一个数组中获取另外一个数组，这里就是从foundLocations得到了由其中每一个location的coordinate组成的新数组，$0代表每一个location。<br/>
-6.这里需要实现find()方法（实际在Swift2.0已弃用），需要在GeoLocation中遵循Equatable协议，，因为find()中比较每个元素是通过==来比较的（类似OC中的isEqual()），而Class和Struc默认是不能用==比较的。这里用到了Swift的又一新特性，operator overload，既可以直接重写==这样的操作符，但需要注意下面对==的重写，并没有包含在extension中，因为operation overload都必须在定义在全局中，因为它本身并不属于某个类，它只是与一个类有关，基于要比较的的两个参数是这个类的实例。</p>
-
-<p><code>objectivec
-protocol Equatable {    func ==(lhs: Self, rhs: Self) -&gt; Bool}
-</code></p>
-
-<p><code>objectivec
-extension GeoLocation: Equatable {
-}
-func ==(lhs: GeoLocation, rhs: GeoLocation) -&gt; Bool {
-  return lhs.latitude == rhs.latitude &amp;&amp; lhs.longitude == rhs.longitude
-}
-</code></p>
-
-<!--more-->
-
-
-<h2>Access Control</h2>
-
-<p>1.目前为止所有变量和方法都是public的，但Swift提供了访问权限的关键字，包括：Public(所有代码均可访问)、Internal(只在该target(library或app)下的代码可以访问，是默认权限)、Private(只有该文件可以访问)。<br/>
-2.例如有一些类中的帮助方法，你不希望暴露在外，因为他们可以改变着一些不该暴露的内部状态信息。<br/>
-3.需要注意的是Unit test通常是另外一个Target，如果你的代码有部分需要单元测试，那么需要声明为public。<br/>
-4.与OC相比，OC是没有绝对的私有方法的，因为即使没有暴露在在头文件中，也可以通过runtime注入来访问私有方法。</p>
-
-<p><code>objectivec
-private func markTreasureAsFound(treasure: Treasure)
-</code></p>
-
-<p><code>objectivec
-private var treasures: [Treasure] = []private var foundLocations: [GeoLocation] = [] private var polyline: MKPolyline!
-</code></p>
-
-<p>5.internal一般是不会显式声明的，如果是一个library被多个app使用，你可能会将内部类声明为internal，这样就不会被其他app中的代码使用了。<br/>
-6.访问控制标志是表达你代码意图的很好的方式，可以使代码更易维护，也会减少Bug，</p>
 ]]></content>
   </entry>
   

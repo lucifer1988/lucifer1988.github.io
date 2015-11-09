@@ -1,0 +1,810 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Swift by Tutorials--Functions and Closures - 刘毅的技术博客</title>
+  <meta name="author" content="刘毅">
+
+  
+  <meta name="description" content="函数是现代编程的一个重要部分，它将执行一个特定任务的逻辑打包到一个单元，可以复用，也可以提供给其他开发者作为黑盒接入使用。Swift支持全局的函数和类以及结构体的方法，还支持闭包，可以当做对象来传递。在这一章，会深入介绍Swift的函数，包括语法、类型及参数， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucifer1988.github.io/blog/2015/10/20/swift-by-tutorials-functions-and-closures">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="刘毅的技术博客" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<script type="text/javascript">
+
+function addBlankTargetForLinks () {
+
+  $('a[href^="http"]').each(function(){
+
+      $(this).attr('target', '_blank');
+
+  });
+
+}
+
+$(document).bind('DOMNodeInserted', function(event) {
+
+  addBlankTargetForLinks();
+
+});
+
+</script>
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">刘毅的技术博客</a></h1>
+  
+    <h2>记录自己的学习生活点滴，也希望和大家交流分享！</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucifer1988.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">首页</a></li>
+  <li><a href="/blog/archives">所有文章</a></li>
+  <li><a href="/blog/categories/ios">iOS开发专题</a></li>
+  <li><a href="http://weibo.com/u/2638849461" target="_blank">我的微博</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Swift by Tutorials--Functions and Closures</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-10-20T17:28:15+08:00" pubdate data-updated="true">Oct 20<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>函数是现代编程的一个重要部分，它将执行一个特定任务的逻辑打包到一个单元，可以复用，也可以提供给其他开发者作为黑盒接入使用。Swift支持全局的函数和类以及结构体的方法，还支持闭包，可以当做对象来传递。在这一章，会深入介绍Swift的函数，包括语法、类型及参数，还有Swift的命名习惯如何受OC的影响。最后，还有巧妙和灵活的闭包，这也是Swift作为一个函数式语言的重要原因。</p>
+
+<!--more-->
+
+
+<h2>Functions</h2>
+
+<h3>Your first functon</h3>
+
+<p>1.定义一个全局函数，Swift的函数全部是全局的，而方法是被定义在类或结构体中的，这与其他绝大多数语言室相同的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">square</span><span class="p">(</span><span class="nl">number:</span> <span class="n">Double</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Double</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">number</span> <span class="o">*</span> <span class="n">number</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Functions are first-class</h3>
+
+<p>1.函数在Swift中是一级对象，也就意味着它可以赋值，可以作为函数参数，也可以作为函数结果返回，这也是第七章要讲的函数式编程的基础。<br/>
+2.从前面几章得知，Swift是非常强调类型的安全性，那么函数的类型是什么呢？</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">operation</span> <span class="o">=</span> <span class="n">square</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="nl">operation:</span><span class="p">(</span><span class="n">Double</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Double</span> <span class="o">=</span> <span class="n">square</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.面对一些函数类型中嵌套过于复杂，可以考虑使用typealias来梳理代码。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">doMath</span><span class="p">(</span><span class="nl">operation:</span><span class="p">(</span><span class="n">Double</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Double</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Double</span> <span class="p">{...}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">typealias</span> <span class="n">OperationType</span> <span class="o">=</span> <span class="p">(</span><span class="n">Double</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Double</span>
+</span><span class='line'><span class="n">func</span> <span class="n">doMath</span><span class="p">(</span><span class="nl">operation:</span><span class="n">OperationType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Double</span> <span class="p">{...}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Function syntax</h3>
+
+<p>1.除了一些常见的参数和返回结果这些必须条件，Swift函数无返回值时，<strong>Void</strong>并不是一个关键字，而是一个类型。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">logDouble</span><span class="p">(</span><span class="nl">number:</span> <span class="n">Double</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Void</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="nl">format:</span> <span class="s">&quot;%.2f&quot;</span><span class="p">,</span> <span class="n">number</span><span class="p">))</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">typealias</span> <span class="n">Void</span> <span class="o">=</span> <span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.所以你可以将返回空的函数返回值写为<strong>()</strong>，其实也可以不写返回符号和类型，但是函数类型没变，还是<strong>(Double) &ndash;> ()</strong>。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">logDouble</span><span class="p">(</span><span class="nl">number:</span> <span class="n">Double</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="nl">format:</span> <span class="s">&quot;%.2f&quot;</span><span class="p">,</span> <span class="n">number</span><span class="p">))</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">logDouble</span><span class="p">(</span><span class="nl">number:</span> <span class="n">Double</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="n">String</span><span class="p">(</span><span class="nl">format:</span> <span class="s">&quot;%.2f&quot;</span><span class="p">,</span> <span class="n">number</span><span class="p">))</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Overloading and generics</h3>
+
+<p>1.Swift是支持重载的，如下两个方法是可以共存的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">checkAreEqual</span><span class="p">(</span><span class="nl">value:</span> <span class="n">Int</span><span class="p">,</span> <span class="nl">expected:</span> <span class="n">Int</span><span class="p">,</span> <span class="nl">message:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">expected</span> <span class="o">!=</span> <span class="n">value</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">func</span> <span class="nf">checkAreEqual</span><span class="p">(</span><span class="nl">value:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">expected:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">message:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">expected</span> <span class="o">!=</span> <span class="n">value</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.这里复习下重载（overload）和重写（override）的区别，overload是指在同一类中同样方法名，但参数与返回结果可以不同；而重写是指子类覆盖父类的方法，方法名、参数、返回都相同，实现不同，重写Overriding是父类与子类之间多态性的一种表现，重载Overloading是一个类中多态性的一种表现。<br/>
+3.但是其实更好的解决方案是泛型，上一章也介绍过。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">checkAreEqual</span><span class="o">&lt;</span><span class="nl">T:</span> <span class="n">Equatable</span><span class="o">&gt;</span> <span class="p">(</span><span class="nl">value:</span> <span class="n">T</span><span class="p">,</span> <span class="nl">expected:</span> <span class="n">T</span><span class="p">,</span> <span class="nl">message:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="n">expected</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>4.经测试会出现这一现象，这一现象出现的原因是checkAreEqual会对前两个参数类型进行检查，一是其类型必须遵循Equatable协议，二是两个参数类型必须相同，第一个出现error就是因为类型不同造成的，而后者成功是因为45并没有指明类型，所以Swift通过&#8221;cat&#8221;推测出T应该是String类型，所以45也被推测为String类型，所以通过。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//error</span>
+</span><span class='line'><span class="n">checkAreEqual</span><span class="p">(</span><span class="n">Int</span><span class="p">(</span><span class="mi">45</span><span class="p">),</span> <span class="nl">expected:</span> <span class="s">&quot;cat&quot;</span><span class="p">,</span> <span class="nl">message:</span> <span class="s">&quot;is not cat&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="c1">//success</span>
+</span><span class='line'><span class="n">checkAreEqual</span><span class="p">(</span><span class="mi">45</span><span class="p">,</span> <span class="nl">expected:</span> <span class="s">&quot;cat&quot;</span><span class="p">,</span> <span class="nl">message:</span> <span class="s">&quot;is not cat&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>In-out variables</h3>
+
+<p>1.开发中有些情况是需要我们改变参数值的，比如下面的square方法</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">square</span><span class="p">(</span><span class="nl">number:</span> <span class="n">Double</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">number</span> <span class="o">=</span> <span class="n">number</span><span class="o">*</span><span class="n">number</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.但是这么写会直接报错，因为Swift中传入方法的参数类型默认都是let常量，是不可改变的，所以我们先将number改为var类型。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">square</span><span class="p">(</span><span class="n">var</span> <span class="nl">number:</span> <span class="n">Double</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">number</span> <span class="o">=</span> <span class="n">number</span><span class="o">*</span><span class="n">number</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.这次编译通过了，但是结果测试不对，仍输出原值，其实这里Swift与其他主流语言（OC、Java、C#、JS）一样，虽然表面上允许参数值修改，但是其实修改的是参数的本地copy，并不影响原值。<br/>
+4.但是Swift还是支持直接修改原参数的，通过添加inout关键字，就可以将参数的指针地址直接传入，从而修改参数，如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">square</span><span class="p">(</span><span class="n">inout</span> <span class="nl">number:</span> <span class="n">Double</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">number</span> <span class="o">=</span> <span class="n">number</span><span class="o">*</span><span class="n">number</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">var</span> <span class="n">a</span> <span class="o">=</span> <span class="mf">5.0</span>
+</span><span class='line'><span class="n">square</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>5.但是作者还是推荐谨慎使用，尤其在调用者对该技术不了解时，可能会造成困惑。</p>
+
+<h3>Classes and structures as function parameters</h3>
+
+<p>1.这一节讨论下类和结构体作为函数参数时的区别，首先看下Class作为参数的情况。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="n">Person</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="n">age</span> <span class="o">=</span> <span class="mi">34</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Colin&quot;</span>
+</span><span class='line'>    <span class="n">func</span> <span class="n">growOlder</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">age</span><span class="o">++</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">func</span> <span class="n">celebrateBirthday</span><span class="p">(</span><span class="nl">person:</span> <span class="n">Person</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="s">&quot;Happy Birthday \(person.name)&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">person</span><span class="p">.</span><span class="n">growOlder</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">let</span> <span class="n">person</span> <span class="o">=</span> <span class="n">Person</span><span class="p">()</span>
+</span><span class='line'><span class="n">celebrateBirthday</span><span class="p">(</span><span class="n">person</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">person</span><span class="p">.</span><span class="n">age</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.结果person成功完成了age的增加，因为函数参数person和声明的实例person都是常量，并引用了相同的实例，当函数将class作为参数类型时，swift会将该类的实例的指针传入函数。<br/>
+3.再看下结构体的实现，显然结构体和上一节的基本数据类型是一样的，仍需要声明参数为inout，而且在修改自身变量时需要在方法前加mutating关键字。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">struct</span> <span class="n">Person</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="n">age</span> <span class="o">=</span> <span class="mi">34</span><span class="p">,</span> <span class="n">name</span> <span class="o">=</span> <span class="s">&quot;Colin&quot;</span>
+</span><span class='line'>    <span class="n">mutating</span> <span class="n">func</span> <span class="n">growOlder</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">age</span><span class="o">++</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">func</span> <span class="n">celebrateBirthday</span><span class="p">(</span><span class="n">inout</span> <span class="nl">person:</span> <span class="n">Person</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="s">&quot;Happy Birthday \(person.name)&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">person</span><span class="p">.</span><span class="n">growOlder</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">var</span> <span class="n">person</span> <span class="o">=</span> <span class="n">Person</span><span class="p">()</span>
+</span><span class='line'><span class="n">celebrateBirthday</span><span class="p">(</span><span class="o">&amp;</span><span class="n">person</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">person</span><span class="p">.</span><span class="n">age</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>4.另外由于array和dictionary都是struct，所以需要在函数中，他们作为参数并允许被修改时，也需要inout关键字。</p>
+
+<h3>Variadics</h3>
+
+<p>1.这一节来讨论有变长参数的函数类型，下面就是一个用例：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">longestWord</span><span class="p">(</span><span class="nl">words:</span> <span class="n">String</span><span class="p">...)</span> <span class="o">-&gt;</span> <span class="n">String</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">currentLongest:</span> <span class="n">String</span><span class="o">?</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">word</span> <span class="k">in</span> <span class="n">words</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">currentLongest</span> <span class="o">!=</span> <span class="nb">nil</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="n">word</span><span class="p">.</span><span class="n">characters</span><span class="p">.</span><span class="n">count</span> <span class="o">&gt;</span> <span class="n">currentLongest</span><span class="o">!</span><span class="p">.</span><span class="n">characters</span><span class="p">.</span><span class="n">count</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">currentLongest</span> <span class="o">=</span> <span class="n">word</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">currentLongest</span> <span class="o">=</span> <span class="n">word</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">currentLongest</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">let</span> <span class="kt">long</span> <span class="o">=</span> <span class="n">longestWord</span><span class="p">(</span><span class="s">&quot;chick&quot;</span><span class="p">,</span> <span class="s">&quot;fish&quot;</span><span class="p">,</span> <span class="s">&quot;cat&quot;</span><span class="p">,</span> <span class="s">&quot;elephant&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="kt">long</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.words相当于一个常量数组，在函数中可以直接使用for-in来遍历其成员，可变长参数可能并不常用，但是在特定场景下还是一种比较优雅的实现方式。<br/>
+3.这里补充一点，计算String长度的函数已经从<strong>countElements(word)【Swift1.0】</strong> &ndash;> <strong>count(word)【Swift1.2】</strong> &ndash;> <strong>word.characters.count【Swift2.0】</strong>，经历了这一变化。<br/>
+4.如果结合第七章要讲的函数式编程，其实该方法可以用reduce函数来实现，如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">longestWord</span><span class="p">(</span><span class="nl">words:</span> <span class="n">String</span><span class="p">...)</span> <span class="o">-&gt;</span> <span class="n">String</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">words</span><span class="p">.</span><span class="n">reduce</span><span class="p">(</span><span class="n">String</span><span class="o">?</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>    <span class="p">(</span><span class="n">longest</span><span class="p">,</span> <span class="n">word</span><span class="p">)</span> <span class="k">in</span>
+</span><span class='line'>    <span class="n">longest</span> <span class="o">==</span> <span class="nb">nil</span> <span class="o">||</span> <span class="n">word</span><span class="p">.</span><span class="n">characters</span><span class="p">.</span><span class="n">count</span> <span class="o">&gt;</span> <span class="n">longest</span><span class="o">!</span><span class="p">.</span><span class="n">characters</span><span class="p">.</span><span class="n">count</span>
+</span><span class='line'>        <span class="o">?</span> <span class="n">word</span> <span class="o">:</span> <span class="n">longest</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>External parameter names</h3>
+
+<p>1.有时一些参数的作用表示的不是很明确，Swift不像OC，习惯在每个参数前写一段方法名，比如上述的比较字符串输入验证，光从调用来看无法得知那个是需要的名称。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">checkAreEqual</span><span class="p">(</span><span class="s">&quot;cat&quot;</span><span class="p">,</span> <span class="s">&quot;dog&quot;</span><span class="p">,</span> <span class="s">&quot;Incorrect input&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.为了解决这一问题，Swift允许开发者添加供外部使用的参数名，可以和内部的参数名共存，内部外部各自使用不同的参数名：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">checkAreEqual</span><span class="p">(</span><span class="n">value</span> <span class="nl">val:</span> <span class="n">String</span><span class="p">,</span> <span class="n">expected</span> <span class="nl">exp:</span> <span class="n">String</span><span class="p">,</span> <span class="n">message</span> <span class="nl">msg:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">exp</span> <span class="o">!=</span> <span class="n">val</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">checkAreEqual</span><span class="p">(</span><span class="nl">value:</span> <span class="s">&quot;cat&quot;</span><span class="p">,</span> <span class="nl">expected:</span> <span class="s">&quot;dog&quot;</span><span class="p">,</span> <span class="nl">message:</span> <span class="s">&quot;Incorrect input&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.但是需要注意的是，即使是使用了另外一套参数名，调用的顺序还是要和原来一致，像下面的调用是不会成功的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">checkAreEqual</span><span class="p">(</span><span class="nl">expected:</span> <span class="s">&quot;dog&quot;</span><span class="p">,</span> <span class="nl">value:</span> <span class="s">&quot;cat&quot;</span><span class="p">,</span> <span class="nl">message:</span> <span class="s">&quot;Incorrect input&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>4.如果你的内外部参数名一致，而且也确实需要外部参数名，可以在参数名前加#来使内外部参数名相同。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">checkAreEqual</span><span class="p">(</span><span class="err">#</span><span class="nl">value:</span> <span class="n">String</span><span class="p">,</span> <span class="err">#</span><span class="nl">expected:</span> <span class="n">String</span><span class="p">,</span> <span class="err">#</span><span class="nl">message:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">expected</span> <span class="o">!=</span> <span class="n">value</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">println</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">checkAreEqual</span><span class="p">(</span><span class="nl">value:</span> <span class="s">&quot;dog&quot;</span><span class="p">,</span> <span class="nl">expected:</span> <span class="s">&quot;cat&quot;</span><span class="p">,</span> <span class="nl">message:</span><span class="s">&quot;Incorrect input&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.当然这是一些场景下的问题，很多方法其实从函数名即可推断出参数的意义，而有些方法则是必须加参数名的，这一决定由具体情况来决定，<strong>大部分需要添加的属于有多个相同类型的参数</strong>。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//purpose is clear</span>
+</span><span class='line'><span class="n">dateFromString</span><span class="p">(</span><span class="s">&quot;2014-03-14&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="c1">//not clear, which is row? which is colume?</span>
+</span><span class='line'><span class="n">convertCellAt</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="mi">13</span><span class="p">)</span>
+</span><span class='line'><span class="c1">//to be clear</span>
+</span><span class='line'><span class="n">convertCellAt</span><span class="p">(</span><span class="nl">column:</span> <span class="mi">42</span><span class="p">,</span> <span class="nl">row:</span> <span class="mi">13</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Methods</h2>
+
+<p>与函数相对的是方法，方法是与类、结构体、枚举关联的函数，本章会对各类方法进行讨论。</p>
+
+<h3>Instance methods</h3>
+
+<p>1.下面是一个名叫cell的类，其中包含单个参数和多个参数的方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="nl">Cell:</span> <span class="n">CustomStringConvertible</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">private</span><span class="p">(</span><span class="n">set</span><span class="p">)</span> <span class="n">var</span> <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="n">private</span><span class="p">(</span><span class="n">set</span><span class="p">)</span> <span class="n">var</span> <span class="n">column</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'>    <span class="n">func</span> <span class="n">move</span><span class="p">(</span><span class="nl">x:</span> <span class="n">Int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nl">y:</span> <span class="n">Int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">row</span> <span class="o">+=</span> <span class="n">y</span>
+</span><span class='line'>        <span class="n">column</span> <span class="o">+=</span> <span class="n">x</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">func</span> <span class="n">moveByX</span><span class="p">(</span><span class="nl">x:</span> <span class="n">Int</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">column</span> <span class="o">+=</span> <span class="n">x</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">func</span> <span class="n">moveByY</span><span class="p">(</span><span class="nl">y:</span> <span class="n">Int</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">row</span> <span class="o">+=</span> <span class="n">y</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">description:</span> <span class="n">String</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">get</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">return</span> <span class="s">&quot;Cell [row=\(row), col=\(column)]&quot;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.调用单个参数方法与函数没有区别，而调用多参数时需要在第二个参数后加上外部变量名，这与函数是不同的。其原因是函数默认是不添加外部参数名的，而方法除了第一个参数，后面的参数都是默认添加外部参数名，且与内部参数名一致，这一点也是从OC的命名风格继承而来。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">cell</span> <span class="o">=</span> <span class="n">Cell</span><span class="p">()</span>
+</span><span class='line'><span class="n">cell</span><span class="p">.</span><span class="n">moveByX</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+</span><span class='line'><span class="n">cell</span><span class="p">.</span><span class="n">move</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="nl">y:</span> <span class="mi">7</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>3.你可以通过在参数前加<strong> _ </strong>来禁止这一默认添加外部参数名的行为，如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">move</span><span class="p">(</span><span class="nl">x:</span> <span class="n">Int</span><span class="p">,</span> <span class="n">_</span> <span class="nl">y:</span> <span class="n">Int</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">row</span> <span class="o">+=</span> <span class="n">y</span>
+</span><span class='line'>  <span class="n">column</span> <span class="o">+=</span> <span class="n">x</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">cell</span><span class="p">.</span><span class="n">move</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>4.还有一个酷的特性是可以为参数赋默认值，这样调用时可以只输入单个参数，如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">move</span><span class="p">(</span><span class="nl">x:</span> <span class="n">Int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nl">y:</span> <span class="n">Int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">row</span> <span class="o">+=</span> <span class="n">y</span>
+</span><span class='line'>    <span class="n">column</span> <span class="o">+=</span> <span class="n">x</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">cell</span><span class="p">.</span><span class="n">move</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="nl">y:</span> <span class="mi">7</span><span class="p">)</span>
+</span><span class='line'><span class="n">cell</span><span class="p">.</span><span class="n">move</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><span class='line'><span class="n">cell</span><span class="p">.</span><span class="n">move</span><span class="p">(</span><span class="nl">y:</span> <span class="mi">3</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Methods are first-class,too</h3>
+
+<p>1.与function类似，Method也是第一类对象，同样可以作为参数、返回结果、或则赋值给其他变量。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">cell</span> <span class="o">=</span> <span class="n">Cell</span><span class="p">()</span>
+</span><span class='line'><span class="n">var</span> <span class="n">instanceFunc</span> <span class="o">=</span> <span class="n">cell</span><span class="p">.</span><span class="n">moveByY</span>
+</span><span class='line'><span class="n">instanceFunc</span><span class="p">(</span><span class="mi">34</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>2.除此之外，还有一个函数式编程的特性，直接通过类获取方法，在调用时需要绑定一个类的实例，这被称为柯里化函数，会在第七章的函数式编程介绍。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">cell</span> <span class="o">=</span> <span class="n">Cell</span><span class="p">()</span>
+</span><span class='line'><span class="n">var</span> <span class="n">moveFunc</span> <span class="o">=</span> <span class="n">Cell</span><span class="p">.</span><span class="n">moveByY</span>
+</span><span class='line'><span class="n">moveFunc</span><span class="p">(</span><span class="n">cell</span><span class="p">)(</span><span class="mi">34</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Closures</h2>
+
+<p>闭包如同函数和方法一样，是一组代码，可以被调用或传递，但是闭包是匿名的，而且它会将它范围内的值进行持有，这是它的特性。</p>
+
+<h3>Closure expressions as anonymous function</h3>
+
+<ol>
+<li></li>
+</ol>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">刘毅</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-10-20T17:28:15+08:00" pubdate data-updated="true">Oct 20<span>th</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ios/'>iOS</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <style>
+    .flash-video{display:none;}
+</style>
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <span class="jiathis_txt">分享到：</span>
+  <a class="jiathis_button_qzone">QQ空间</a>
+  <a class="jiathis_button_tsina">新浪微博</a>
+  <a class="jiathis_button_tqq">腾讯微博</a>
+  <a class="jiathis_button_renren">人人网</a>
+  <a class="jiathis_button_douban">豆瓣</a>
+  <a class="jiathis_button_weixin">微信</a>
+  <a href="http://www.jiathis.com/share?uid=1885095" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript">
+var jiathis_config = {data_track_clickback:'true'};
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1885095" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+
+<br />
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1885095"></script>
+<!-- UY END -->
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/10/15/swift-by-tutorials-generics/" title="Previous Post: Swift by Tutorials--Generics">&laquo; Swift by Tutorials--Generics</a>
+      
+      
+        <a class="basic-alignment right" href="/blog/2015/10/20/react-nativechu-tan-1/" title="Next Post: React Native初探1">React Native初探1 &raquo;</a>
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/11/05/ioskai-fa-bei-wang-lu-1/">iOS开发备忘录1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/30/hui-da-sunnyde-55dao-iosmian-shi-ti-2/">回答Sunny的55道iOS面试题2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/28/hui-da-sunnyde-55dao-iosmian-shi-ti-1/">回答Sunny的55道iOS面试题1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/20/react-nativechu-tan-1/">React Native初探1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/20/swift-by-tutorials-functions-and-closures/">Swift by Tutorials--Functions and Closures</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/15/swift-by-tutorials-generics/">Swift by Tutorials--Generics</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/12/swift-by-tutorials-classes-and-structs/">Swift by Tutorials--Classes and Structs</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/10/swift-by-tutorials-language-basics-ii/">Swift by Tutorials--Language Basics II</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/08/swift-by-tutorials-language-basics-i/">Swift by Tutorials--Language Basics I</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/09/16/effective-objective-cdu-shu-bi-ji-7/">Effective Objective-C读书笔记7</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>About Me</h1>
+    <p> iOS开发, 菜鸟程序猿, Dotar<br/>
+      <br/>我的经历:
+      <br/>2007.9 进入吉大学习高端大气的电子信息工程
+      <br/>2011.9 考研失利,转投中传计算机专业,接触iOS
+      <br/>2013.8 入职盘古,以iOS程序员的身份开始职业生涯<br/>
+      <br/>我的微博: <a href="http://weibo.com/u/2638849461" target="_blank">JamesRaynor-刘毅</a>
+      <br/>我的git主页: <a href="https://github.com/lucifer1988" target="_blank">lucifer1988</a>
+      <br/>
+      <br/><span id="wb_follow_btn"></span>
+  </p>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - 刘毅 -
+  <span class="credit">Powered by <a href="http://octopress.org" target="_blank">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=3350288267" type="text/javascript" charset="utf-8"></script>
+<script>
+    WB2.anyWhere(function(W){
+        W.widget.followButton({
+            'uid': 2638849461,
+            'nick_name': 'JamesRaynor-刘毅',
+            'id': "wb_follow_btn",
+            'show_head' : true, 
+            'show_name' : true, 
+            'show_cancel': false
+        });
+    });
+</script>
+6vvqnj09Z6
+
+</body>
+</html>
