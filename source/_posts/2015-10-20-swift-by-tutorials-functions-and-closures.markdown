@@ -346,5 +346,220 @@ moveFunc(cell)(34)
 
 ### Closure expressions as anonymous function
 
-1.
+之前说过function和method都是第一类对象，他们是可以作为参数的。
+
+```objectivec
+func sort(isOrderedBefore: (T, T) -> Bool) -> [T]
+```
+
+这是一个常见的Array排序方法，要传入一个(T, T) -> Bool类型的比较方法，正常来说我们可以按照以下方式使用。
+
+```objectivec
+let animals = ["fish", "cat", "chicken", "dog"]func isBefore(one: String, two: String) -> Bool { 
+	return one > two}let sortedStrings = animals.sort(isBefore) 
+```
+
+但是如果使用闭包结构，那么我们完全不需要声明isBefore函数，如下：
+
+```objectivec
+let animals = ["fish", "cat", "chicken", "dog"]let sortedStrings = animals.sort({ 
+	(one: String, two: String) -> Bool in 
+	return one > two})
+```
+
+可以将闭包理解为匿名函数，通过in关键字来表明函数的实现部分，但是这一结构在实际开发中也可以进行继续简化，这得利与Swift的type inference特性。首先，系统可以推断出闭包中参数的类型和返回值类型：
+
+```objectivec
+let sortedStrings = animals.sort({ 
+	(one, two) in	return one > two})
+```
+
+同时可以省略return和括号：
+
+```objectivec
+let sortedStrings = animals.sort({ 
+	one, two in	one > two})
+```
+
+然后，如果想进一步简化，可以利用Swift的简写本地常量来替代参数，如下：
+
+```objectivec
+let sortedStrings = animals.sort({ $0 > $1 })
+```
+
+也可以将闭包拿到方法之外，作为trailing closure，也可将()删除：
+
+```objectivec
+let sortedStrings = animals.sort() { $0 > $1 }
+//or
+let sortedStrings = animals.sorted { $0 > $1 }
+```
+
+终极简化，直接将参数也省去，这也与逻辑上的最简达成了一致，sort()方法只需要知道你想排序的方式。
+
+```objectivec
+let sortedStrings = animals.sort(>)
+```
+
+另外需要注意的是，如果你打算自己声明这个闭包的变量，再赋值给sort()，也可以，但是就不能做简化，因为系统无法推断出所需的类型。
+
+```objectivec
+var isBefore = {	(one: String, two: String) -> Bool in 
+	return one > two}let sortedStrings = animals.sorted(isBefore)
+```
+
+### Capturing values
+
+闭包会对内部使用的外部变量进行占据，下面就举例说明这一现象，在makeStateMachine()返回StateMachineType类型的函数后，照理说其内部变量currentState的作用域也结束了，但是在使用该函数时，仍然没有报错，说明闭包对外部变量进行了占据，这类似于OC中的block对引用的外部变量的retain操作：
+
+```objectivec
+typealias StateMachineType = () -> Int
+
+func makeStateMachine(maxState: Int) -> StateMachineType {
+    var currentState = 0;
+    return {
+        currentState++
+        if currentState > maxState {
+            currentState = 0
+        }
+        return currentState
+    }
+}
+
+let tristate = makeStateMachine(2)
+print(tristate())
+```
+
+### Memory leaks and capture lists
+
+下面先介绍一个导致closure内存泄露的例子，源代码中actionClosure为let类型，实际开发中会出现[error](http://stackoverflow.com/questions/27038889/why-do-i-get-a-variable-used-before-being-initialized-error-on-the-line-that-i)，这里改为了var类型，也说明了问题。
+
+```objectivec
+class Person {
+    var name: String
+    private var actionClosure: (() -> ())!
+    
+    init(name: String) {
+        self.name = name
+        self.actionClosure = {
+            print("I am \(self.name)")
+        }
+    }
+    
+    func performAction() {
+        actionClosure()
+    }
+    
+    deinit {
+        print("\(name) is being deinitialized")
+    }
+}
+```
+
+然后在ViewController的viewDidLoad()调用以下代码，这时会出现person的引用循环，viewDidLoad()方法结束了，没有指向person的指针，而person又与自己的actionClosure变量互相引用，无法释放，造成内存泄露。
+
+```objectivec
+override func viewDidLoad() {
+    super.viewDidLoad()
+    // Do any additional setup after loading the view, typically from a nib.
+    
+    let person = Person(name: "bob")    person.performAction()
+}
+```
+
+这与OC中block的引用循环是一样的，在OC里常用以下方式，用weak类型的替代来避免强引用。
+
+```objectivec
+__weak typeof(self)weakSelf = self; 
+[self.context performBlock:^{	__strong typeof(weakSelf)strongSelf = weakSelf;	// do something with strongSelf}];
+```
+
+而在Swift中有更优雅的解决方案，可以定义一个capture list，这里将self标记为unowned，当然也可以标记为weak，关于二者的区别，会附加一节进行介绍。
+
+```objectivec
+actionClosure = {
+	[unowned self] () -> () in
+	print("I am \(self.name)")
+}
+```
+
+```objectivec
+actionClosure = {
+	[weak self] () -> () in
+	print("I am \(self.name)")
+}
+```
+
+### 补充：关于weak和unowned
+
+unowned可以类比为OC当中unsafe_unretained，即即使内容被释放了，但指针并不会指向nil，而weak与OC当中的weak是一致的，都会在内容释放后，自动指向nil。所以unowned不是Optional类型，也不会被置为nil。而weak则是Optional类型，因为它需要在引用对象释放时置为nil。Apple的建议是能确保访问期间不被释放的话，使用unowned，如果可能被释放，就是用weak。
+
+实际开发过程中经常使用弱引用的场景有两个：
+
+* 设置delegate时
+* 闭包中对self属性进行引用，同时闭包自身也被self持有
+
+delegate我们一般选择使用weak关键字，如下述代码，因为网络请求中，可能出现等待过久，用户取消访问的情况，有可能RequestManager会被释放，所以这里采用了weak，而不是unowned。
+
+```objectivec
+// RequestManager.swift
+class RequestManager: RequestHandler {
+
+    func requestFinished() {
+        println("请求完成")
+    }
+
+    func sendRequest() {
+        let req = Request()
+        req.delegate = self
+
+        req.send()
+    }
+}
+
+// Request.swift
+@objc protocol RequestHandler {
+    optional func requestFinished()
+}
+
+class Request {
+    weak var delegate: RequestHandler!;
+
+    func send() {
+        // 发送请求
+        // 一般来说会将 req 的引用传递给网络框架
+    }
+
+    func gotResponse() {
+        // 请求返回
+        delegate?.requestFinished?()
+    }
+}
+```
+
+而闭包循环引用的例子，就如上一节的例子，那么，如果我们能确保self不会在访问actionClosure过程中释放，那么就是用unowned，如果不能确保（比如该closure被外部变量持有了，然后self释放，但仍可访问到closure），那么就要使用weak。
+
+如果需要标注多个元素，那么需要用逗号隔开。
+
+```objectivec
+// 标注前
+{ (number: Int) -> Bool in
+    //...
+    return true
+}
+
+// 标注后
+{ [unowned self, weak someObject] (number: Int) -> Bool in
+    //...
+    return true
+} 
+```
+
+
+
+
+
+
+
+
 
