@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-11-20T10:07:20+08:00</updated>
+  <updated>2015-11-23T14:07:24+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,589 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Swift by Tutorials--Enums and Switch Statements]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/11/20/swift-by-tutorials-enums-and-switch-statements/"/>
+    <updated>2015-11-20T10:11:34+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/11/20/swift-by-tutorials-enums-and-switch-statements</id>
+    <content type="html"><![CDATA[<p>enum枚举类型是很多编程语言的基本特性，一般是用来存储一组表示不同type的值，比如UILabel使用的NSTextAlignment，会有.Center，.Left多个type。而在Swift中，enum除了原始的用法，它的用法更像class或struct，enum可以拥有自己的方法，甚至是构造方法，然后通过配合Switch，可以实现更灵活的代码流控制，所以才会专门拿出来讲解，足见enum+switch在Swift的重要性。</p>
+
+<!--more-->
+
+
+<h2>Basic enumerations</h2>
+
+<p>先看一个Swift中定义的简单enum，如下：</p>
+
+<p>```objectivec
+enum Shape {</p>
+
+<pre><code>case Rectangle
+case Square
+case Triangle
+case Circle
+</code></pre>
+
+<p>}
+```</p>
+
+<p>而使用时，可以按照下面两种方式赋值，如果事先定义了类型，那么可以不用在后面写类型，这还是Swift type inference的表现。</p>
+
+<p><code>objectivec
+var aShape = Shape.Triangle
+var bShape: Shape = .Triangle
+</code></p>
+
+<p>而在之后的再次赋值中，都不用再指定类型。</p>
+
+<p><code>objectivec
+aShape = .Square
+</code></p>
+
+<h3>Raw values</h3>
+
+<p>在OC中，我们一般使用NS_ENUM()来定义枚举，并可以指定值的类型，也可以单独指定某个type的值。而在Swift中，也可以做到，而且更简单。</p>
+
+<p>```objectivec
+enum Shape: Int {</p>
+
+<pre><code>case Rectangle
+case Square
+case Triangle
+case Circle
+</code></pre>
+
+<p>}
+```</p>
+
+<p>使用上述代码就指定了enum的原始值类型为Int，同时该enum获得了一个property，<strong>rawValue</strong>，用于读取当前枚举值的raw value，和一个新的初始化方法，<strong>init(rawValue:)</strong>，用raw value来初始化enum。</p>
+
+<p><code>objectivec
+var triangle = Shape.Triangle
+triangle.rawValue
+var square = Shape(rawValue: 1)
+</code></p>
+
+<p>有一点需要注意，就是通过<strong>init(rawValue:)</strong>生成的enum值，是Optional类型的，因为可能会出现输入的raw value没有对应的enum，如下，会返回nil。</p>
+
+<p><code>objectivec
+var notAShape = Shape(rawValue: 100)
+</code></p>
+
+<p>enum可以直接给某个type赋值，然后其他未赋值的type会自动加1。</p>
+
+<p>```objectivec
+enum Shape: Int {</p>
+
+<pre><code>case Rectangle = 10
+case Square
+case Triangle
+case Circle
+</code></pre>
+
+<p>}
+```</p>
+
+<p>此外，enum可以使用其他类型的raw value，比如Double，Float，String，但是需要为所有type指定对应的raw value，因为除了Int，其他类型的enum是不会对没赋值的enum自动加1的。</p>
+
+<p>```objectivec
+enum Shape: String {</p>
+
+<pre><code>case Rectangle = "Rectangle"
+case Square = "Square"
+case Triangle = "Triangle"
+case Circle = "Circle"
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>Switch statements</h2>
+
+<p>switch与enum的配合在很多语言都是常见的用法，Swift中一样可以，而且有很多实用的改进。</p>
+
+<p>```objectivec
+enum Shape {</p>
+
+<pre><code>case Rectangle
+case Square
+case Triangle
+case Circle
+</code></pre>
+
+<p>}</p>
+
+<p>var aShape = Shape.Rectangle</p>
+
+<p>switch(aShape) {
+case .Rectangle:</p>
+
+<pre><code>print("a rectangle")
+</code></pre>
+
+<p>case .Square:</p>
+
+<pre><code>print("a square")
+</code></pre>
+
+<p>default:</p>
+
+<pre><code>print("other shape")
+</code></pre>
+
+<p>}
+```</p>
+
+<p>之前在控制流的章节我们介绍过Swift中的switch，它是需要所有case全部覆盖的，如果你实现了全部case的覆盖，则不用添加default，反之，一定要添加defaut处理。而且，你不需要在每个case后添加break，系统会自动为你添加。</p>
+
+<p>```objectivec
+switch(aShape) {
+case .Rectangle, .Square:</p>
+
+<pre><code>print("a quadrilateral")
+</code></pre>
+
+<p>case .Circle:</p>
+
+<pre><code>print("a circle")
+</code></pre>
+
+<p>default:</p>
+
+<pre><code>break
+</code></pre>
+
+<p>}
+```</p>
+
+<p>一个case处理多个值也很简单，只需要逗号隔开多个值即可，并不需要其他语言中，用不加break的多行处理。</p>
+
+<h2>Associated values</h2>
+
+<p>Associated values是Swift与其他语言的enum类型最大的不同之处，你可以向每个type添加一个类似元组类型的附加值，来作为二级判断条件，下面是有附带值的enum声明，可以为参数添加参数名。</p>
+
+<p>```objectivec
+enum Shape {</p>
+
+<pre><code>case Rectangle(width: Float, height: Float)
+case Square(side: Float)
+case Triangle(base: Float, height: Float)
+case Circle(radius: Float)
+</code></pre>
+
+<p>}
+```</p>
+
+<p>使用时，可以像类或结构体初始化一样赋值，但记住不能像两者一样用<strong>.</strong>来访问。</p>
+
+<p><code>objectivec
+var rectangle = Shape.Rectangle(width: 5, height: 10)
+</code></p>
+
+<p>你可以使用这些associated values的场景只能是在switch语句中，同时你还可以使用where关键字，为case添加二级条件。</p>
+
+<p>```objectivec
+switch (rectangle) {
+case .Rectangle(let width, let height) where width &lt;= 10:</p>
+
+<pre><code>print("Narrow rectangle:\(width)*\(height)")
+</code></pre>
+
+<p>case .Rectangle(let width, let height):</p>
+
+<pre><code>print("Wide rectangle:\(width)*\(height)")
+</code></pre>
+
+<p>default:</p>
+
+<pre><code>print("other shape")
+</code></pre>
+
+<p>}
+```</p>
+
+<p>需要注意的是，判断条件越来越复杂，便会出现符合多个case的情况，但像前面所说，系统会自动在case后添加break，所以也只会执行最先符合的case，这需要注意。</p>
+
+<h2>Eunms as types</h2>
+
+<p>Swift中的enum还有另外一个重要特性，就是可以添加方法，配合associated value，可以封转一些方便的方法，比如为上面的Shape添加一个计算面积的方法。</p>
+
+<p>```objectivec
+func area() &ndash;> Float {</p>
+
+<pre><code>switch(self) {
+case .Rectangle(let width, let height):
+    return width * height
+case .Square(let side):
+    return side * side
+case .Triangle(let base, let height):
+    return 0.5 * base * height
+case .Circle(let radius):
+    return Float(M_PI) * powf(radius, 2)
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>然后申明一个Shape的变量，就可以直接调用该方法计算面积了。</p>
+
+<p><code>objectivec
+var circle = Shape.Circle(radius: 5)
+circle.area()
+</code></p>
+
+<p>除此之外，可以添加新的构建方法，这是Shape实例的构造方法，所以切记一定要给self赋值，否则self没有值是无法返回对象的。</p>
+
+<p>```objectivec
+init(_ rect: CGRect) {</p>
+
+<pre><code>let width = Float(CGRectGetWidth(rect))
+let height = Float(CGRectGetHeight(rect))
+if width == height {
+    self = Square(side: width)
+} else {
+    self = Rectangle(width: width, height: height)
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p><code>objectivec
+var shape = Shape(CGRectMake(0, 0, 5, 10))
+</code></p>
+
+<p>所以如下这个构建方法是不合法的，因为会存在无法给self赋值的情况。</p>
+
+<p>```objectivec
+init(_ string: String) {</p>
+
+<pre><code>switch(string) {
+case "rectangle":
+    self = Rectangle(width: 5, height: 10)
+case "square":
+    self = Square(side: 5)
+case "triangle":
+    self = Triangle(base: 5, height: 10)
+case "circle":
+    self = Circle(radius: 5)
+default:
+    break
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>但是想通过这种思路来初始化Shape，也可以实现，就是构建一个static的工厂方法，这样就不存在一定要有值的限制了，可以返回Optional类型。</p>
+
+<p>```objectivec
+static func fromString(string: String) &ndash;> Shape? {
+switch(string) {</p>
+
+<pre><code>case "rectangle":
+    return Rectangle(width: 5, height: 10)
+case "square":
+    return Square(side: 5)
+case "triangle":
+    return Triangle(base: 5, height: 10)
+case "circle":
+    return Circle(radius: 5)
+default:
+    return nil
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>对应的，使用时也要用if来拆包。</p>
+
+<p>```objectivec
+if let anotherShape = Shape.fromString(&ldquo;rectangle&rdquo;) {</p>
+
+<pre><code>anotherShape.area()
+</code></pre>
+
+<p>}
+```</p>
+
+<h3>Optionals are enums</h3>
+
+<p>Swift的Optional类型是enum类型，下面是部分实现：</p>
+
+<p><code>objectivec
+enum Optional&lt;T&gt; : NilLiteralConvertible {
+  case None  case Some(T)  init()  init(_ some: T)  static func convertFromNilLiteral() -&gt; T?
+}
+</code></p>
+
+<p>这里使用了泛型，并将该类型作为Some的associated value，可以使Optional持有任何类型的值。</p>
+
+<p>同时enum可以实现协议，NilLiteralConvertible协议使你可以用nil来替代optional，编译器自动会将赋值nil时去调用<strong>convertFromNilLiteral</strong>，最终转化为.None。正是因为实现了这个协议，才可以对optional类型赋nil值，不然会报错。</p>
+
+<h2>JSON parsing using enums</h2>
+
+<p>本节用解析JSON这一常见用例，来实践enum在Swift中的使用。</p>
+
+<h3>Parsing JSON the hard way</h3>
+
+<p>这是常规的解析方法，看起来确实比较繁琐（但相比OC是还是简单多了）。</p>
+
+<p>```objectivec
+let json = &ldquo;{\"success\&rdquo;:true,\&ldquo;data\&rdquo;:{\&ldquo;numbers\&rdquo;:[1,2,3,4,5],\&ldquo;animal\&rdquo;:\&ldquo;dog\&rdquo;}}"</p>
+
+<p>if let jsonData = (json as NSString).dataUsingEncoding(NSUTF8StringEncoding) {
+  let parsed: AnyObject? = NSJSONSerialization.JSONObjectWithData(jsonData, options: NSJSONReadingOptions(0), error: nil)</p>
+
+<p>  // Actual JSON parsing section
+  if let parsed = parsed as? [String:AnyObject] {</p>
+
+<pre><code>if let success = parsed["success"] as? NSNumber {
+  if success.boolValue == true {
+    if let data = parsed["data"] as? NSDictionary {
+      if let numbers = data["numbers"] as? NSArray {
+        print(numbers)
+      }
+      if let animal = data["animal"] as? NSString {
+        print(animal)
+      }
+    }
+  }
+}
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<h3>Introducing JSON.swift</h3>
+
+<p>这个文件之前在第四章解析JSON时用过，下面来分析下它的结构，首先是一个enum定义，因为JSON文件就是一些基本元素和dictionary或array的组合，所以使用enum和associated value来定义JSON的基本对象，这是这一解决方案的核心思想。</p>
+
+<p><code>objectivec
+enum JSONValue {    case JSONObject([String:JSONValue])     case JSONArray([JSONValue]) case JSONString(String) case JSONNumber(NSNumber)   case JSONBool(Bool) case JSONNull}
+</code></p>
+
+<p>接下来为了获取.JSONObject和.JSONArray，我们利用Swift中方便添加角标访问的方式，使用subscript技术。</p>
+
+<p>```objectivec
+subscript(i: Int) &ndash;> JSONValue? {
+  get {</p>
+
+<pre><code>switch self {
+case .JSONArray(let value):
+  return value[i]
+default:
+  return nil
+}
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>subscript(key: String) &ndash;> JSONValue? {
+  get {</p>
+
+<pre><code>switch self {
+case .JSONObject(let value):
+  return value[key]
+default:
+  return nil
+}
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>那么访问一般元素时呢？我们采用了computed properties来访问。</p>
+
+<p>```objectivec
+var object: [String:JSONValue]? {
+  switch self {
+  case .JSONObject(let value):</p>
+
+<pre><code>return value
+</code></pre>
+
+<p>  default:</p>
+
+<pre><code>return nil
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>var array: [JSONValue]? {
+  switch self {
+  case .JSONArray(let value):</p>
+
+<pre><code>return value
+</code></pre>
+
+<p>  default:</p>
+
+<pre><code>return nil
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>var string: String? {
+  switch self {
+  case .JSONString(let value):</p>
+
+<pre><code>return value
+</code></pre>
+
+<p>  default:</p>
+
+<pre><code>return nil
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>var integer: Int? {
+  switch self {
+  case .JSONNumber(let value):</p>
+
+<pre><code>return value.integerValue
+</code></pre>
+
+<p>  default:</p>
+
+<pre><code>return nil
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>var double: Double? {
+  switch self {
+  case .JSONNumber(let value):</p>
+
+<pre><code>return value.doubleValue
+</code></pre>
+
+<p>  default:</p>
+
+<pre><code>return nil
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>var bool: Bool? {
+  switch self {
+  case .JSONBool(let value):</p>
+
+<pre><code>return value
+</code></pre>
+
+<p>  case .JSONNumber(let value):</p>
+
+<pre><code>return value.boolValue
+</code></pre>
+
+<p>  default:</p>
+
+<pre><code>return nil
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<p>最后将对象转化为JSONValue也需要一个方法，而且是递归调用的，</p>
+
+<p>```objectivec
+static func fromObject(object: AnyObject) &ndash;> JSONValue? {
+  switch object {
+  case let value as NSString:</p>
+
+<pre><code>return JSONValue.JSONString(value)
+</code></pre>
+
+<p>  case let value as NSNumber:</p>
+
+<pre><code>return JSONValue.JSONNumber(value)
+</code></pre>
+
+<p>  case let value as NSNull:</p>
+
+<pre><code>return JSONValue.JSONNull
+</code></pre>
+
+<p>  case let value as NSDictionary:</p>
+
+<pre><code>var jsonObject: [String:JSONValue] = [:]
+for (k: AnyObject, v: AnyObject) in value {
+  if let k = k as? NSString {
+    if let v = JSONValue.fromObject(v) {
+      jsonObject[k] = v
+    } else {
+      return nil
+    }
+  }
+}
+return JSONValue.JSONObject(jsonObject)
+</code></pre>
+
+<p>  case let value as NSArray:</p>
+
+<pre><code>var jsonArray: [JSONValue] = []
+for v in value {
+  if let v = JSONValue.fromObject(v) {
+    jsonArray.append(v)
+  } else {
+    return nil
+  }
+}
+return JSONValue.JSONArray(jsonArray)
+</code></pre>
+
+<p>  default:</p>
+
+<pre><code>return nil
+</code></pre>
+
+<p>  }
+}
+```</p>
+
+<h3>Putting it into practice</h3>
+
+<p>现在让我们使用JSON.swift来完成JSON的解析，进过比较，现在只需要两层嵌套就完成了原来五层的嵌套解析，而且由于使用了Optional类型，也增加了安全性。所以在Swift中一定要注重利用enum这些新特性，它非常适用于可以预定义为一组不同的子类型的类型，就像JSON。</p>
+
+<p>```objectivec
+let json = &ldquo;{\"success\&rdquo;:true,\&ldquo;data\&rdquo;:{\&ldquo;numbers\&rdquo;:[1,2,3,4,5],\&ldquo;animal\&rdquo;:\&ldquo;dog\&rdquo;}}"</p>
+
+<p>if let jsonData = (json as NSString).dataUsingEncoding(NSUTF8StringEncoding) {
+  if let parsed: AnyObject = NSJSONSerialization.JSONObjectWithData(jsonData, options: NSJSONReadingOptions(0), error: nil) {</p>
+
+<pre><code>if let jsonParsed = JSONValue.fromObject(parsed) {
+
+  // Actual JSON parsing section
+  if jsonParsed["success"]?.bool == true {
+    if let numbers = jsonParsed["data"]?["numbers"]?.array {
+      print(numbers)
+    }
+    if let animal = jsonParsed["data"]?["animal"]?.string {
+      print(animal)
+    }
+  }
+}
+</code></pre>
+
+<p>  }
+}
+```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[CALayer&amp;CoreAnimation]]></title>
@@ -4313,759 +4896,6 @@ OBJC_ASSOCIATION_RETAIN
 <li>实例方法中也可以调用类方法(通过类名)</li>
 </ol>
 
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[React Native初探1]]></title>
-    <link href="http://lucifer1988.github.io/blog/2015/10/20/react-nativechu-tan-1/"/>
-    <updated>2015-10-20T17:29:08+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2015/10/20/react-nativechu-tan-1</id>
-    <content type="html"><![CDATA[<p>React Native是Facebook最近推出的一个框架，让开发者通过JavaScript来完成iOS或Android的Native App，类似的方案好像几年前就出现过，比如PhoneGap，但经过市场检验，其App的用户体验，尤其是UI方面，始终较Native App相距甚远，那么这次Facebook带来的解决方案又有什么不同呢？</p>
-
-<!--more-->
-
-
-<h2>React Native特点</h2>
-
-<ol>
-<li>使用React Native后，你的App的逻辑部分是用JavaScript完成的，而UI则是完全native的，所以也不用担心H5带来的体验下降。</li>
-<li>React Native还为用户界面构建带来了一种全新的函数式构建方案，App的UI会用与app的状态有关的函数来呈现。</li>
-<li>React Native的核心思路是将响应式编程引入移动开发，这并不像之前PhoneGap倡导的<em>write-once,run-anywhere</em>，而是<em>learn-once,write-anywhere</em>。</li>
-<li>Swift中Apple倡导使用函数式编程来完成算法和业务逻辑，但是构建UI仍然是基于UIKit，并没有实现函数式实现，而React则引入了UI层的函数式编程。</li>
-</ol>
-
-
-<h2>React Native环境搭建</h2>
-
-<p>React Native的源码开源在<a href="https://github.com/facebook/react-native">GitHub</a>上，不过如果只是开发使用，则推荐使用commend line interface（CLI）来创建项目。<br/>
-1.React Native使用Node.js，JavaScript的runtime，来创建JS代码。这里推荐使用Homebrew来安装Node.js。</p>
-
-<p><code>ruby
-brew install node
-</code></p>
-
-<p>2.然后安装watchman，一个Facebook开发的文件监听器，React Native通过它来监视代码的改动并适时编译，类似在Xcode中保存一次文件，便会执行一次build。</p>
-
-<p><code>ruby
-brew install watchman
-</code></p>
-
-<p>3.然后利用安装好的Node.js带的Node Package Manager来安装React Native CLI工具。</p>
-
-<p><code>ruby
-npm install -g react-native-cli
-</code></p>
-
-<p>4.这样环境就搭建完毕了，然后在目标文件夹，利用React Native的CLI创建新的项目。</p>
-
-<p><code>ruby
-react-native init YourAppFolderName
-</code></p>
-
-<h2>Hello Recact Native</h2>
-
-<p>1.下面来创建一个“Hello World”的小程序，首先打开<strong>index.ios.js</strong>文件，删除测试代码，先添加以下代码，这段代码是开启了Strict Mode，主要为了提高JS的错误处理和禁用一些JS的语言特性。</p>
-
-<p><code>javascript
-'use strict'
-</code></p>
-
-<p>2.然后继续添加，这其实是导入了react-native模块，并将其赋值给了React，类似于#import或include。</p>
-
-<p><code>javascript
-var React = require("react-native")
-</code></p>
-
-<p>3.再添加一个样式，React Native使用了CSS来定义UI的样式，这和web开发是一致的。</p>
-
-<p>```javascript
- var styles = React.StyleSheet.create({</p>
-
-<pre><code>text:{
-    color:'black',
-    backgroundColor:'white',
-    fontSize:30,
-    margin:80
-}
-</code></pre>
-
-<p> })
-```</p>
-
-<p>4.创建一个JS的类，Class是在ES6中引入的，但web开发为了兼容旧版浏览器，一般不会使用类，React Native是基于JavaScriptCore，可以放心使用JS的新特性，而不用担心浏览器兼容的问题。PropertyFinderApp扩展了React.Component，它是React UI的基本构建块，包含了不可变的Properties、可变的状态变量和用于渲染的方法，这里由于程序简单，只有一个渲染方法。</p>
-
-<p>```javascript
-class PropertyFinderApp extends React.Component{</p>
-
-<pre><code>render(){
-    return React.createElement(React.Text, {style:styles.text}, "Hello World!");
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>5.React.Component不是UIKit类，可以说是UIKit类的替代品，框架来负责将React components来转换为Native UI。最后再添加程序的入口，这里需要提供root component，也就是我们上面定义的PropertyFinderApp。</p>
-
-<p><code>javascript
-React.AppRegistry.registerComponent("RANTest", function(){return PropertyFinderApp});
-</code></p>
-
-<p>6.然后运行程序，你会发现JS代码已经转化为Native元素，完全没有网页元素出现。</p>
-
-<h2>React Native运作原理</h2>
-
-<p>1.先来看一下OC的程序加载后做了什么，一个类为RCTRootView的对象被创建，它负责加载JS程序和渲染视图，它通过*<a href="http://localhost:8081/index.ios.bundle?platform=ios&amp;dev=true*%E6%9D%A5%E5%8A%A0%E8%BD%BDJS%E3%80%82">http://localhost:8081/index.ios.bundle?platform=ios&amp;dev=true*%E6%9D%A5%E5%8A%A0%E8%BD%BDJS%E3%80%82</a></p>
-
-<p>```objectivec
-&ndash; (BOOL)application:(UIApplication <em>)application didFinishLaunchingWithOptions:(NSDictionary </em>)launchOptions
-{
-  NSURL <em>jsCodeLocation;
-  jsCodeLocation = [NSURL URLWithString:@&ldquo;<a href="http://localhost:8081/index.ios.bundle?platform=ios&amp;dev=true">http://localhost:8081/index.ios.bundle?platform=ios&amp;dev=true</a>&rdquo;];
-  RCTRootView </em>rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation</p>
-
-<pre><code>                                                  moduleName:@"RANTest"
-                                           initialProperties:nil
-                                               launchOptions:launchOptions];
-</code></pre>
-
-<p>  self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-  UIViewController *rootViewController = [[UIViewController alloc] init];
-  rootViewController.view = rootView;
-  self.window.rootViewController = rootViewController;
-  [self.window makeKeyAndVisible];
-  return YES;
-}
-```</p>
-
-<p>2.当你运行程序时，会打开一个终端窗口，就是为了开启一个packager和server来处理上述请求，在浏览器打开这一URL，也可以看到JS代码。<br/>
-3.当app启动时，这些代码被载入，并被JavaScriptCore framework执行，将各个component载入，然后构建Native UIKit视图。</p>
-
-<h2>Hello World JSX</h2>
-
-<p>1.为了增加可读性和提高可维护性，可以使用HTML样式的JSX，也就是JavaScript syntax extension。</p>
-
-<p><code>javascript
-return &lt;React.Text style={styles.text}&gt;Hello World(Again)&lt;/React.Text&gt;;
-</code></p>
-
-<h2>A Search React Native App1</h2>
-
-<h3>Adding Navigation</h3>
-
-<p>1.这一节构建一个OC的NavgationController，将之前的PropertyFinderApp类改为HelloWorld，然后新定义一个PropertyFinderApp类，initialRoute定为HelloWorld，routing技术是web开发中定义导航结构，即哪个页面（或route）对应哪个URL。</p>
-
-<p>```javascript
-class PropertyFinderApp extends React.Component {
-  render() {</p>
-
-<pre><code>return (
-  &lt;React.NavigatorIOS
-    style={styles.container}
-    initialRoute={ {
-      title: 'Property Finder',
-      component: HelloWorld,
-    } }/&gt;
-);
-</code></pre>
-
-<p>  }
-}
-```</p>
-
-<p>2.然后添加container样式，这样，一个简单的导航控制器就完成了。</p>
-
-<p>```javascript
-var styles = React.StyleSheet.create({</p>
-
-<pre><code>text:{
-    color:'black',
-    backgroundColor:'white',
-    fontSize:30,
-    margin:80
-},
-container:{
-    flex:1
-}
-</code></pre>
-
-<p>})
-```</p>
-
-<h3>Building the Search Page</h3>
-
-<p>1.这一节介绍如何添加自定义一个Search页面，并在其他文件中进行引用。首先新建一个SearchPage.js文件，并在文件中添加代码。</p>
-
-<p>```javascript
-&lsquo;use strict&rsquo;
-var React = require(&lsquo;react-native&rsquo;);
-var {</p>
-
-<pre><code>StyleSheet,
-Text,
-TextInput,
-View,
-TouchableHighlight,
-ActivityIndicatorIOS,
-Image,
-Component
-</code></pre>
-
-<p>} = React;
-```</p>
-
-<p>2.这里使用了destructuring assignment，可以通过一行代码将多个对象属性一次性输出并将他们赋值给多个变量，这样你可以在之后的代码去掉React前缀，例如直接引用StyleSheet而不是React.StyleShet，这一技术在<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment">修改数组</a>时也经常用到，有点类似Swift的元组取值模式。</p>
-
-<p><code>javascript
-var foo = ["one", "two", "three"];
-// without destructuring
-var one   = foo[0];
-var two   = foo[1];
-var three = foo[2];
-// with destructuring
-var [one, two, three] = foo;
-</code></p>
-
-<p>3.然后创建CSS样式，并创建SearchPage component，语法依然使用了JSX的结构。</p>
-
-<p>```javascript
-var styles = StyleSheet.creat({</p>
-
-<pre><code>description:{
-    marginBottom:20,
-    fontSize:18.
-    textAlign:'center'.
-    color:'#656565'
-},
-container:{
-    padding:30,
-    marginTop:65,
-    alignItems:'center'
-}
-</code></pre>
-
-<p>});
-```</p>
-
-<p>```javascript
-class SearchPage extends Component {</p>
-
-<pre><code>render() {
-    return(
-     &lt;View style={styles.container}&gt;
-      &lt;Text style={styles.description}&gt;
-       Search for houses to buy!
-      &lt;/Text&gt;
-      &lt;Text style={styles.description}&gt;
-       Search by place-name, postcode or search near your location.
-      &lt;/Text&gt;
-     &lt;/View&gt;
-    );
-}
-</code></pre>
-
-<p>}
-```</p>
-
-<p>4.最后在文件结尾将SearchPage作为输出，并在index.ios.js中导入SearchPage，然后将之前render方法中的PropertyFinderApp类中的initialRoute更新。</p>
-
-<p><code>javascript
-module.exports = SearchPage;
-</code></p>
-
-<p><code>javascript
-var SearchPage = require('./SearchPage');
-</code></p>
-
-<p><code>javascript
-initialRoute={ {
-  title: 'Property Finder',
-  component: SearchPage,
-} }
-</code></p>
-
-<h3>Styling with Flexbox</h3>
-
-<p>1.flexbox是CSS最近加入的新特性，用于页面的布局（类似Autolayout），React Native使用了<a href="http://https://github.com/facebook/css-layout">css-layout</a>库，该库是Facebook自己开发的一个使用了flexbox标准的JS库，而这一标准对于C(iOS)和Java(Android)都是可接受的，这里有一篇专门讲解<a href="http://blog.scottlogic.com/2015/02/02/svg-layout-flexbox.html">flexbox layout to SVG</a>的文章，也是该作者写的。<br/>
-2.在这个app中，container默认是列方向布局，也就是垂直方向布局（这与Android的布局方式是相同的），同时container也可以决定他的子视图的布局方向。</p>
-
-<p>```javascript
-<View style={styles.flowRight}>
-  &lt;TextInput</p>
-
-<pre><code>style={styles.searchInput}
-placeholder='Search via name or postcode'/&gt;
-</code></pre>
-
-<p>  &lt;TouchableHighlight style={styles.button}</p>
-
-<pre><code>  underlayColor='#99d9f4'&gt;
-&lt;Text style={styles.buttonText}&gt;Go&lt;/Text&gt;
-</code></pre>
-
-<p>  </TouchableHighlight>
-</View>
-&lt;TouchableHighlight style={styles.button}</p>
-
-<pre><code>underlayColor='#99d9f4'&gt;
-</code></pre>
-
-<p>  <Text style={styles.buttonText}>Location</Text>
-</TouchableHighlight>
-```</p>
-
-<p>3.添加新的样式，记得在每个样式后要添加逗号分开，flex值是为了划分同一container下子视图的占位比，如这里的Go button和input view的flex分别为1和4，那么就按照1:4来划分，另外，这里的button是使用了TouchableHighlight。</p>
-
-<p><code>javascript
-flowRight: {
-  flexDirection: 'row',
-  alignItems: 'center',
-  alignSelf: 'stretch'
-},
-buttonText: {
-  fontSize: 18,
-  color: 'white',
-  alignSelf: 'center'
-},
-button: {
-  height: 36,
-  flex: 1,
-  flexDirection: 'row',
-  backgroundColor: '#48BBEC',
-  borderColor: '#48BBEC',
-  borderWidth: 1,
-  borderRadius: 8,
-  marginBottom: 10,
-  alignSelf: 'stretch',
-  justifyContent: 'center'
-},
-searchInput: {
-  height: 36,
-  padding: 4,
-  marginRight: 5,
-  flex: 4,
-  fontSize: 18,
-  borderWidth: 1,
-  borderColor: '#48BBEC',
-  borderRadius: 8,
-  color: '#48BBEC'
-}
-</code></p>
-
-<p>4.然后添加一张图片，图片资源依然要添加到Xcode的Images.xcassets，使用require(&lsquo;image!house&rsquo;)来加载图片，</p>
-
-<p><code>javascript
-&lt;Image source={require('image!house')} style={styles.image}/&gt;
-</code></p>
-
-<p><code>javascript
-image: {
-  width: 217,
-  height: 138
-}
-</code></p>
-
-<h2>A Search React Native App2</h2>
-
-<h3>Adding Component State</h3>
-
-<p>1.这一节，让我们来处理TextInput的输入，首先，我们来初始化SearchPage Component，下列代码添加到render()之前，这里有了新变量state以及searchString，并对TextInput赋该值。</p>
-
-<p>```javascript
-constructor(props) {
-  super(props);
-  this.state = {</p>
-
-<pre><code>searchString: 'london'
-</code></pre>
-
-<p>  };
-}
-```</p>
-
-<p><code>javascript
-&lt;TextInput
-  style={styles.searchInput}
-  value={this.state.searchString}
-  placeholder='Search via name or postcode'/&gt;
-</code></p>
-
-<p>2.然后在SearchPage Class添加一个方法，作为TextInput的回调，并将其与TextInput绑定，这一过程在OC中是以delegate的形式实现的，需要说明下的是这里的this是指向所在component的实例的指针。</p>
-
-<p><code>javascript
-onSearchTextChanged(event) {
-  console.log('onSearchTextChanged');
-  this.setState({ searchString: event.nativeEvent.text });
-  console.log(this.state.searchString);
-}
-</code></p>
-
-<p><code>javascript
-&lt;TextInput
-  style={styles.searchInput}
-  value={this.state.searchString}
-  onChange={this.onSearchTextChanged.bind(this)}
-  placeholder='Search via name or postcode'/&gt;
-</code></p>
-
-<p>3.通过实验TextInput我们发现，每次TextIput的状态发生改变，整个component就会重新render一次，这一机制将渲染逻辑和与UI有关的状态改变彻底分开。在大部分UI框架中，一般都是开发者根据app状态改变来手动刷新UI（比如OC或Swift），或者使用隐式链接来绑定app的状态和UI刷新完成自动刷新（比如ReactiveCocoa），但是在React Native中，你不用再去手动处理这些逻辑，整个UI就是app状态的一个函数表示！这就是响应式编程的核心理念。<br/>
-4.不过你可能会担心效率问题，频繁刷新整个UI当然是不明智的，React在每次刷新时，它会从render方法获取整个视图树，然后与现在的UIKit视图进行比较，比较的结果就是一个简单的更新表，React按照这个表去更新当前视图，所以只有需要更新的UI才会去更新。<br/>
-5.这一理念的应用，将虚拟DOM和一致性引入了App开发，也是React的独特之处。</p>
-
-<h3>Initiating a Search</h3>
-
-<p>1.这一节为Search页面添加搜索功能，首先在state中加入isLoading变量，再在render中添加spinner变量告知用户搜索在进行，它依据isLoading变量来添加一个spinner或空视图，并将{spinner}加入return方法。</p>
-
-<p><code>javascript
-this.state = {
-  searchString: 'london',
-  isLoading: false
-};
-</code></p>
-
-<p>```javascript
-var spinner = this.state.isLoading ?
-  ( &lt;ActivityIndicatorIOS</p>
-
-<pre><code>  hidden='true'
-  size='large'/&gt; ) :
-</code></pre>
-
-<p>  ( <View/>);
-&hellip;
-{spinner}
-```</p>
-
-<p>2.在Go Button绑定onPress事件回调，并添加回调方法，注意Javascript的类没有访问器，所以也没有私有方法，所以一般用<em>_</em>前缀来标识私有方法。</p>
-
-<p><code>javascript
-onPress={this.onSearchPressed.bind(this)}
-</code></p>
-
-<p><code>javascript
-_executeQuery(query) {
-  console.log(query);
-  this.setState({ isLoading: true });
-}
-onSearchPressed() {
-  var query = urlForQueryAndPage('place_name', this.state.searchString, 1);
-  this._executeQuery(query);
-}
-</code></p>
-
-<p>3.在SearchPage外单独定义urlForQueryAndPage()方法，这里做了URL的拼接，用到了<a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions">JS的方法</a> 。</p>
-
-<p>```javascript
-function urlForQueryAndPage(key, value, pageNumber) {
-  var data = {</p>
-
-<pre><code>  country: 'uk',
-  pretty: '1',
-  encoding: 'json',
-  listing_type: 'buy',
-  action: 'search_listings',
-  page: pageNumber
-</code></pre>
-
-<p>  };
-  data[key] = value;</p>
-
-<p>  var querystring = Object.keys(data)</p>
-
-<pre><code>.map(key =&gt; key + '=' + encodeURIComponent(data[key]))
-.join('&amp;');
-</code></pre>
-
-<p>  return &lsquo;<a href="http://api.nestoria.co.uk/api?">http://api.nestoria.co.uk/api?</a>&rsquo; + querystring;
-};
-```</p>
-
-<p>4.=>是JS中对函数指针的缩写，可理解为OC中的block，这里先用map将其原字典的keys映射为新的数组，然后用&amp;相连，产生URL的参数String。</p>
-
-<p><code>javascript
-var a = [
-  "Hydrogen",
-  "Helium",
-  "Lithium",
-  "Beryl­lium"
-];
-var a2 = a.map(function(s){ return s.length });
-var a3 = a.map( s =&gt; s.length );
-</code></p>
-
-<h3>Performing an API Request</h3>
-
-<p>1.在state添加message变量，并在render添加Text，用以显示请求错误信息，并在_excuteQuery()中添加请求的代码。</p>
-
-<p><code>javascript
-this.state = {
-  searchString: 'london',
-  isLoading: false,
-  message: ''
-};
-</code></p>
-
-<p><code>javascript
-&lt;Text style={styles.description}&gt;{this.state.message}&lt;/Text&gt;
-</code></p>
-
-<p>2.请求代码使用了fetch函数，这是<a href="https://fetch.spec.whatwg.org">Fetch API</a>中的函数，相比XMLHttpRequest，有很大提升，使用了promise规范。</p>
-
-<p>```javascript
-fetch(query)
-  .then(response => response.json())
-  .then(json => this._handleResponse(json.response))
-  .catch(error =></p>
-
-<pre><code> this.setState({
-  isLoading: false,
-  message: 'Something bad happened ' + error
-</code></pre>
-
-<p>   }));
-```</p>
-
-<p>3.success的回调处理，先对response code做了判断，然后打印出了listings的长度，可以看出JSON在JS开发中是直接使用的，而省去了转化为Model的步骤。</p>
-
-<p>`&ldquo;javascript
-_handleResponse(response) {
-  this.setState({ isLoading: false , message: &rdquo; });
-  if (response.application_response_code.substr(0, 1) === &lsquo;1&rsquo;) {</p>
-
-<pre><code>console.log('Properties found: ' + response.listings.length);
-</code></pre>
-
-<p>  } else {</p>
-
-<pre><code>this.setState({ message: 'Location not recognized; please try again.'});
-</code></pre>
-
-<p>  }
-}
-```</p>
-
-<h3>Displaying the Results</h3>
-
-<p>1.新建SearchResult.js，新建SearchResults component，代码中使用到了ListView，类似OC的UITableView，通过dataSource来提供数据源，renderRow来渲染每个cell。</p>
-
-<p>```javascript
-class SearchResults extends Component {</p>
-
-<p>  constructor(props) {</p>
-
-<pre><code>super(props);
-var dataSource = new ListView.DataSource(
-  {rowHasChanged: (r1, r2) =&gt; r1.guid !== r2.guid});
-this.state = {
-  dataSource: dataSource.cloneWithRows(this.props.listings)
-};
-</code></pre>
-
-<p>  }</p>
-
-<p>  renderRow(rowData, sectionID, rowID) {</p>
-
-<pre><code>return (
-  &lt;TouchableHighlight
-      underlayColor='#dddddd'&gt;
-    &lt;View&gt;
-      &lt;Text&gt;{rowData.title}&lt;/Text&gt;
-    &lt;/View&gt;
-  &lt;/TouchableHighlight&gt;
-);
-</code></pre>
-
-<p>  }</p>
-
-<p>  render() {</p>
-
-<pre><code>return (
-  &lt;ListView
-    dataSource={this.state.dataSource}
-    renderRow={this.renderRow.bind(this)}/&gt;
-);
-</code></pre>
-
-<p>  }
-}
-```</p>
-
-<p>2.构建数据源时，提供了一个方法来比较row之间的id是否相同，ListView在更新时调用它，来确定数据源是否改变，本例中通过数据的guid来达到这个目的，然后在SearchPage的_handleResponse中添加导航方法。</p>
-
-<p><code>javascript
-this.props.navigator.push({
-  title: 'Results',
-  component: SearchResults,
-  passProps: {listings: response.listings}
-});
-</code></p>
-
-<h3>A Touch of Style</h3>
-
-<p>1.添加样式，更新renderRow()方法，price为了去掉GBP后缀，做了字符串裁剪，同时这次的Image数据源为url，JS可直接赋值，而React Native会自动后台一步下载。</p>
-
-<p>```javascript
-var styles = StyleSheet.create({
-  thumb: {</p>
-
-<pre><code>width: 80,
-height: 80,
-marginRight: 10
-</code></pre>
-
-<p>  },
-  textContainer: {</p>
-
-<pre><code>flex: 1
-</code></pre>
-
-<p>  },
-  separator: {</p>
-
-<pre><code>height: 1,
-backgroundColor: '#dddddd'
-</code></pre>
-
-<p>  },
-  price: {</p>
-
-<pre><code>fontSize: 25,
-fontWeight: 'bold',
-color: '#48BBEC'
-</code></pre>
-
-<p>  },
-  title: {</p>
-
-<pre><code>fontSize: 20,
-color: '#656565'
-</code></pre>
-
-<p>  },
-  rowContainer: {</p>
-
-<pre><code>flexDirection: 'row',
-padding: 10
-</code></pre>
-
-<p>  }
-});
-```</p>
-
-<p>```javascript
-renderRow(rowData, sectionID, rowID) {
-  var price = rowData.price_formatted.split(&lsquo; &rsquo;)[0];</p>
-
-<p>  return (</p>
-
-<pre><code>&lt;TouchableHighlight onPress={() =&gt; this.rowPressed(rowData.guid)}
-    underlayColor='#dddddd'&gt;
-  &lt;View&gt;
-    &lt;View style={styles.rowContainer}&gt;
-      &lt;Image style={styles.thumb} source={ { uri: rowData.img_url } } /&gt;
-      &lt;View  style={styles.textContainer}&gt;
-        &lt;Text style={styles.price}&gt;£{price}&lt;/Text&gt;
-        &lt;Text style={styles.title} 
-              numberOfLines={1}&gt;{rowData.title}&lt;/Text&gt;
-      &lt;/View&gt;
-    &lt;/View&gt;
-    &lt;View style={styles.separator}/&gt;
-  &lt;/View&gt;
-&lt;/TouchableHighlight&gt;
-</code></pre>
-
-<p>  );
-}
-```</p>
-
-<p>2.然后添加点击cell的回调，可以看到数据源始终还是最原始的数据源，做了一步过滤操作（因为这里的cell没有index的概念，所以只能过滤，但是必须保证guid唯一才可以）。</p>
-
-<p><code>javascript
-rowPressed(propertyGuid) {
-  var property = this.props.listings.filter(prop =&gt; prop.guid === propertyGuid)[0];
-}
-</code></p>
-
-<h3>Property Details View</h3>
-
-<p>1.添加详情页，PropertyView，首先对房屋的配置信息做了整理，然后就是常规的视图布局。</p>
-
-<p>```javascript
-class PropertyView extends Component {
-  render() {</p>
-
-<pre><code>var property = this.props.property;
-var stats = property.bedroom_number + ' bed ' + property.property_type;
-if (property.bathroom_number) {
-  stats += ', ' + property.bathroom_number + ' ' + (property.bathroom_number &gt; 1 ? 'bathrooms' : 'bathroom');
-}
-
-var price = property.price_formatted.split(' ')[0];
-
-return (
-  &lt;View style={styles.container}&gt;
-    &lt;Image style={styles.image} 
-        source={ {uri: property.img_url} } /&gt;
-    &lt;View style={styles.heading}&gt;
-      &lt;Text style={styles.price}&gt;£{price}&lt;/Text&gt;
-      &lt;Text style={styles.title}&gt;{property.title}&lt;/Text&gt;
-      &lt;View style={styles.separator}/&gt;
-    &lt;/View&gt;
-    &lt;Text style={styles.description}&gt;{stats}&lt;/Text&gt;
-    &lt;Text style={styles.description}&gt;{property.summary}&lt;/Text&gt;
-  &lt;/View&gt;
-);
-</code></pre>
-
-<p>  }
-}
-```</p>
-
-<p>2.最后从SearchResults，推入PropertyView。</p>
-
-<p>```javascript
-rowPressed(propertyGuid) {
-  var property = this.props.listings.filter(prop => prop.guid === propertyGuid)[0];</p>
-
-<p>  this.props.navigator.push({</p>
-
-<pre><code>title: "Property",
-component: PropertyView,
-passProps: {property: property}
-</code></pre>
-
-<p>  });
-}
-```</p>
-
-<h3>Geolocation Search</h3>
-
-<p>1.增加自动定位并搜索周边房屋的功能，在SearchPage的Location按钮添加该功能，前提在Xcode的工程的Plist中添加NSLocationWhenInUseUsageDescription来添加请求允许定位的描述。</p>
-
-<p><code>javascript
-onPress={this.onLocationPressed.bind(this)}
-</code></p>
-
-<p>```javascript
-onLocationPressed() {
-  navigator.geolocation.getCurrentPosition(</p>
-
-<pre><code>location =&gt; {
-  var search = location.coords.latitude + ',' + location.coords.longitude;
-  this.setState({ searchString: search });
-  var query = urlForQueryAndPage('centre_point', search, 1);
-  this._executeQuery(query);
-},
-error =&gt; {
-  this.setState({
-    message: 'There was a problem with obtaining your location: ' + error
-  });
-});
-</code></pre>
-
-<p>}
-```</p>
 ]]></content>
   </entry>
   

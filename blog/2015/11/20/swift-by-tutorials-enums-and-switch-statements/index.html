@@ -1,0 +1,1044 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Swift by Tutorials--Enums and Switch Statements - 刘毅的技术博客</title>
+  <meta name="author" content="刘毅">
+
+  
+  <meta name="description" content="enum枚举类型是很多编程语言的基本特性，一般是用来存储一组表示不同type的值，比如UILabel使用的NSTextAlignment，会有.Center，.Left多个type。而在Swift中，enum除了原始的用法，它的用法更像class或struct，enum可以拥有自己的方法， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucifer1988.github.io/blog/2015/11/20/swift-by-tutorials-enums-and-switch-statements">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="刘毅的技术博客" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<script type="text/javascript">
+
+function addBlankTargetForLinks () {
+
+  $('a[href^="http"]').each(function(){
+
+      $(this).attr('target', '_blank');
+
+  });
+
+}
+
+$(document).bind('DOMNodeInserted', function(event) {
+
+  addBlankTargetForLinks();
+
+});
+
+</script>
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">刘毅的技术博客</a></h1>
+  
+    <h2>记录自己的学习生活点滴，也希望和大家交流分享！</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucifer1988.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">首页</a></li>
+  <li><a href="/blog/archives">所有文章</a></li>
+  <li><a href="/blog/categories/ios">iOS开发专题</a></li>
+  <li><a href="http://weibo.com/u/2638849461" target="_blank">我的微博</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Swift by Tutorials--Enums and Switch Statements</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-20T10:11:34+08:00" pubdate data-updated="true">Nov 20<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>enum枚举类型是很多编程语言的基本特性，一般是用来存储一组表示不同type的值，比如UILabel使用的NSTextAlignment，会有.Center，.Left多个type。而在Swift中，enum除了原始的用法，它的用法更像class或struct，enum可以拥有自己的方法，甚至是构造方法，然后通过配合Switch，可以实现更灵活的代码流控制，所以才会专门拿出来讲解，足见enum+switch在Swift的重要性。</p>
+
+<!--more-->
+
+
+<h2>Basic enumerations</h2>
+
+<p>先看一个Swift中定义的简单enum，如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">enum</span> <span class="n">Shape</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Rectangle</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Square</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Triangle</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Circle</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>而使用时，可以按照下面两种方式赋值，如果事先定义了类型，那么可以不用在后面写类型，这还是Swift type inference的表现。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">aShape</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">.</span><span class="n">Triangle</span>
+</span><span class='line'><span class="n">var</span> <span class="nl">bShape:</span> <span class="n">Shape</span> <span class="o">=</span> <span class="p">.</span><span class="n">Triangle</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>而在之后的再次赋值中，都不用再指定类型。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">aShape</span> <span class="o">=</span> <span class="p">.</span><span class="n">Square</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Raw values</h3>
+
+<p>在OC中，我们一般使用NS_ENUM()来定义枚举，并可以指定值的类型，也可以单独指定某个type的值。而在Swift中，也可以做到，而且更简单。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">enum</span> <span class="nl">Shape:</span> <span class="n">Int</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Rectangle</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Square</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Triangle</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Circle</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>使用上述代码就指定了enum的原始值类型为Int，同时该enum获得了一个property，<strong>rawValue</strong>，用于读取当前枚举值的raw value，和一个新的初始化方法，<strong>init(rawValue:)</strong>，用raw value来初始化enum。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">triangle</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">.</span><span class="n">Triangle</span>
+</span><span class='line'><span class="n">triangle</span><span class="p">.</span><span class="n">rawValue</span>
+</span><span class='line'><span class="n">var</span> <span class="n">square</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">(</span><span class="nl">rawValue:</span> <span class="mi">1</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>有一点需要注意，就是通过<strong>init(rawValue:)</strong>生成的enum值，是Optional类型的，因为可能会出现输入的raw value没有对应的enum，如下，会返回nil。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">notAShape</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">(</span><span class="nl">rawValue:</span> <span class="mi">100</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>enum可以直接给某个type赋值，然后其他未赋值的type会自动加1。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">enum</span> <span class="nl">Shape:</span> <span class="n">Int</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Rectangle</span> <span class="o">=</span> <span class="mi">10</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Square</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Triangle</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Circle</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>此外，enum可以使用其他类型的raw value，比如Double，Float，String，但是需要为所有type指定对应的raw value，因为除了Int，其他类型的enum是不会对没赋值的enum自动加1的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">enum</span> <span class="nl">Shape:</span> <span class="n">String</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Rectangle</span> <span class="o">=</span> <span class="s">&quot;Rectangle&quot;</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Square</span> <span class="o">=</span> <span class="s">&quot;Square&quot;</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Triangle</span> <span class="o">=</span> <span class="s">&quot;Triangle&quot;</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Circle</span> <span class="o">=</span> <span class="s">&quot;Circle&quot;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Switch statements</h2>
+
+<p>switch与enum的配合在很多语言都是常见的用法，Swift中一样可以，而且有很多实用的改进。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">enum</span> <span class="n">Shape</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Rectangle</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Square</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Triangle</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Circle</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">var</span> <span class="n">aShape</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">.</span><span class="n">Rectangle</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">switch</span><span class="p">(</span><span class="n">aShape</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="k">case</span> <span class="p">.</span><span class="nl">Rectangle:</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="s">&quot;a rectangle&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">case</span> <span class="p">.</span><span class="nl">Square:</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="s">&quot;a square&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">default</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="s">&quot;other shape&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>之前在控制流的章节我们介绍过Swift中的switch，它是需要所有case全部覆盖的，如果你实现了全部case的覆盖，则不用添加default，反之，一定要添加defaut处理。而且，你不需要在每个case后添加break，系统会自动为你添加。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">switch</span><span class="p">(</span><span class="n">aShape</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="k">case</span> <span class="p">.</span><span class="n">Rectangle</span><span class="p">,</span> <span class="p">.</span><span class="nl">Square:</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="s">&quot;a quadrilateral&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">case</span> <span class="p">.</span><span class="nl">Circle:</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="s">&quot;a circle&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">default</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">break</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>一个case处理多个值也很简单，只需要逗号隔开多个值即可，并不需要其他语言中，用不加break的多行处理。</p>
+
+<h2>Associated values</h2>
+
+<p>Associated values是Swift与其他语言的enum类型最大的不同之处，你可以向每个type添加一个类似元组类型的附加值，来作为二级判断条件，下面是有附带值的enum声明，可以为参数添加参数名。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">enum</span> <span class="n">Shape</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Rectangle</span><span class="p">(</span><span class="nl">width:</span> <span class="n">Float</span><span class="p">,</span> <span class="nl">height:</span> <span class="n">Float</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Square</span><span class="p">(</span><span class="nl">side:</span> <span class="n">Float</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Triangle</span><span class="p">(</span><span class="nl">base:</span> <span class="n">Float</span><span class="p">,</span> <span class="nl">height:</span> <span class="n">Float</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">Circle</span><span class="p">(</span><span class="nl">radius:</span> <span class="n">Float</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>使用时，可以像类或结构体初始化一样赋值，但记住不能像两者一样用<strong>.</strong>来访问。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">rectangle</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">.</span><span class="n">Rectangle</span><span class="p">(</span><span class="nl">width:</span> <span class="mi">5</span><span class="p">,</span> <span class="nl">height:</span> <span class="mi">10</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>你可以使用这些associated values的场景只能是在switch语句中，同时你还可以使用where关键字，为case添加二级条件。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">switch</span> <span class="p">(</span><span class="n">rectangle</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="k">case</span> <span class="p">.</span><span class="n">Rectangle</span><span class="p">(</span><span class="n">let</span> <span class="n">width</span><span class="p">,</span> <span class="n">let</span> <span class="n">height</span><span class="p">)</span> <span class="n">where</span> <span class="n">width</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="s">&quot;Narrow rectangle:\(width)*\(height)&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">case</span> <span class="p">.</span><span class="n">Rectangle</span><span class="p">(</span><span class="n">let</span> <span class="n">width</span><span class="p">,</span> <span class="n">let</span> <span class="n">height</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="s">&quot;Wide rectangle:\(width)*\(height)&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">default</span><span class="o">:</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="s">&quot;other shape&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>需要注意的是，判断条件越来越复杂，便会出现符合多个case的情况，但像前面所说，系统会自动在case后添加break，所以也只会执行最先符合的case，这需要注意。</p>
+
+<h2>Eunms as types</h2>
+
+<p>Swift中的enum还有另外一个重要特性，就是可以添加方法，配合associated value，可以封转一些方便的方法，比如为上面的Shape添加一个计算面积的方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">area</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Float</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">switch</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="p">.</span><span class="n">Rectangle</span><span class="p">(</span><span class="n">let</span> <span class="n">width</span><span class="p">,</span> <span class="n">let</span> <span class="n">height</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">width</span> <span class="o">*</span> <span class="n">height</span>
+</span><span class='line'>    <span class="k">case</span> <span class="p">.</span><span class="n">Square</span><span class="p">(</span><span class="n">let</span> <span class="n">side</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">side</span> <span class="o">*</span> <span class="n">side</span>
+</span><span class='line'>    <span class="k">case</span> <span class="p">.</span><span class="n">Triangle</span><span class="p">(</span><span class="n">let</span> <span class="n">base</span><span class="p">,</span> <span class="n">let</span> <span class="n">height</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">base</span> <span class="o">*</span> <span class="n">height</span>
+</span><span class='line'>    <span class="k">case</span> <span class="p">.</span><span class="n">Circle</span><span class="p">(</span><span class="n">let</span> <span class="n">radius</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">Float</span><span class="p">(</span><span class="n">M_PI</span><span class="p">)</span> <span class="o">*</span> <span class="n">powf</span><span class="p">(</span><span class="n">radius</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然后申明一个Shape的变量，就可以直接调用该方法计算面积了。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">circle</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">.</span><span class="n">Circle</span><span class="p">(</span><span class="nl">radius:</span> <span class="mi">5</span><span class="p">)</span>
+</span><span class='line'><span class="n">circle</span><span class="p">.</span><span class="n">area</span><span class="p">()</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>除此之外，可以添加新的构建方法，这是Shape实例的构造方法，所以切记一定要给self赋值，否则self没有值是无法返回对象的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">init</span><span class="p">(</span><span class="n">_</span> <span class="nl">rect:</span> <span class="n">CGRect</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">width</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">CGRectGetWidth</span><span class="p">(</span><span class="n">rect</span><span class="p">))</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">height</span> <span class="o">=</span> <span class="n">Float</span><span class="p">(</span><span class="n">CGRectGetHeight</span><span class="p">(</span><span class="n">rect</span><span class="p">))</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">width</span> <span class="o">==</span> <span class="n">height</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span> <span class="o">=</span> <span class="n">Square</span><span class="p">(</span><span class="nl">side:</span> <span class="n">width</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="nl">width:</span> <span class="n">width</span><span class="p">,</span> <span class="nl">height:</span> <span class="n">height</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">shape</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">(</span><span class="n">CGRectMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>所以如下这个构建方法是不合法的，因为会存在无法给self赋值的情况。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">init</span><span class="p">(</span><span class="n">_</span> <span class="nl">string:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">switch</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="s">&quot;rectangle&quot;</span><span class="o">:</span>
+</span><span class='line'>        <span class="n">self</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span><span class="nl">width:</span> <span class="mi">5</span><span class="p">,</span> <span class="nl">height:</span> <span class="mi">10</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="s">&quot;square&quot;</span><span class="o">:</span>
+</span><span class='line'>        <span class="n">self</span> <span class="o">=</span> <span class="n">Square</span><span class="p">(</span><span class="nl">side:</span> <span class="mi">5</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="s">&quot;triangle&quot;</span><span class="o">:</span>
+</span><span class='line'>        <span class="n">self</span> <span class="o">=</span> <span class="n">Triangle</span><span class="p">(</span><span class="nl">base:</span> <span class="mi">5</span><span class="p">,</span> <span class="nl">height:</span> <span class="mi">10</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="s">&quot;circle&quot;</span><span class="o">:</span>
+</span><span class='line'>        <span class="n">self</span> <span class="o">=</span> <span class="n">Circle</span><span class="p">(</span><span class="nl">radius:</span> <span class="mi">5</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">break</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>但是想通过这种思路来初始化Shape，也可以实现，就是构建一个static的工厂方法，这样就不存在一定要有值的限制了，可以返回Optional类型。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">static</span> <span class="n">func</span> <span class="nf">fromString</span><span class="p">(</span><span class="nl">string:</span> <span class="n">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Shape</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'><span class="k">switch</span><span class="p">(</span><span class="n">string</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="s">&quot;rectangle&quot;</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">Rectangle</span><span class="p">(</span><span class="nl">width:</span> <span class="mi">5</span><span class="p">,</span> <span class="nl">height:</span> <span class="mi">10</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="s">&quot;square&quot;</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">Square</span><span class="p">(</span><span class="nl">side:</span> <span class="mi">5</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="s">&quot;triangle&quot;</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">Triangle</span><span class="p">(</span><span class="nl">base:</span> <span class="mi">5</span><span class="p">,</span> <span class="nl">height:</span> <span class="mi">10</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">case</span> <span class="s">&quot;circle&quot;</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">Circle</span><span class="p">(</span><span class="nl">radius:</span> <span class="mi">5</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>对应的，使用时也要用if来拆包。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">if</span> <span class="n">let</span> <span class="n">anotherShape</span> <span class="o">=</span> <span class="n">Shape</span><span class="p">.</span><span class="n">fromString</span><span class="p">(</span><span class="s">&quot;rectangle&quot;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">anotherShape</span><span class="p">.</span><span class="n">area</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Optionals are enums</h3>
+
+<p>Swift的Optional类型是enum类型，下面是部分实现：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">enum</span> <span class="n">Optional</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="o">:</span> <span class="n">NilLiteralConvertible</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">None</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">Some</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">init</span><span class="p">()</span>
+</span><span class='line'>  <span class="n">init</span><span class="p">(</span><span class="n">_</span> <span class="nl">some:</span> <span class="n">T</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">static</span> <span class="n">func</span> <span class="n">convertFromNilLiteral</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="o">?</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里使用了泛型，并将该类型作为Some的associated value，可以使Optional持有任何类型的值。</p>
+
+<p>同时enum可以实现协议，NilLiteralConvertible协议使你可以用nil来替代optional，编译器自动会将赋值nil时去调用<strong>convertFromNilLiteral</strong>，最终转化为.None。正是因为实现了这个协议，才可以对optional类型赋nil值，不然会报错。</p>
+
+<h2>JSON parsing using enums</h2>
+
+<p>本节用解析JSON这一常见用例，来实践enum在Swift中的使用。</p>
+
+<h3>Parsing JSON the hard way</h3>
+
+<p>这是常规的解析方法，看起来确实比较繁琐（但相比OC是还是简单多了）。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">json</span> <span class="o">=</span> <span class="s">&quot;{</span><span class="se">\&quot;</span><span class="s">success</span><span class="se">\&quot;</span><span class="s">:true,</span><span class="se">\&quot;</span><span class="s">data</span><span class="se">\&quot;</span><span class="s">:{</span><span class="se">\&quot;</span><span class="s">numbers</span><span class="se">\&quot;</span><span class="s">:[1,2,3,4,5],</span><span class="se">\&quot;</span><span class="s">animal</span><span class="se">\&quot;</span><span class="s">:</span><span class="se">\&quot;</span><span class="s">dog</span><span class="se">\&quot;</span><span class="s">}}&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">let</span> <span class="n">jsonData</span> <span class="o">=</span> <span class="p">(</span><span class="n">json</span> <span class="n">as</span> <span class="n">NSString</span><span class="p">).</span><span class="n">dataUsingEncoding</span><span class="p">(</span><span class="n">NSUTF8StringEncoding</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">parsed:</span> <span class="n">AnyObject</span><span class="o">?</span> <span class="o">=</span> <span class="n">NSJSONSerialization</span><span class="p">.</span><span class="n">JSONObjectWithData</span><span class="p">(</span><span class="n">jsonData</span><span class="p">,</span> <span class="nl">options:</span> <span class="n">NSJSONReadingOptions</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="nl">error:</span> <span class="nb">nil</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="c1">// Actual JSON parsing section</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">let</span> <span class="n">parsed</span> <span class="o">=</span> <span class="n">parsed</span> <span class="n">as</span><span class="o">?</span> <span class="p">[</span><span class="nl">String:</span><span class="n">AnyObject</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">let</span> <span class="n">success</span> <span class="o">=</span> <span class="n">parsed</span><span class="p">[</span><span class="s">&quot;success&quot;</span><span class="p">]</span> <span class="n">as</span><span class="o">?</span> <span class="n">NSNumber</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="n">success</span><span class="p">.</span><span class="n">boolValue</span> <span class="o">==</span> <span class="n">true</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">let</span> <span class="n">data</span> <span class="o">=</span> <span class="n">parsed</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">]</span> <span class="n">as</span><span class="o">?</span> <span class="n">NSDictionary</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="n">let</span> <span class="n">numbers</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&quot;numbers&quot;</span><span class="p">]</span> <span class="n">as</span><span class="o">?</span> <span class="n">NSArray</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">print</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="k">if</span> <span class="n">let</span> <span class="n">animal</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s">&quot;animal&quot;</span><span class="p">]</span> <span class="n">as</span><span class="o">?</span> <span class="n">NSString</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">print</span><span class="p">(</span><span class="n">animal</span><span class="p">)</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Introducing JSON.swift</h3>
+
+<p>这个文件之前在第四章解析JSON时用过，下面来分析下它的结构，首先是一个enum定义，因为JSON文件就是一些基本元素和dictionary或array的组合，所以使用enum和associated value来定义JSON的基本对象，这是这一解决方案的核心思想。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">enum</span> <span class="n">JSONValue</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">JSONObject</span><span class="p">([</span><span class="nl">String:</span><span class="n">JSONValue</span><span class="p">])</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">JSONArray</span><span class="p">([</span><span class="n">JSONValue</span><span class="p">])</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">JSONString</span><span class="p">(</span><span class="n">String</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">JSONNumber</span><span class="p">(</span><span class="n">NSNumber</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">JSONBool</span><span class="p">(</span><span class="n">Bool</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">JSONNull</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>接下来为了获取.JSONObject和.JSONArray，我们利用Swift中方便添加角标访问的方式，使用subscript技术。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">subscript</span><span class="p">(</span><span class="nl">i:</span> <span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONValue</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">get</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">switch</span> <span class="n">self</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="p">.</span><span class="n">JSONArray</span><span class="p">(</span><span class="n">let</span> <span class="n">value</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">value</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+</span><span class='line'>    <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">subscript</span><span class="p">(</span><span class="nl">key:</span> <span class="n">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONValue</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">get</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">switch</span> <span class="n">self</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="p">.</span><span class="n">JSONObject</span><span class="p">(</span><span class="n">let</span> <span class="n">value</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">value</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</span><span class='line'>    <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>      <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>那么访问一般元素时呢？我们采用了computed properties来访问。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="nl">object:</span> <span class="p">[</span><span class="nl">String:</span><span class="n">JSONValue</span><span class="p">]</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">switch</span> <span class="n">self</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="p">.</span><span class="n">JSONObject</span><span class="p">(</span><span class="n">let</span> <span class="n">value</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">value</span>
+</span><span class='line'>  <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">var</span> <span class="nl">array:</span> <span class="p">[</span><span class="n">JSONValue</span><span class="p">]</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">switch</span> <span class="n">self</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="p">.</span><span class="n">JSONArray</span><span class="p">(</span><span class="n">let</span> <span class="n">value</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">value</span>
+</span><span class='line'>  <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">var</span> <span class="nl">string:</span> <span class="n">String</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">switch</span> <span class="n">self</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="p">.</span><span class="n">JSONString</span><span class="p">(</span><span class="n">let</span> <span class="n">value</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">value</span>
+</span><span class='line'>  <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">var</span> <span class="nl">integer:</span> <span class="n">Int</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">switch</span> <span class="n">self</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="p">.</span><span class="n">JSONNumber</span><span class="p">(</span><span class="n">let</span> <span class="n">value</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">value</span><span class="p">.</span><span class="n">integerValue</span>
+</span><span class='line'>  <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">var</span> <span class="kt">double</span><span class="o">:</span> <span class="n">Double</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">switch</span> <span class="n">self</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="p">.</span><span class="n">JSONNumber</span><span class="p">(</span><span class="n">let</span> <span class="n">value</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">value</span><span class="p">.</span><span class="n">doubleValue</span>
+</span><span class='line'>  <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">var</span> <span class="nl">bool:</span> <span class="n">Bool</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">switch</span> <span class="n">self</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="p">.</span><span class="n">JSONBool</span><span class="p">(</span><span class="n">let</span> <span class="n">value</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">value</span>
+</span><span class='line'>  <span class="k">case</span> <span class="p">.</span><span class="n">JSONNumber</span><span class="p">(</span><span class="n">let</span> <span class="n">value</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">value</span><span class="p">.</span><span class="n">boolValue</span>
+</span><span class='line'>  <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>最后将对象转化为JSONValue也需要一个方法，而且是递归调用的，</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">static</span> <span class="n">func</span> <span class="nf">fromObject</span><span class="p">(</span><span class="nl">object:</span> <span class="n">AnyObject</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">JSONValue</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">switch</span> <span class="n">object</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">let</span> <span class="n">value</span> <span class="n">as</span> <span class="nl">NSString:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">JSONValue</span><span class="p">.</span><span class="n">JSONString</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">let</span> <span class="n">value</span> <span class="n">as</span> <span class="nl">NSNumber:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">JSONValue</span><span class="p">.</span><span class="n">JSONNumber</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">let</span> <span class="n">value</span> <span class="n">as</span> <span class="nl">NSNull:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">JSONValue</span><span class="p">.</span><span class="n">JSONNull</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">let</span> <span class="n">value</span> <span class="n">as</span> <span class="nl">NSDictionary:</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">jsonObject:</span> <span class="p">[</span><span class="nl">String:</span><span class="n">JSONValue</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="o">:</span><span class="p">]</span>
+</span><span class='line'>    <span class="k">for</span> <span class="p">(</span><span class="nl">k:</span> <span class="n">AnyObject</span><span class="p">,</span> <span class="nl">v:</span> <span class="n">AnyObject</span><span class="p">)</span> <span class="k">in</span> <span class="n">value</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="n">let</span> <span class="n">k</span> <span class="o">=</span> <span class="n">k</span> <span class="n">as</span><span class="o">?</span> <span class="n">NSString</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">let</span> <span class="n">v</span> <span class="o">=</span> <span class="n">JSONValue</span><span class="p">.</span><span class="n">fromObject</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">jsonObject</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+</span><span class='line'>        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">JSONValue</span><span class="p">.</span><span class="n">JSONObject</span><span class="p">(</span><span class="n">jsonObject</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">let</span> <span class="n">value</span> <span class="n">as</span> <span class="nl">NSArray:</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">jsonArray:</span> <span class="p">[</span><span class="n">JSONValue</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">v</span> <span class="k">in</span> <span class="n">value</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="n">let</span> <span class="n">v</span> <span class="o">=</span> <span class="n">JSONValue</span><span class="p">.</span><span class="n">fromObject</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">jsonArray</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">JSONValue</span><span class="p">.</span><span class="n">JSONArray</span><span class="p">(</span><span class="n">jsonArray</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">default</span><span class="o">:</span>
+</span><span class='line'>    <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Putting it into practice</h3>
+
+<p>现在让我们使用JSON.swift来完成JSON的解析，进过比较，现在只需要两层嵌套就完成了原来五层的嵌套解析，而且由于使用了Optional类型，也增加了安全性。所以在Swift中一定要注重利用enum这些新特性，它非常适用于可以预定义为一组不同的子类型的类型，就像JSON。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">json</span> <span class="o">=</span> <span class="s">&quot;{</span><span class="se">\&quot;</span><span class="s">success</span><span class="se">\&quot;</span><span class="s">:true,</span><span class="se">\&quot;</span><span class="s">data</span><span class="se">\&quot;</span><span class="s">:{</span><span class="se">\&quot;</span><span class="s">numbers</span><span class="se">\&quot;</span><span class="s">:[1,2,3,4,5],</span><span class="se">\&quot;</span><span class="s">animal</span><span class="se">\&quot;</span><span class="s">:</span><span class="se">\&quot;</span><span class="s">dog</span><span class="se">\&quot;</span><span class="s">}}&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">if</span> <span class="n">let</span> <span class="n">jsonData</span> <span class="o">=</span> <span class="p">(</span><span class="n">json</span> <span class="n">as</span> <span class="n">NSString</span><span class="p">).</span><span class="n">dataUsingEncoding</span><span class="p">(</span><span class="n">NSUTF8StringEncoding</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">let</span> <span class="nl">parsed:</span> <span class="n">AnyObject</span> <span class="o">=</span> <span class="n">NSJSONSerialization</span><span class="p">.</span><span class="n">JSONObjectWithData</span><span class="p">(</span><span class="n">jsonData</span><span class="p">,</span> <span class="nl">options:</span> <span class="n">NSJSONReadingOptions</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="nl">error:</span> <span class="nb">nil</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">let</span> <span class="n">jsonParsed</span> <span class="o">=</span> <span class="n">JSONValue</span><span class="p">.</span><span class="n">fromObject</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="c1">// Actual JSON parsing section</span>
+</span><span class='line'>      <span class="k">if</span> <span class="n">jsonParsed</span><span class="p">[</span><span class="s">&quot;success&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">bool</span> <span class="o">==</span> <span class="n">true</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">let</span> <span class="n">numbers</span> <span class="o">=</span> <span class="n">jsonParsed</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">[</span><span class="s">&quot;numbers&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">array</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">print</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">let</span> <span class="n">animal</span> <span class="o">=</span> <span class="n">jsonParsed</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">[</span><span class="s">&quot;animal&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">string</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">print</span><span class="p">(</span><span class="n">animal</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">刘毅</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-20T10:11:34+08:00" pubdate data-updated="true">Nov 20<span>th</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ios/'>iOS</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <style>
+    .flash-video{display:none;}
+</style>
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <span class="jiathis_txt">分享到：</span>
+  <a class="jiathis_button_qzone">QQ空间</a>
+  <a class="jiathis_button_tsina">新浪微博</a>
+  <a class="jiathis_button_tqq">腾讯微博</a>
+  <a class="jiathis_button_renren">人人网</a>
+  <a class="jiathis_button_douban">豆瓣</a>
+  <a class="jiathis_button_weixin">微信</a>
+  <a href="http://www.jiathis.com/share?uid=1885095" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript">
+var jiathis_config = {data_track_clickback:'true'};
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1885095" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+
+<br />
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1885095"></script>
+<!-- UY END -->
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/11/09/calayer-and-coreanimation/" title="Previous Post: CALayer&amp;CoreAnimation">&laquo; CALayer&amp;CoreAnimation</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/11/20/swift-by-tutorials-enums-and-switch-statements/">Swift by Tutorials--Enums and Switch Statements</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/09/calayer-and-coreanimation/">CALayer&amp;CoreAnimation</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/05/ioskai-fa-bei-wang-lu-1/">iOS开发备忘录1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/30/hui-da-sunnyde-55dao-iosmian-shi-ti-2/">回答Sunny的55道iOS面试题2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/28/hui-da-sunnyde-55dao-iosmian-shi-ti-1/">回答Sunny的55道iOS面试题1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/20/react-nativechu-tan-1/">React Native初探1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/20/swift-by-tutorials-functions-and-closures/">Swift by Tutorials--Functions and Closures</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/15/swift-by-tutorials-generics/">Swift by Tutorials--Generics</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/12/swift-by-tutorials-classes-and-structs/">Swift by Tutorials--Classes and Structs</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/10/swift-by-tutorials-language-basics-ii/">Swift by Tutorials--Language Basics II</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>About Me</h1>
+    <p> iOS开发, 菜鸟程序猿, Dotar<br/>
+      <br/>我的经历:
+      <br/>2007.9 进入吉大学习高端大气的电子信息工程
+      <br/>2011.9 考研失利,转投中传计算机专业,接触iOS
+      <br/>2013.8 入职盘古,以iOS程序员的身份开始职业生涯<br/>
+      <br/>我的微博: <a href="http://weibo.com/u/2638849461" target="_blank">JamesRaynor-刘毅</a>
+      <br/>我的git主页: <a href="https://github.com/lucifer1988" target="_blank">lucifer1988</a>
+      <br/>
+      <br/><span id="wb_follow_btn"></span>
+  </p>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - 刘毅 -
+  <span class="credit">Powered by <a href="http://octopress.org" target="_blank">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=3350288267" type="text/javascript" charset="utf-8"></script>
+<script>
+    WB2.anyWhere(function(W){
+        W.widget.followButton({
+            'uid': 2638849461,
+            'nick_name': 'JamesRaynor-刘毅',
+            'id': "wb_follow_btn",
+            'show_head' : true, 
+            'show_name' : true, 
+            'show_cancel': false
+        });
+    });
+</script>
+6vvqnj09Z6
+
+</body>
+</html>
