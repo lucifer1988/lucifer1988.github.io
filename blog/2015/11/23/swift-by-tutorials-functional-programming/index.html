@@ -1,0 +1,980 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Swift by Tutorials--Functional Programming - 刘毅的技术博客</title>
+  <meta name="author" content="刘毅">
+
+  
+  <meta name="description" content="前几篇分别介绍了泛型、类、枚举、范围运算符这些Swift的语言新特性，当然有一部分是对已有技术的改进，但这已经表明Swift是比OC更具表现力和更简洁的语言。而Swift不仅仅是提供了更好的语法，在Swift中，函数式编程会成为编程中可行的并且非常重要的编程工具。函数式编程，简而言之， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucifer1988.github.io/blog/2015/11/23/swift-by-tutorials-functional-programming">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="刘毅的技术博客" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<script type="text/javascript">
+
+function addBlankTargetForLinks () {
+
+  $('a[href^="http"]').each(function(){
+
+      $(this).attr('target', '_blank');
+
+  });
+
+}
+
+$(document).bind('DOMNodeInserted', function(event) {
+
+  addBlankTargetForLinks();
+
+});
+
+</script>
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">刘毅的技术博客</a></h1>
+  
+    <h2>记录自己的学习生活点滴，也希望和大家交流分享！</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucifer1988.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">首页</a></li>
+  <li><a href="/blog/archives">所有文章</a></li>
+  <li><a href="/blog/categories/ios">iOS开发专题</a></li>
+  <li><a href="http://weibo.com/u/2638849461" target="_blank">我的微博</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Swift by Tutorials--Functional Programming</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-23T14:09:04+08:00" pubdate data-updated="true">Nov 23<span>rd</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>前几篇分别介绍了泛型、类、枚举、范围运算符这些Swift的语言新特性，当然有一部分是对已有技术的改进，但这已经表明Swift是比OC更具表现力和更简洁的语言。而Swift不仅仅是提供了更好的语法，在Swift中，函数式编程会成为编程中可行的并且非常重要的编程工具。函数式编程，简而言之，就是一种通过数学式的函数概括计算的编程范式，不可变且具表现力，同时使用最少的变量和状态值。函数式编程对于测试是非常友好的。随着多核设备的普及，并行和并发处理显得非常重要，而函数式编程就是可以很好处理并行和并发处理的，这也是它日趋重要的原因之一。</p>
+
+<!--more-->
+
+
+<h2>Simple array filtering</h2>
+
+<p>这个简单的例子要求我们在1到10之间找到所有的偶数的数字，看起来是一个简单的工作，但是是介绍函数式编程的一大步。</p>
+
+<h3>Filtering the old way</h3>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">evens</span> <span class="o">=</span> <span class="p">[</span><span class="n">Int</span><span class="p">]()</span>
+</span><span class='line'><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mf">1.</span><span class="p">.</span><span class="mf">.10</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">evens</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">evens</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这是一个很简单的小程序，而且运行也没问题，但是最核心的逻辑，检测一个数是否偶数，被隐藏在了for循环中。另外，添加数字到数组的逻辑在判断条件中，如果你想要打印每个偶数，那么除了复制粘贴，没法儿复用这部分代码。</p>
+
+<h3>Functional filtering</h3>
+
+<p>让我们来看看函数式的解决方案，其中filter是核心，通过传递isEven给filter，直接返回了我们需要的新数组。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">isEven</span><span class="p">(</span><span class="nl">number:</span> <span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">number</span><span class="o">%</span><span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">evens</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="mf">1.</span><span class="p">.</span><span class="mf">.10</span><span class="p">).</span><span class="n">filter</span><span class="p">(</span><span class="n">isEven</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">evens</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>通过上一章我们知道函数只是有名字的闭包，按照之前的介绍，利用type inference我们可以对该方案进一步简化。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">evens</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="mf">1.</span><span class="p">.</span><span class="mf">.10</span><span class="p">).</span><span class="n">filter</span> <span class="p">{</span> <span class="n">number</span> <span class="k">in</span> <span class="n">number</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">}</span>
+</span><span class='line'><span class="n">println</span><span class="p">(</span><span class="n">evens</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>或者最简化的使用参数简化符号。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">evens</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="mf">1.</span><span class="p">.</span><span class="mf">.10</span><span class="p">).</span><span class="n">filter</span><span class="p">{</span> <span class="n">$0</span><span class="o">%</span><span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">}</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">evens</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>对于简化符号的使用，作者表示，对于比较简单的逻辑（如上例）推荐使用简化符号，而对于复杂的逻辑，则不推荐使用，因为即使减少了代码量，但牺牲了可读性，还是不太划算。</p>
+
+<p>上面的函数式编程较上一节的方案，更为简洁，而同时它也反映了，函数式编程三个共同的特点。</p>
+
+<ol>
+<li>Higher-order functons：你需要将这些函数当做参数传入其他函数，该例中isEven即是Higher-order functons。</li>
+<li>First-class function：这也是我们多次强调的一点，函数作为第一类对象，可以作为参数或者返回结果，这也是函数式编程的基础，Swift全面支持这一点。</li>
+<li>Closures：闭包，可以使代码更简洁，相当于匿名函数。</li>
+</ol>
+
+
+<p>你可能觉得OC的block也具有类似的特点，但Swift较之更胜一筹，主要是因为它拥有很多内建的函数式语法，比如该例中的filter就是。</p>
+
+<h3>The magic behind filter</h3>
+
+<p>通过自定义一个myFilter方法，让我们来看一下filter的背后实现。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">myFilter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">source:</span> <span class="p">[</span><span class="n">T</span><span class="p">],</span> <span class="nl">predicate:</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">T</span><span class="p">]()</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">source</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">predicate</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">result</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">result</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>从上面发现，实际上的实现和我们在第一节的逻辑是相同的，只不过通过泛型和函数作为参数完成了filter这一过程的抽象，这也是函数式编程的本质。</p>
+
+<p>原文还提出一个将myFilter()作为Array的一个方法，而不是函数，其实只需要添加一个Array的扩展，将泛型改为Array自身的元素就行，下面给出自己的解答。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">extension</span> <span class="n">Array</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">func</span> <span class="n">myFilter</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">predicate:</span><span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">var</span> <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">T</span><span class="p">]()</span>
+</span><span class='line'>        <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">self</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="n">predicate</span><span class="p">(</span><span class="n">i</span> <span class="n">as</span><span class="o">!</span> <span class="n">T</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">result</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span> <span class="n">as</span><span class="o">!</span> <span class="n">T</span><span class="p">)</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">result</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">evens</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="mf">1.</span><span class="p">.</span><span class="mf">.10</span><span class="p">).</span><span class="n">myFilter</span><span class="p">{</span><span class="n">$0</span><span class="o">%</span><span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Reducing</h2>
+
+<p>这一节将介绍Swift中内建的，比较复杂的reduce函数，进一步了解函数式编程。</p>
+
+<h3>Manual reduction</h3>
+
+<p>reduce的效果是输入一个数组，但最终得到一个结果，例子是要求我们找出1到10的所有偶数，并计算出他们的和，先看下常规控制流的实现。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">evens</span> <span class="o">=</span> <span class="p">[</span><span class="n">Int</span><span class="p">]()</span>
+</span><span class='line'><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mf">1.</span><span class="p">.</span><span class="mf">.10</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">evens</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">var</span> <span class="n">evenSum</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">evens</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">evenSum</span> <span class="o">+=</span> <span class="n">i</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">evenSum</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Functional reduce</h3>
+
+<p>下面是reduce的函数式实现，这里采用的是全简写符号。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">evenSum</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="mf">1.</span><span class="p">.</span><span class="mf">.10</span><span class="p">).</span><span class="n">filter</span><span class="p">{</span><span class="n">$0</span><span class="o">%</span><span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span><span class="p">}.</span><span class="n">reduce</span><span class="p">(</span><span class="mi">0</span><span class="p">){</span><span class="n">$0</span><span class="o">+</span><span class="n">$1</span><span class="p">}</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">evenSum</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>reduce的函数原型如下，有两个参数，initial和combine，initial为U类型，最终的返回值也是U类型，而combine的参数是U和T类型，返回值也是U类型，每次执行完后，返回值都会成为combine新的参数，所以实现了上述的累加效果。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">reduce</span><span class="o">&lt;</span><span class="n">U</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">initial:</span> <span class="n">U</span><span class="p">,</span> <span class="nl">combine:</span> <span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">U</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">U</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里还有一个寻找数组中最大值的例子。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">maxNumber</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="mf">1.</span><span class="p">.</span><span class="mf">.10</span><span class="p">).</span><span class="n">reduce</span><span class="p">(</span><span class="mi">0</span><span class="p">){</span><span class="n">total</span><span class="p">,</span> <span class="n">number</span> <span class="k">in</span> <span class="n">max</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">number</span><span class="p">)}</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">maxNumber</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>我们发现，输入值T和最终返回值U可以是不同的类型，所以可以有更多的应用，比如下面的字符串输出。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">numbers</span> <span class="o">=</span> <span class="n">Array</span><span class="p">(</span><span class="mf">1.</span><span class="p">.</span><span class="mf">.10</span><span class="p">).</span><span class="n">reduce</span><span class="p">(</span><span class="s">&quot;numbers:&quot;</span><span class="p">){</span><span class="n">$0</span><span class="o">+</span><span class="s">&quot;\($1)&quot;</span><span class="p">}</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里又有一个附加问题，要求输入一个[&ldquo;3&rdquo;, &ldquo;1&rdquo;, &ldquo;4&rdquo;, &ldquo;1&rdquo;]数组，而输出Int值3141，我的思路是先拼接字符串，然后转为Int。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">digits</span> <span class="o">=</span> <span class="n">Int</span><span class="p">([</span><span class="s">&quot;3&quot;</span><span class="p">,</span> <span class="s">&quot;1&quot;</span><span class="p">,</span> <span class="s">&quot;4&quot;</span><span class="p">,</span> <span class="s">&quot;1&quot;</span><span class="p">].</span><span class="n">reduce</span><span class="p">(</span><span class="s">&quot;&quot;</span><span class="p">){</span><span class="n">$0</span><span class="o">+</span><span class="n">$1</span><span class="p">})</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">digits</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>The magic behind reduce</h3>
+
+<p>下面我们自己为Array添加一个自定义的reduce方法，实现方法与我们在之前的实现是一致的，还是做了一步抽象。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">extension</span> <span class="n">Array</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">func</span> <span class="n">myReduce</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">U</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">seed:</span><span class="n">U</span><span class="p">,</span> <span class="nl">combiner:</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">U</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">U</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">seed</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">self</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">result</span> <span class="o">=</span> <span class="n">combiner</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">i</span> <span class="n">as</span><span class="o">!</span> <span class="n">T</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">result</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Building an index</h2>
+
+<p>接下来，我们将实践一次函数式编程，题目是将下面的String数组，按照首字母进行分组。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;Cat&quot;</span><span class="p">,</span> <span class="s">&quot;Chicken&quot;</span><span class="p">,</span> <span class="s">&quot;fish&quot;</span><span class="p">,</span> <span class="s">&quot;Dog&quot;</span><span class="p">,</span> <span class="s">&quot;Mouse&quot;</span><span class="p">,</span> <span class="s">&quot;Guinea Pig&quot;</span><span class="p">,</span> <span class="s">&quot;monkey&quot;</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>首先现有一个大致的思路，建立一个元组，包含首字母和其对应的String数组，最后通过一个函数返回一个该元组的数组，然后就完成了任务。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">typealias</span> <span class="n">Entry</span> <span class="o">=</span> <span class="p">(</span><span class="n">Character</span><span class="p">,</span> <span class="p">[</span><span class="n">String</span><span class="p">])</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">func</span> <span class="n">buildIndex</span><span class="p">(</span><span class="nl">words:</span> <span class="p">[</span><span class="n">String</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">Entry</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">[</span><span class="n">Entry</span><span class="p">]()</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Building an index imperatively</h3>
+
+<p>下面是常规控制流实现，使用了两个for循环，一个用于记录所有的首字母key，第二个用于将原数组添加到对应的元组中。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">buildIndex</span><span class="p">(</span><span class="nl">words:</span> <span class="p">[</span><span class="n">String</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">Entry</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">var</span> <span class="n">result</span> <span class="o">=</span> <span class="p">[</span><span class="n">Entry</span><span class="p">]()</span>
+</span><span class='line'>  <span class="n">var</span> <span class="n">letters</span> <span class="o">=</span> <span class="p">[</span><span class="n">Character</span><span class="p">]()</span>
+</span><span class='line'>  <span class="k">for</span> <span class="n">word</span> <span class="k">in</span> <span class="n">words</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">firstLetter</span> <span class="o">=</span> <span class="n">Character</span><span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">substringToIndex</span><span class="p">(</span>
+</span><span class='line'>      <span class="n">advance</span><span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">startIndex</span><span class="p">,</span> <span class="mi">1</span><span class="p">)).</span><span class="n">uppercaseString</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="o">!</span><span class="n">contains</span><span class="p">(</span><span class="n">letters</span><span class="p">,</span> <span class="n">firstLetter</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">letters</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">firstLetter</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">for</span> <span class="n">letter</span> <span class="k">in</span> <span class="n">letters</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="n">wordsForLetter</span> <span class="o">=</span> <span class="p">[</span><span class="n">String</span><span class="p">]()</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">word</span> <span class="k">in</span> <span class="n">words</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">let</span> <span class="n">firstLetter</span> <span class="o">=</span> <span class="n">Character</span><span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">substringToIndex</span><span class="p">(</span>
+</span><span class='line'>        <span class="n">advance</span><span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">startIndex</span><span class="p">,</span> <span class="mi">1</span><span class="p">)).</span><span class="n">uppercaseString</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">if</span> <span class="n">firstLetter</span> <span class="o">==</span> <span class="n">letter</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">wordsForLetter</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">result</span><span class="p">.</span><span class="n">append</span><span class="p">((</span><span class="n">letter</span><span class="p">,</span> <span class="n">wordsForLetter</span><span class="p">))</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">result</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Building an index the functional way</h3>
+
+<p>下面是该问题的函数式解决方案，首先我们利用Array的map函数，得到words对应的首字母数组。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">buildIndex</span><span class="p">(</span><span class="nl">words:</span> <span class="p">[</span><span class="n">String</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">Entry</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">letters</span> <span class="o">=</span> <span class="n">words</span><span class="p">.</span><span class="n">map</span> <span class="p">{</span> <span class="n">word</span> <span class="o">-&gt;</span> <span class="n">Character</span> <span class="k">in</span>
+</span><span class='line'>    <span class="n">Character</span><span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">substringToIndex</span><span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">startIndex</span><span class="p">.</span><span class="n">advancedBy</span><span class="p">(</span><span class="mi">1</span><span class="p">)).</span><span class="n">uppercaseString</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">[</span><span class="n">Entry</span><span class="p">]()</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>map与前面的filter，reduce一样都是Array的内建函数，它的作用是输出一个与原数组对应的相关数组。而且数组元素可以与原数组不同，这里通过map得到了words对应的首字母数组，但是不足的是重复字母并没有过滤。我们可以像之前一样自定义一个过滤相同字母的函数。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">distinct</span><span class="o">&lt;</span><span class="nl">T:</span> <span class="n">Equatable</span><span class="o">&gt;</span> <span class="p">(</span><span class="nl">source:</span> <span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">T</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="n">unique</span> <span class="o">=</span> <span class="p">[</span><span class="n">T</span><span class="p">]()</span>
+</span><span class='line'>    <span class="k">for</span> <span class="n">item</span> <span class="k">in</span> <span class="n">source</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="o">!</span><span class="n">unique</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">unique</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">unique</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>利用这一函数，过滤重复字母。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">buildIndex</span><span class="p">(</span><span class="nl">words:</span> <span class="p">[</span><span class="n">String</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">Entry</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">letters</span> <span class="o">=</span> <span class="n">words</span><span class="p">.</span><span class="n">map</span> <span class="p">{</span> <span class="n">word</span> <span class="o">-&gt;</span> <span class="n">Character</span> <span class="k">in</span>
+</span><span class='line'>    <span class="n">Character</span><span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">substringToIndex</span><span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">startIndex</span><span class="p">.</span><span class="n">advancedBy</span><span class="p">(</span><span class="mi">1</span><span class="p">)).</span><span class="n">uppercaseString</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">distinctLetters</span> <span class="o">=</span> <span class="n">distinct</span><span class="p">(</span><span class="n">letters</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="n">distinctLetters</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">return</span> <span class="p">[</span><span class="n">Entry</span><span class="p">]()</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>最后，我们利用map和filter的嵌套使用，完成最终的结果数组。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">buildIndex</span><span class="p">(</span><span class="nl">words:</span> <span class="p">[</span><span class="n">String</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">Entry</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">letters</span> <span class="o">=</span> <span class="n">words</span><span class="p">.</span><span class="n">map</span> <span class="p">{</span> <span class="n">word</span> <span class="o">-&gt;</span> <span class="n">Character</span> <span class="k">in</span>
+</span><span class='line'>    <span class="n">Character</span><span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">substringToIndex</span><span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">startIndex</span><span class="p">.</span><span class="n">advancedBy</span><span class="p">(</span><span class="mi">1</span><span class="p">)).</span><span class="n">uppercaseString</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">distinctLetters</span> <span class="o">=</span> <span class="n">distinct</span><span class="p">(</span><span class="n">letters</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">distinctLetters</span><span class="p">.</span><span class="n">map</span> <span class="p">{</span> <span class="n">letter</span> <span class="o">-&gt;</span> <span class="n">Entry</span> <span class="k">in</span>
+</span><span class='line'>        <span class="k">return</span> <span class="p">(</span><span class="n">letter</span><span class="p">,</span> <span class="n">words</span><span class="p">.</span><span class="n">filter</span> <span class="p">{</span> <span class="n">word</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="k">in</span>
+</span><span class='line'>        <span class="n">Character</span><span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">substringToIndex</span><span class="p">(</span><span class="n">word</span><span class="p">.</span><span class="n">startIndex</span><span class="p">.</span><span class="n">advancedBy</span><span class="p">(</span><span class="mi">1</span><span class="p">)).</span><span class="n">uppercaseString</span><span class="p">)</span> <span class="o">==</span> <span class="n">letter</span>
+</span><span class='line'>            <span class="p">})</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在完成基础上我们可以进一步重构，我们在buildIndex()函数中声明了一个新的函数firstLetter()，该函数的作用范围只在外围函数中，这得益于Swift中function作为第一类对象，所以可以被视作本地变量，也有作用范围。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">buildIndex</span><span class="p">(</span><span class="nl">words:</span> <span class="p">[</span><span class="n">String</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">Entry</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">func</span> <span class="n">firstLetter</span><span class="p">(</span><span class="nl">str:</span> <span class="n">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Character</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">Character</span><span class="p">(</span><span class="n">str</span><span class="p">.</span><span class="n">substringToIndex</span><span class="p">(</span><span class="n">str</span><span class="p">.</span><span class="n">startIndex</span><span class="p">.</span><span class="n">advancedBy</span><span class="p">(</span><span class="mi">1</span><span class="p">)).</span><span class="n">uppercaseString</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">let</span> <span class="n">letters</span> <span class="o">=</span> <span class="n">words</span><span class="p">.</span><span class="n">map</span> <span class="p">{</span> <span class="n">word</span> <span class="o">-&gt;</span> <span class="n">Character</span> <span class="k">in</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">firstLetter</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">distinctLetters</span> <span class="o">=</span> <span class="n">distinct</span><span class="p">(</span><span class="n">letters</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="n">distinctLetters</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">distinctLetters</span><span class="p">.</span><span class="n">map</span> <span class="p">{</span> <span class="n">letter</span> <span class="o">-&gt;</span> <span class="n">Entry</span> <span class="k">in</span>
+</span><span class='line'>        <span class="k">return</span> <span class="p">(</span><span class="n">letter</span><span class="p">,</span> <span class="n">words</span><span class="p">.</span><span class="n">filter</span> <span class="p">{</span> <span class="n">word</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="k">in</span>
+</span><span class='line'>            <span class="n">firstLetter</span><span class="p">(</span><span class="n">word</span><span class="p">)</span> <span class="o">==</span> <span class="n">letter</span>
+</span><span class='line'>            <span class="p">})</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然而，这还不是最简形式，追求最简形式，可以将所有函数连续调用，这是没问题的，以下是最终结果。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">buildIndex</span><span class="p">(</span><span class="nl">words:</span> <span class="p">[</span><span class="n">String</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">Entry</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">func</span> <span class="n">firstLetter</span><span class="p">(</span><span class="nl">str:</span> <span class="n">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Character</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">Character</span><span class="p">(</span><span class="n">str</span><span class="p">.</span><span class="n">substringToIndex</span><span class="p">(</span><span class="n">str</span><span class="p">.</span><span class="n">startIndex</span><span class="p">.</span><span class="n">advancedBy</span><span class="p">(</span><span class="mi">1</span><span class="p">)).</span><span class="n">uppercaseString</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">distinct</span><span class="p">(</span><span class="n">words</span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="n">firstLetter</span><span class="p">))</span>
+</span><span class='line'>        <span class="p">.</span><span class="n">map</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">letter</span> <span class="o">-&gt;</span> <span class="n">Entry</span> <span class="k">in</span>
+</span><span class='line'>          <span class="k">return</span> <span class="p">(</span><span class="n">letter</span><span class="p">,</span> <span class="n">words</span><span class="p">.</span><span class="n">filter</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">word</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="k">in</span>
+</span><span class='line'>            <span class="n">firstLetter</span><span class="p">(</span><span class="n">word</span><span class="p">)</span> <span class="o">==</span> <span class="n">letter</span>
+</span><span class='line'>          <span class="p">})</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>通过比较，你会发现，在常规做法中，你会声明很多临时变量，而在函数式编程中，你会使用对应的常量替代，这就意味着是不可变的，而不可变的类型更容易测试和协助并发，函数式编程与不可变类型是一体的，而且会导致你的代码更简洁，错误更少。</p>
+
+<p>这节的挑战任务是需要输出的结果按字母排序，我们可以添加之前介绍过的最简的sort()方法，在distinct()之后进行调用。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">buildIndex</span><span class="p">(</span><span class="nl">words:</span> <span class="p">[</span><span class="n">String</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">Entry</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">func</span> <span class="n">firstLetter</span><span class="p">(</span><span class="nl">str:</span> <span class="n">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Character</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">Character</span><span class="p">(</span><span class="n">str</span><span class="p">.</span><span class="n">substringToIndex</span><span class="p">(</span><span class="n">str</span><span class="p">.</span><span class="n">startIndex</span><span class="p">.</span><span class="n">advancedBy</span><span class="p">(</span><span class="mi">1</span><span class="p">)).</span><span class="n">uppercaseString</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">distinct</span><span class="p">(</span><span class="n">words</span><span class="p">.</span><span class="n">map</span><span class="p">(</span><span class="n">firstLetter</span><span class="p">)).</span><span class="n">sort</span><span class="p">(</span><span class="o">&lt;</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">.</span><span class="n">map</span> <span class="p">{</span>
+</span><span class='line'>          <span class="n">letter</span> <span class="o">-&gt;</span> <span class="n">Entry</span> <span class="k">in</span>
+</span><span class='line'>          <span class="k">return</span> <span class="p">(</span><span class="n">letter</span><span class="p">,</span> <span class="n">words</span><span class="p">.</span><span class="n">filter</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">word</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="k">in</span>
+</span><span class='line'>            <span class="n">firstLetter</span><span class="p">(</span><span class="n">word</span><span class="p">)</span> <span class="o">==</span> <span class="n">letter</span>
+</span><span class='line'>          <span class="p">})</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Partial application and currying</h2>
+
+<p>前面几节围绕Array的三个方法，map，reduce，filter来介绍函数式编程。这一节将进一步介绍函数式编程的Partial application和currying。这里有一篇<a href="http://segmentfault.com/a/1190000000765247">博客</a>也进行了简单的介绍。</p>
+
+<h3>Partial application</h3>
+
+<p>为了说明Partial application，先提出一个问题，切割字符串为数组，我们的常用解决方案就是就是直接调用NSString的componentsSeparatedByString()方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">import</span> <span class="n">Foundation</span>
+</span><span class='line'><span class="n">let</span> <span class="n">data</span> <span class="o">=</span> <span class="s">&quot;5,7;3,4;55,6&quot;</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">componentsSeparatedByString</span><span class="p">(</span><span class="s">&quot;;&quot;</span><span class="p">))</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">componentsSeparatedByString</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这么调用也没问题，但是如果有场景需要我们多次用分号，或者逗号切割字符串，这样处理会出现许多重复代码，那么partical application就是这类问题的解决方案。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">creatSplitter</span><span class="p">(</span><span class="nl">separator:</span> <span class="n">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">String</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">String</span><span class="p">])</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">func</span> <span class="n">split</span><span class="p">(</span><span class="nl">source:</span> <span class="n">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">String</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">source</span><span class="p">.</span><span class="n">componentsSeparatedByString</span><span class="p">(</span><span class="n">separator</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">split</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">commaSplitter</span> <span class="o">=</span> <span class="n">creatSplitter</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">commaSplitter</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">semiColonSplitter</span> <span class="o">=</span> <span class="n">creatSplitter</span><span class="p">(</span><span class="s">&quot;;&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">semiColonSplitter</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>我们创建了一个产生分割字符串方法的工厂方法，输入分隔符号，返回一个该符号的分割方法，也就是我们先实现了函数的一部分，将函数从二元降为了一元，最主要的是，我们可以反复使用这一得到的方法，可能在该例中优点体现不太明显，但是如果逻辑更复杂，参数更多后，partical application带来的效率提高就非常可观了。</p>
+
+<h3>A mild curry</h3>
+
+<p>使用curry也可以实现上例中的结果，如下，但是调用和工厂方法的写法都会改变。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">createSplitter</span><span class="p">(</span><span class="nl">separator:</span> <span class="n">String</span><span class="p">)(</span><span class="nl">source:</span> <span class="n">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="n">String</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">source</span><span class="p">.</span><span class="n">componentsSeparatedByString</span><span class="p">(</span><span class="n">separator</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">commaSplitter</span> <span class="o">=</span> <span class="n">createSplitter</span><span class="p">(</span><span class="s">&quot;,&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">commaSplitter</span><span class="p">(</span><span class="nl">source:</span> <span class="n">data</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">semiColonSplitter</span> <span class="o">=</span> <span class="n">createSplitter</span><span class="p">(</span><span class="s">&quot;;&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">semiColonSplitter</span><span class="p">(</span><span class="nl">source:</span> <span class="n">data</span><span class="p">))</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>curry实现了相同的目的，但是它创建的方法包含了两组“分开的”参数，而当你输入第一个参数时，会返回一个函数，你可以继续输入第二个参数（第二个参数需要使用外部参数名，与一般函数一致）。</p>
+
+<h3>A hotter curry</h3>
+
+<p>让我们进一步了解curry，将下面的三元函数进行curry化。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">addNumbers</span><span class="p">(</span><span class="nl">one:</span><span class="n">Int</span><span class="p">,</span> <span class="nl">two:</span><span class="n">Int</span><span class="p">,</span> <span class="nl">three:</span><span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Int</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">one</span> <span class="o">+</span> <span class="n">two</span> <span class="o">+</span> <span class="n">three</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">let</span> <span class="n">sum</span> <span class="o">=</span> <span class="n">addNumbers</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nl">two:</span> <span class="mi">5</span><span class="p">,</span> <span class="nl">three:</span> <span class="mi">4</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">sum</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">curryAddNumbers</span><span class="p">(</span><span class="nl">one:</span><span class="n">Int</span><span class="p">)(</span><span class="nl">two:</span><span class="n">Int</span><span class="p">)(</span><span class="nl">three:</span><span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Int</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">one</span><span class="o">+</span><span class="n">two</span><span class="o">+</span><span class="n">three</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>接着让我们分部对curry函数进行调用，每一步都会返回一个函数，最后一步返回最终结果。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">stepOne</span> <span class="o">=</span> <span class="n">curryAddNumbers</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</span><span class='line'><span class="n">let</span> <span class="n">stepTwo</span> <span class="o">=</span> <span class="n">stepOne</span><span class="p">(</span><span class="nl">two:</span> <span class="mi">5</span><span class="p">)</span>
+</span><span class='line'><span class="n">let</span> <span class="n">result</span> <span class="o">=</span> <span class="n">stepTwo</span><span class="p">(</span><span class="nl">three:</span> <span class="mi">4</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>也可以像一般函数一样，一次性直接调用。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">result2</span> <span class="o">=</span> <span class="n">curryAddNumbers</span><span class="p">(</span><span class="mi">2</span><span class="p">)(</span><span class="nl">two:</span> <span class="mi">5</span><span class="p">)(</span><span class="nl">three:</span> <span class="mi">4</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>当然，也可以在每一步添加多个参数。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">curryAddNumbers2</span><span class="p">(</span><span class="nl">one:</span><span class="n">Int</span><span class="p">,</span> <span class="nl">two:</span> <span class="n">Int</span><span class="p">)(</span><span class="nl">three:</span> <span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Int</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">one</span><span class="o">+</span><span class="n">two</span><span class="o">+</span><span class="n">three</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">let</span> <span class="n">result3</span> <span class="o">=</span> <span class="n">curryAddNumbers2</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nl">two:</span> <span class="mi">5</span><span class="p">)(</span><span class="nl">three:</span> <span class="mi">4</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Practical curring</h3>
+
+<p>上面两例主要为了说明curry的使用，这里看下它在实际开发中的用法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">text</span> <span class="o">=</span> <span class="s">&quot;Swift&quot;</span>
+</span><span class='line'><span class="n">let</span> <span class="n">paddedText</span> <span class="o">=</span> <span class="n">text</span><span class="p">.</span><span class="n">stringByPaddingToLength</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="nl">withString:</span> <span class="s">&quot;.&quot;</span><span class="p">,</span> <span class="nl">startingAtIndex:</span> <span class="mi">0</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">paddedText</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这是一个调用了NSString的填充字符串的方法（额外注意一点startingAtIndex:是指明要填充的字符串从哪位开始填充，所以不能超过withString:参数的长度）。我们在他基础之上要封装一个四元的curry函数。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">curriedPadding</span><span class="p">(</span><span class="nl">startingAtIndex:</span> <span class="n">Int</span><span class="p">,</span> <span class="nl">withString:</span> <span class="n">String</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">(</span><span class="nl">source:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">length:</span> <span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">String</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">source</span><span class="p">.</span><span class="n">stringByPaddingToLength</span><span class="p">(</span><span class="n">length</span><span class="p">,</span>
+</span><span class='line'>      <span class="nl">withString:</span> <span class="n">withString</span><span class="p">,</span> <span class="nl">startingAtIndex:</span> <span class="n">startingAtIndex</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然后在它基础上创建一个只用点填充字符串的方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">dotPadding</span> <span class="o">=</span> <span class="n">curriedPadding</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nl">withString:</span> <span class="s">&quot;.&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="n">let</span> <span class="n">dotPadded</span> <span class="o">=</span> <span class="n">dotPadding</span><span class="p">(</span><span class="nl">source:</span> <span class="s">&quot;Curry!&quot;</span><span class="p">,</span> <span class="nl">length:</span> <span class="mi">10</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">刘毅</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-23T14:09:04+08:00" pubdate data-updated="true">Nov 23<span>rd</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ios/'>iOS</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <style>
+    .flash-video{display:none;}
+</style>
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <span class="jiathis_txt">分享到：</span>
+  <a class="jiathis_button_qzone">QQ空间</a>
+  <a class="jiathis_button_tsina">新浪微博</a>
+  <a class="jiathis_button_tqq">腾讯微博</a>
+  <a class="jiathis_button_renren">人人网</a>
+  <a class="jiathis_button_douban">豆瓣</a>
+  <a class="jiathis_button_weixin">微信</a>
+  <a href="http://www.jiathis.com/share?uid=1885095" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript">
+var jiathis_config = {data_track_clickback:'true'};
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1885095" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+
+<br />
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1885095"></script>
+<!-- UY END -->
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/11/20/swift-by-tutorials-enums-and-switch-statements/" title="Previous Post: Swift by Tutorials--Enums and Switch Statements">&laquo; Swift by Tutorials--Enums and Switch Statements</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/11/23/swift-by-tutorials-functional-programming/">Swift by Tutorials--Functional Programming</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/20/swift-by-tutorials-enums-and-switch-statements/">Swift by Tutorials--Enums and Switch Statements</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/09/calayer-and-coreanimation/">CALayer&amp;CoreAnimation</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/05/ioskai-fa-bei-wang-lu-1/">iOS开发备忘录1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/30/hui-da-sunnyde-55dao-iosmian-shi-ti-2/">回答Sunny的55道iOS面试题2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/28/hui-da-sunnyde-55dao-iosmian-shi-ti-1/">回答Sunny的55道iOS面试题1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/20/react-nativechu-tan-1/">React Native初探1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/20/swift-by-tutorials-functions-and-closures/">Swift by Tutorials--Functions and Closures</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/15/swift-by-tutorials-generics/">Swift by Tutorials--Generics</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/12/swift-by-tutorials-classes-and-structs/">Swift by Tutorials--Classes and Structs</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>About Me</h1>
+    <p> iOS开发, 菜鸟程序猿, Dotar<br/>
+      <br/>我的经历:
+      <br/>2007.9 进入吉大学习高端大气的电子信息工程
+      <br/>2011.9 考研失利,转投中传计算机专业,接触iOS
+      <br/>2013.8 入职盘古,以iOS程序员的身份开始职业生涯<br/>
+      <br/>我的微博: <a href="http://weibo.com/u/2638849461" target="_blank">JamesRaynor-刘毅</a>
+      <br/>我的git主页: <a href="https://github.com/lucifer1988" target="_blank">lucifer1988</a>
+      <br/>
+      <br/><span id="wb_follow_btn"></span>
+  </p>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - 刘毅 -
+  <span class="credit">Powered by <a href="http://octopress.org" target="_blank">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=3350288267" type="text/javascript" charset="utf-8"></script>
+<script>
+    WB2.anyWhere(function(W){
+        W.widget.followButton({
+            'uid': 2638849461,
+            'nick_name': 'JamesRaynor-刘毅',
+            'id': "wb_follow_btn",
+            'show_head' : true, 
+            'show_name' : true, 
+            'show_cancel': false
+        });
+    });
+</script>
+6vvqnj09Z6
+
+</body>
+</html>
