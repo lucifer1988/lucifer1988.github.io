@@ -4,7 +4,7 @@
   <title><![CDATA[刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-11-25T11:16:21+08:00</updated>
+  <updated>2015-11-26T16:56:08+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,529 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Swift by Tutorials--Swift and Cocoa]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/11/25/swift-by-tutorials-swift-and-cocoa/"/>
+    <updated>2015-11-25T11:20:10+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/11/25/swift-by-tutorials-swift-and-cocoa</id>
+    <content type="html"><![CDATA[<p>Swift是一门新推出的语言，但是核心框架还是Cocoa，这与OC是一致的，Cocoa的Foundation和UIKit框架对于开发应用仍是最重要的。这一章将创建一个应用，主要介绍Swift一Cocoa直接的交互，同时了解Cocoa的设计模式如何在Swift中体现出来。</p>
+
+<!--more-->
+
+
+<h2>Getting started</h2>
+
+<p>作者提供了一个starter project，添加了一个viewcontroller和之前介绍的JSON.swift（帮助解析JSON的工具类），另外还有facebook的SDK，所以接下来会介绍如何在Swift中混用OC代码。</p>
+
+<h2>Bridging Swift and Objectivec-C</h2>
+
+<p>通过<strong>bridging</strong>技术，可以让我们在Swift和OC间相互调用。</p>
+
+<h3>Swift bridging header</h3>
+
+<p>新建一个OC的.h文件，如：CafeHunter-ObjCBridging.h，然后在<strong>Build Settings</strong>中找到<strong>Objective-C Bridging Header</strong>，填写该头文件的路径，如：CafeHunter/CafeHunter-ObjCBridging.h，然后可以在该头文件中添加所需的OC头文件，如下，这样就可以在Swift中使用OC的类和方法了。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="cp">#import &lt;FacebookSDK/FacebookSDK.h&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">FBSettings</span><span class="p">.</span><span class="n">setDefaultAppID</span><span class="p">(</span><span class="s">&quot;INSERT_YOUR_FB_APP_ID&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Objective-C compatibility header</h3>
+
+<p>那么如何在OC中使用Swift代码呢？还记得刚才在<strong>Build Settings</strong>中找到的<strong>Objective-C Bridging Header</strong>上面的<strong>Install Objective-C Compatibility Header</strong>吗？该项就是控制Swift向OC转换的开关，默认是打开的。</p>
+
+<p>在report navigation的Build，中可以找到<strong> Copy CafeHunter-Swift.h</strong>的信息，可以双击打开该文件，你会发现你用Swift中创建的继承于OC的类和方法都在这里有对应的OC代码，而且实际上还有用@objec标记的代码，也有对应的转化。需要注意的两点是：</p>
+
+<ol>
+<li>Swift中的私有方法是没有转化的，因为理论上外部不可能使用私有方法，但私有方法仍会注册在runtime中。</li>
+<li>转化的代码每个类之前会有一行类似<strong>SWIFT_CLASS(&ldquo;_TtC10CafeHunter11AppDelegate&rdquo;)</strong>的代码，实际上是Swift的压缩命名，为每个类添加了命名空间，也是该类在runtime中实际的名字，即使不同库中有相同名类，编译器也会通过该类名，准确找到对应的类。</li>
+</ol>
+
+
+<h2>Adding the UI</h2>
+
+<p>添加一个FaceBook的登录View和MKMapView到Storybiard，然后关联到代码，如下。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="err">@</span><span class="kt">IBOutlet</span> <span class="n">weak</span> <span class="n">var</span> <span class="nl">mapView:</span> <span class="n">MKMapView</span><span class="o">!</span>
+</span><span class='line'><span class="err">@</span><span class="kt">IBOutlet</span> <span class="n">weak</span> <span class="n">var</span> <span class="nl">loginView:</span> <span class="n">FBLoginView</span><span class="o">!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>有几点说明：</p>
+
+<ol>
+<li>outlet的类型是optional的，而且是隐式拆解的，这是因为如果不这么设置，编译器会发现这些变量没有在初始化中赋值，从而报错，所以这是为了避免编译器报错的手段，但我们知道它会在IB中初始化，所以采用了隐式拆解。使用outlet时不用再去拆解，但同时需要注意在view加载之前调用它们会导致崩溃，这点需要谨记。</li>
+<li>outlet被加了weak关键字，这和OC中是一致的，是因为viewController的view对outlet是有强引用的，所以不必再添加额外的强引用。</li>
+</ol>
+
+
+<h3>Showing the user&rsquo;s location</h3>
+
+<p>在Swift中长把协议的实现放在单独的extension中，这样可以将代码分组，但依然可以访问原类的变量和方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">extension</span> <span class="nl">ViewController:</span> <span class="n">MKMapViewDelegate</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">func</span> <span class="n">mapView</span><span class="p">(</span><span class="nl">mapView:</span> <span class="n">MKMapView</span><span class="p">,</span> <span class="n">didFailToLocateUserWithError</span> <span class="nl">error:</span> <span class="n">NSError</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">alert</span> <span class="o">=</span> <span class="n">UIAlertController</span><span class="p">(</span><span class="nl">title:</span> <span class="s">&quot;Error&quot;</span><span class="p">,</span> <span class="nl">message:</span> <span class="s">&quot;Failed to obtain location!&quot;</span><span class="p">,</span> <span class="nl">preferredStyle:</span> <span class="p">.</span><span class="n">Alert</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">alert</span><span class="p">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">UIAlertAction</span><span class="p">(</span><span class="nl">title:</span> <span class="s">&quot;OK&quot;</span><span class="p">,</span> <span class="nl">style:</span> <span class="p">.</span><span class="n">Default</span><span class="p">,</span> <span class="nl">handler:</span> <span class="nb">nil</span><span class="p">))</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">presentViewController</span><span class="p">(</span><span class="n">alert</span><span class="p">,</span> <span class="nl">animated:</span> <span class="n">true</span><span class="p">,</span> <span class="nl">completion:</span> <span class="nb">nil</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">func</span> <span class="n">mapView</span><span class="p">(</span><span class="nl">mapView:</span> <span class="n">MKMapView</span><span class="p">,</span> <span class="n">didUpdateUserLocation</span> <span class="nl">userLocation:</span> <span class="n">MKUserLocation</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">newLocation</span> <span class="o">=</span> <span class="n">userLocation</span><span class="p">.</span><span class="n">location</span><span class="o">!</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">distance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">lastLoction</span><span class="o">?</span><span class="p">.</span><span class="n">distanceFromLocation</span><span class="p">(</span><span class="n">newLocation</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">distance</span> <span class="o">==</span> <span class="nb">nil</span> <span class="o">||</span> <span class="n">distance</span> <span class="o">&gt;</span> <span class="n">searchDistance</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">lastLoction</span> <span class="o">=</span> <span class="n">newLocation</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">centerMapOnLocation</span><span class="p">(</span><span class="n">newLocation</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">fetchCafesAroundLocation</span><span class="p">(</span><span class="n">newLocation</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>本节其他部分都是一些业务逻辑方面的内容，数不赘述。</p>
+
+<h2>Fetching data</h2>
+
+<p>前面的开发进行到了最后一步，就是将用户位置附近的咖啡馆找出来，并在地图上展示，这依赖于一个FaceBook的接口访问，同时本地需要定义咖啡馆的模型。</p>
+
+<h3>Building the data model</h3>
+
+<p>先定义Cafe的model，首先你会想到Cafe在这里是一个纯数据类型，你可能会使用struct，因为Swift中struct也是model的选择之一。</p>
+
+<p>但同时，你希望Cafe可以直接被显示到地图上，那么它就必须遵循MKAnnotation协议，这时，编译器便会报错，因为MKAnnotation是OC的协议，Cafe遵循该协议，必须可以被转化为OC代码，但struct在OC中只是一个C的数据类型，无法转化，所以这里必须声明Cafe为class，且必须继承自NSObject，因为MKAnnotation也遵循NSObject协议。最后，别忘了在init()结尾，添加<strong>super.init()</strong>，这样才能调到NSObject的初始化方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">import</span> <span class="n">Foundation</span>
+</span><span class='line'><span class="n">import</span> <span class="n">MapKit</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">class</span> <span class="nl">Cafe:</span> <span class="n">NSObject</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">fbid:</span> <span class="n">String</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">name:</span> <span class="n">String</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">location:</span> <span class="n">CLLocationCoordinate2D</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">street:</span> <span class="n">String</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">city:</span> <span class="n">String</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">zip:</span> <span class="n">String</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">init</span><span class="p">(</span><span class="nl">fbid:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">name:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">location:</span> <span class="n">CLLocationCoordinate2D</span><span class="p">,</span> <span class="nl">street:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">city:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">zip:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">fbid</span> <span class="o">=</span> <span class="n">fbid</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">location</span> <span class="o">=</span> <span class="n">location</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">street</span> <span class="o">=</span> <span class="n">street</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">city</span> <span class="o">=</span> <span class="n">city</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">zip</span> <span class="o">=</span> <span class="n">zip</span>
+</span><span class='line'>    <span class="n">super</span><span class="p">.</span><span class="n">init</span><span class="p">()</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">extension</span> <span class="nl">Cafe:</span> <span class="n">MKAnnotation</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">title:</span> <span class="n">String</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">name</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">coordinate:</span> <span class="n">CLLocationCoordinate2D</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">location</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Fetching from Facebook</h3>
+
+<p>下面将从Facebook的接口获取数据。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">urlString</span> <span class="o">=</span> <span class="s">&quot;https://graph.facebook.com/v2.0/search/&quot;</span>
+</span><span class='line'><span class="n">urlString</span> <span class="o">+=</span> <span class="s">&quot;?access_token=&quot;</span>
+</span><span class='line'><span class="n">urlString</span> <span class="o">+=</span> <span class="s">&quot;\(FBSession.activeSession().accessTokenData.accessToken)&quot;</span>
+</span><span class='line'><span class="n">urlString</span> <span class="o">+=</span> <span class="s">&quot;&amp;type=place&quot;</span>
+</span><span class='line'><span class="n">urlString</span> <span class="o">+=</span> <span class="s">&quot;&amp;q=cafe&quot;</span>
+</span><span class='line'><span class="n">urlString</span> <span class="o">+=</span> <span class="s">&quot;&amp;center=\(location.coordinate.latitude),&quot;</span>
+</span><span class='line'><span class="n">urlString</span> <span class="o">+=</span> <span class="s">&quot;\(location.coordinate.longitude)&quot;</span>
+</span><span class='line'><span class="n">urlString</span> <span class="o">+=</span> <span class="s">&quot;&amp;distance=\(Int(searchDistance))&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">url</span> <span class="o">=</span> <span class="n">NSURL</span><span class="p">(</span><span class="nl">string:</span> <span class="n">urlString</span><span class="p">)</span><span class="o">!</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="s">&quot;Request URL: \(url)&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">request</span> <span class="o">=</span> <span class="n">NSURLRequest</span><span class="p">(</span><span class="nl">URL:</span> <span class="n">url</span><span class="p">)</span>
+</span><span class='line'><span class="n">NSURLConnection</span><span class="p">.</span><span class="n">sendAsynchronousRequest</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="nl">queue:</span> <span class="n">NSOperationQueue</span><span class="p">.</span><span class="n">mainQueue</span><span class="p">())</span> <span class="p">{</span> <span class="p">(</span><span class="nl">response:</span> <span class="n">NSURLResponse</span><span class="o">?</span><span class="p">,</span> <span class="nl">data:</span> <span class="n">NSData</span><span class="o">?</span><span class="p">,</span> <span class="nl">error:</span> <span class="n">NSError</span><span class="o">?</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Void</span> <span class="k">in</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">error</span> <span class="o">!=</span> <span class="nb">nil</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">let</span> <span class="n">alert</span> <span class="o">=</span> <span class="n">UIAlertController</span><span class="p">(</span><span class="nl">title:</span> <span class="s">&quot;Oops!&quot;</span><span class="p">,</span> <span class="nl">message:</span> <span class="s">&quot;An error occured&quot;</span><span class="p">,</span> <span class="nl">preferredStyle:</span> <span class="p">.</span><span class="n">Alert</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">alert</span><span class="p">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">UIAlertAction</span><span class="p">(</span> <span class="nl">title:</span> <span class="s">&quot;OK&quot;</span><span class="p">,</span> <span class="nl">style:</span> <span class="p">.</span><span class="n">Default</span><span class="p">,</span> <span class="nl">handler:</span> <span class="nb">nil</span><span class="p">))</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">presentViewController</span><span class="p">(</span><span class="n">alert</span><span class="p">,</span> <span class="nl">animated:</span> <span class="n">true</span><span class="p">,</span> <span class="nl">completion:</span> <span class="nb">nil</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">return</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">let</span> <span class="nl">jsonObject:</span> <span class="n">AnyObject</span><span class="o">!</span> <span class="o">=</span> <span class="n">try</span><span class="o">?</span> <span class="n">NSJSONSerialization</span><span class="p">.</span><span class="n">JSONObjectWithData</span><span class="p">(</span><span class="n">data</span><span class="o">!</span><span class="p">,</span> <span class="nl">options:</span> <span class="n">NSJSONReadingOptions</span><span class="p">(</span><span class="nl">rawValue:</span> <span class="mi">0</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="n">let</span> <span class="n">jsonObject</span> <span class="o">=</span> <span class="n">jsonObject</span> <span class="n">as</span><span class="o">?</span> <span class="p">[</span><span class="nl">String:</span><span class="n">AnyObject</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">let</span> <span class="n">data</span> <span class="o">=</span> <span class="n">JSONValue</span><span class="p">.</span><span class="n">fromObject</span><span class="p">(</span><span class="n">jsonObject</span><span class="p">)</span><span class="o">?</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">array</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">var</span> <span class="nl">cafes:</span> <span class="p">[</span><span class="n">Cafe</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'>            <span class="k">for</span> <span class="n">cafeJSON</span> <span class="k">in</span> <span class="n">data</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="n">let</span> <span class="n">cafeJSON</span> <span class="o">=</span> <span class="n">cafeJSON</span><span class="p">.</span><span class="n">object</span> <span class="p">{</span>
+</span><span class='line'>                <span class="k">if</span> <span class="n">let</span> <span class="n">cafe</span> <span class="o">=</span> <span class="n">Cafe</span><span class="p">.</span><span class="n">fromJSON</span><span class="p">(</span><span class="n">cafeJSON</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">cafes</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">cafe</span><span class="p">)</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">mapView</span><span class="p">.</span><span class="n">removeAnnotations</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">cafes</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">cafes</span> <span class="o">=</span> <span class="n">cafes</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">mapView</span><span class="p">.</span><span class="n">addAnnotations</span><span class="p">(</span><span class="n">cafes</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>首先拼接要访问的URL，采用了String拼接，而不是stringWithFormat:，这样代码比较清晰</li>
+<li>然后将string转化为NSURL，虽然NSURL的参数需要NSString，但是使用String也没问题，这是因为Swift对它们进行了无缝的桥接。</li>
+<li>使用了NSURLConnection的异步请求，使用closure处理回调。</li>
+<li>JSON的反序列化，目前Swift2.0采用了try/catch这样的写法，而弃用了之前OC的传入NSError**参数的做法，代码更简洁。</li>
+<li>NSJSONSerialization的JSONObjectWithData()方法实际返回的是NSDictionary，但是我们使用时是转化成[NSObject:AnyObject]，这也是Swift的隐式转换，还有NSArray和[AnyObject]。</li>
+<li>具体的JSON对象的解析，使用了JSON.swift库，关于这个库的原理在之前讲过，主要是利用enum的新特性，为每一种JSON元素类型提供了type。</li>
+</ol>
+
+
+<h3>Parsing the JSON data</h3>
+
+<p>让我们在Cafe类中添加一个直接从JSON初始化的方法，在取JSON每一个元素时，一定要注意使用optional类型，这样可以保证不会因为某个值不存在而崩溃。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="n">func</span> <span class="n">fromJSON</span><span class="p">(</span><span class="nl">json:</span> <span class="p">[</span><span class="nl">String:</span><span class="n">JSONValue</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Cafe</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>   <span class="n">let</span> <span class="n">fbid</span> <span class="o">=</span> <span class="n">json</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">string</span>
+</span><span class='line'>   <span class="n">let</span> <span class="n">name</span> <span class="o">=</span> <span class="n">json</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">string</span>
+</span><span class='line'>   <span class="n">let</span> <span class="n">latitude</span> <span class="o">=</span> <span class="n">json</span><span class="p">[</span><span class="s">&quot;location&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">[</span><span class="s">&quot;latitude&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="kt">double</span>
+</span><span class='line'>   <span class="n">let</span> <span class="n">longitude</span> <span class="o">=</span> <span class="n">json</span><span class="p">[</span><span class="s">&quot;location&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">[</span><span class="s">&quot;longitude&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="kt">double</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">if</span> <span class="n">fbid</span> <span class="o">!=</span> <span class="nb">nil</span> <span class="o">&amp;&amp;</span> <span class="n">name</span> <span class="o">!=</span> <span class="nb">nil</span> <span class="o">&amp;&amp;</span> <span class="n">latitude</span> <span class="o">!=</span> <span class="nb">nil</span> <span class="o">&amp;&amp;</span> <span class="n">longitude</span> <span class="o">!=</span> <span class="nb">nil</span> <span class="p">{</span>
+</span><span class='line'>       <span class="n">var</span> <span class="nl">street:</span> <span class="n">String</span>
+</span><span class='line'>       <span class="k">if</span> <span class="n">let</span> <span class="n">maybeStreet</span> <span class="o">=</span> <span class="n">json</span><span class="p">[</span><span class="s">&quot;location&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">[</span><span class="s">&quot;street&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">string</span> <span class="p">{</span>
+</span><span class='line'>           <span class="n">street</span> <span class="o">=</span> <span class="n">maybeStreet</span>
+</span><span class='line'>       <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>           <span class="n">street</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+</span><span class='line'>       <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>       <span class="n">var</span> <span class="nl">city:</span> <span class="n">String</span>
+</span><span class='line'>       <span class="k">if</span> <span class="n">let</span> <span class="n">maybeCity</span> <span class="o">=</span> <span class="n">json</span><span class="p">[</span><span class="s">&quot;location&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">[</span><span class="s">&quot;city&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">string</span> <span class="p">{</span>
+</span><span class='line'>           <span class="n">city</span> <span class="o">=</span> <span class="n">maybeCity</span>
+</span><span class='line'>       <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>           <span class="n">city</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+</span><span class='line'>       <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>       <span class="n">var</span> <span class="nl">zip:</span> <span class="n">String</span>
+</span><span class='line'>       <span class="k">if</span> <span class="n">let</span> <span class="n">maybeZip</span> <span class="o">=</span> <span class="n">json</span><span class="p">[</span><span class="s">&quot;location&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">[</span><span class="s">&quot;zip&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">string</span> <span class="p">{</span>
+</span><span class='line'>           <span class="n">zip</span> <span class="o">=</span> <span class="n">maybeZip</span>
+</span><span class='line'>       <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>           <span class="n">zip</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+</span><span class='line'>       <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>       <span class="n">let</span> <span class="n">location</span> <span class="o">=</span> <span class="n">CLLocationCoordinate2D</span><span class="p">(</span><span class="nl">latitude:</span> <span class="n">latitude</span><span class="o">!</span><span class="p">,</span> <span class="nl">longitude:</span> <span class="n">longitude</span><span class="o">!</span><span class="p">)</span>
+</span><span class='line'>       <span class="k">return</span> <span class="n">Cafe</span><span class="p">(</span><span class="nl">fbid:</span> <span class="n">fbid</span><span class="o">!</span><span class="p">,</span> <span class="nl">name:</span> <span class="n">name</span><span class="o">!</span><span class="p">,</span> <span class="nl">location:</span> <span class="n">location</span><span class="p">,</span> <span class="nl">street:</span> <span class="n">street</span><span class="p">,</span> <span class="nl">city:</span> <span class="n">city</span><span class="p">,</span> <span class="nl">zip:</span> <span class="n">zip</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>   <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>从OC的角度考虑，我们可能会问，为什么不写一个secondary初始化方法？这是由于Swift决定的，某个类初始化方法是不能返回nil值的，如果可以，那么所有的Swift类型都是optional类型了，那么区分optional就没有意义，所以我们一定要注意，像构建这类可能返回nil的初始化方法，最好采用该类型的工厂方法来实现。</p>
+
+<h2>Selectors</h2>
+
+<p>这一小节想给app加一个刷新按钮，引出OC中的target/selector模式在Swift中如何使用的问题。</p>
+
+<p>OC中的方法调用是动态分发的，即方法的调用者（target）和方法名（SEL）都是可以在runtime动态分发的，而且你可以在runtime中修改这些值，而编译器不会在意该方法有没有实现。而在Swift中，所有的方法调用在编译期间就会决定，不再采用动态分发。那么如何解决Swift中调用原OC中需要target/SEL的方法，就需要得到解决。</p>
+
+<p>Swift给出的方案是使用一个结构体Selector，Selector遵循了StringLiteralConvertible协议，其内部使用时可以直接从String转换，而使用者只需传入一个String即可。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">self</span><span class="p">.</span><span class="n">navigationItem</span><span class="p">.</span><span class="n">leftBarButtonItem</span> <span class="o">=</span> <span class="n">UIBarButtonItem</span><span class="p">(</span><span class="nl">barButtonSystemItem:</span> <span class="p">.</span><span class="n">Refresh</span><span class="p">,</span> <span class="nl">target:</span> <span class="n">self</span><span class="p">,</span> <span class="nl">action:</span> <span class="s">&quot;refresh:&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">public</span> <span class="n">convenience</span> <span class="n">init</span><span class="p">(</span><span class="n">barButtonSystemItem</span> <span class="nl">systemItem:</span> <span class="n">UIBarButtonSystemItem</span><span class="p">,</span> <span class="nl">target:</span> <span class="n">AnyObject</span><span class="o">?</span><span class="p">,</span> <span class="nl">action:</span> <span class="n">Selector</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>你可以尝试不去实现refresh:方法，而编译器也不会报错，而在执行时才会报错，这就是因为它的真正实现还是使用了OC的动态分发，只是做了Swift的桥接。</p>
+
+<h2>Protocols and delegates</h2>
+
+<p>接下来会为每个cafe创建一个detail view，并定义一个protocol，使用委托模式，并确保可以桥接到OC。</p>
+
+<h3>Creating the detail view</h3>
+
+<p>创建对应的viewController，并在storyboard上定义好xib。</p>
+
+<p>这里声明了一个Cafe变量作为数据源，如下，与以往不同的是，添加了didSet()方法，该方法会在cafe被赋值之后会调用，类似OC中的KVO，你可以为实现变量的didSet和willSet，分别在赋值前和复制后调用。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="nl">cafe:</span> <span class="n">Cafe</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">didSet</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">setupWithCafe</span><span class="p">()</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在Cafe类添加一个pictureURL变量，是一个computed property，提供了返回值。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="nl">pictureURL:</span> <span class="n">NSURL</span> <span class="p">{</span>
+</span><span class='line'><span class="k">return</span> <span class="n">NSURL</span><span class="p">(</span><span class="nl">string:</span> <span class="s">&quot;http://graph.facebook.com/place/picture?id=\(self.fbid)&amp;type=large&quot;</span><span class="p">)</span><span class="o">!</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>接下来是setupWithCafe()方法，由于该方法放在了cafe的didSet中调用了，而且存在很多outlet存在，需要判断这些outlet是否加载完成，所以先进行了self.isViewLoaded()判断。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">private</span> <span class="n">func</span> <span class="nf">setupWithCafe</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">!</span><span class="n">self</span><span class="p">.</span><span class="n">isViewLoaded</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">let</span> <span class="n">cafe</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">cafe</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">cafe</span><span class="p">.</span><span class="n">name</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">nameLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">cafe</span><span class="p">.</span><span class="n">name</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">streetLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">cafe</span><span class="p">.</span><span class="n">street</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">cityLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">cafe</span><span class="p">.</span><span class="n">city</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">zipLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">cafe</span><span class="p">.</span><span class="n">zip</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">let</span> <span class="n">request</span> <span class="o">=</span> <span class="n">NSURLRequest</span><span class="p">(</span><span class="nl">URL:</span> <span class="n">cafe</span><span class="p">.</span><span class="n">pictureURL</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">NSURLConnection</span><span class="p">.</span><span class="n">sendAsynchronousRequest</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="nl">queue:</span> <span class="n">NSOperationQueue</span><span class="p">.</span><span class="n">mainQueue</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>      <span class="p">(</span><span class="nl">response:</span> <span class="n">NSURLResponse</span><span class="o">?</span><span class="p">,</span> <span class="nl">data:</span> <span class="n">NSData</span><span class="o">?</span><span class="p">,</span> <span class="nl">error:</span> <span class="n">NSError</span><span class="o">?</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Void</span> <span class="k">in</span>
+</span><span class='line'>      <span class="n">let</span> <span class="n">image</span> <span class="o">=</span> <span class="n">UIImage</span><span class="p">(</span><span class="nl">data:</span> <span class="n">data</span><span class="o">!</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">imageView</span><span class="p">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">image</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Wiring up the detail view</h3>
+
+<p>在ViewController中，通过实现mapView(mapView: MKMapView!, viewForAnnotation annotation: MKAnnotation!) &ndash;> MKAnnotationView!和mapView(mapView: MKMapView!, annotationView view: MKAnnotationView!, calloutAccessoryControlTapped control: UIControl!)两个MKMapViewDelegate的方法，完成了通过点击大头针，弹出详情按钮，再进入详情页的功能。</p>
+
+<p>这里还想将ViewController作为CafeViewController的委托，在CafeViewController点击返回时调用。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="err">@</span><span class="n">objc</span> <span class="n">protocol</span> <span class="n">CafeViewControllerDelegate</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">optional</span> <span class="n">func</span> <span class="n">cafeViewControllerDidFinish</span><span class="p">(</span><span class="nl">viewController:</span> <span class="n">CafeViewController</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里在声明protocol前加了<strong>@objc</strong>关键字是因为该protocol有optional方法，因为这样可以使Swift添加多个runtime检测，来检测protocol的一致性和是否实现了optional类型的方法。同时这也限制了，protocol的实现者必须是class类型，因为runtime对@obj的检测需要对象为class。而你也可以通过在protocol后加限制来实现。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="err">@</span><span class="n">objc</span> <span class="n">protocol</span> <span class="nl">CafeViewControllerDelegate:</span> <span class="n">class</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">optional</span> <span class="n">func</span> <span class="n">cafeViewControllerDidFinish</span><span class="p">(</span><span class="nl">viewController:</span> <span class="n">CafeViewController</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然后在CafeViewController添加delegate变量，与OC一样，使用weak属性，需要注意的是声明为optional类型，因为不是一定有委托对象的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">weak</span> <span class="n">var</span> <span class="nl">delegate:</span> <span class="n">CafeViewControllerDelegate</span><span class="o">?</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然后是delegate的调用，这里使用了optional chain，delegate的存在与cafeViewControllerDidFinish()方法的实现与否都是不确定的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="err">@</span><span class="kt">IBAction</span> <span class="n">private</span> <span class="n">func</span> <span class="n">back</span><span class="p">(</span><span class="nl">sender:</span> <span class="n">AnyObject</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">delegate</span><span class="o">?</span><span class="p">.</span><span class="n">cafeViewControllerDidFinish</span><span class="o">?</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>最后，是在ViewController中的delegate实现。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">extension</span> <span class="nl">ViewController:</span> <span class="n">CafeViewControllerDelegate</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">func</span> <span class="n">cafeViewControllerDidFinish</span><span class="p">(</span><span class="nl">viewController:</span> <span class="n">CafeViewController</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">dismissViewControllerAnimated</span><span class="p">(</span><span class="n">true</span><span class="p">,</span> <span class="nl">completion:</span> <span class="nb">nil</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Swift by Tutorials--Functional Programming]]></title>
@@ -13360,1005 +13883,6 @@ NSStringFromClass([super class]) = Son
 
 
 <p></p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[raywenderlich.com代码风格规范]]></title>
-    <link href="http://lucifer1988.github.io/blog/2014/04/09/raywenderlich-dot-comdai-ma-feng-ge-gui-fan/"/>
-    <updated>2014-04-09T14:36:55+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2014/04/09/raywenderlich-dot-comdai-ma-feng-ge-gui-fan</id>
-    <content type="html"><![CDATA[<p><img src="http://lucifer1988.github.io/images/rayWenderlich_icon.png"></p>
-
-<p><a href="http://www.raywenderlich.com">raywenderlich.com</a>对于搞iOS开发的人来说不会陌生（如果你经常关注一些技术博客的话），它原本只是Ray Wenderlich的个人博客，但通过不断聚集优秀的开发者参与到其站点的技术博客撰写，包括了应用开发和游戏开发的各个方面，同时将这些技术博客整理成书，作为开发教程出售（貌似最近还出视频教程了，又想法圈钱了···），这样raywenderlich.com渐渐发展成了一个iOS开发社区，其优质的文章和对文章本地化的重视，使得其影响力逐渐向全球扩展。本文是对其最近公布的自家的Objective-C代码风格规范的一些整理，原文地址在<a href="https://github.com/raywenderlich/objective-c-style-guide">这里</a>。</p>
-
-<!--more-->
-
-
-<h2>目录</h2>
-
-<ul>
-<li><a href="#%E8%AF%AD%E8%A8%80">语言</a></li>
-<li><a href="#%E4%BB%A3%E7%A0%81%E7%BB%93%E6%9E%84">代码结构</a></li>
-<li><a href="#%E7%A9%BA%E6%A0%BC">空格</a></li>
-<li><a href="#%E6%B3%A8%E9%87%8A">注释</a></li>
-<li><a href="#%E5%91%BD%E5%90%8D">命名</a></li>
-<li><a href="#%E4%B8%8B%E5%88%92%E7%BA%BF">下划线</a></li>
-<li><a href="#%E6%96%B9%E6%B3%95">方法</a></li>
-<li><a href="#%E5%8F%98%E9%87%8F">变量</a></li>
-<li><a href="#%E5%B1%9E%E6%80%A7">属性</a></li>
-<li><a href="#%E7%82%B9%E8%A1%A8%E8%BE%BE%E5%BC%8F">点表达式</a></li>
-<li><a href="#%E6%96%87%E5%AD%97%E9%87%8F">文字量</a></li>
-<li><a href="#%E5%B8%B8%E9%87%8F">常量</a></li>
-<li><a href="#%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B">枚举类型</a></li>
-<li><a href="#%E5%88%86%E6%94%AF%E8%AF%AD%E5%8F%A5">分支语句</a></li>
-<li><a href="#%E7%A7%81%E6%9C%89%E5%B1%9E%E6%80%A7">私有属性</a></li>
-<li><a href="#%E5%B8%83%E5%B0%94%E5%9E%8B">布尔型</a></li>
-<li><a href="#%E6%9D%A1%E4%BB%B6%E8%AF%AD%E5%8F%A5">条件语句</a></li>
-<li><a href="#%E4%B8%89%E5%85%83%E8%BF%90%E7%AE%97%E7%AC%A6">三元运算符</a></li>
-<li><a href="#Init%E6%96%B9%E6%B3%95">Init方法</a></li>
-<li><a href="#%E6%9E%84%E9%80%A0%E7%B1%BB%E6%96%B9%E6%B3%95">构造类方法</a></li>
-<li><a href="#CGRect%E7%9B%B8%E5%85%B3%E5%87%BD%E6%95%B0">CGRect相关函数</a></li>
-<li><a href="#%E6%84%89%E5%BF%AB%E8%B7%AF%E5%BE%84">愉快路径</a></li>
-<li><a href="#%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86">异常处理</a></li>
-<li><a href="#%E5%8D%95%E4%BE%8B">单例</a></li>
-<li><a href="#%E6%8D%A2%E8%A1%8C">换行</a></li>
-<li><a href="#%E7%AC%91%E8%84%B8">笑脸（你没看错，这也有规范）</a></li>
-<li><a href="#Xcode%E5%B7%A5%E7%A8%8B">Xcode工程</a></li>
-</ul>
-
-
-<h2><a name="语言"></a>语言</h2>
-
-<p>推荐使用美英，主要体现在命名时使用美英单词。</p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">UIColor</span> <span class="o">*</span><span class="n">myColor</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIColor</span> <span class="n">whiteColor</span><span class="p">];</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">UIColor</span> <span class="o">*</span><span class="n">myColour</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIColor</span> <span class="n">whiteColor</span><span class="p">];</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="代码结构"></a>代码结构</h2>
-
-<p>统一使用<code>#pragma mark -</code>组织代码结构。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-<span class='line-number'>17</span>
-<span class='line-number'>18</span>
-<span class='line-number'>19</span>
-<span class='line-number'>20</span>
-<span class='line-number'>21</span>
-<span class='line-number'>22</span>
-<span class='line-number'>23</span>
-<span class='line-number'>24</span>
-<span class='line-number'>25</span>
-<span class='line-number'>26</span>
-<span class='line-number'>27</span>
-<span class='line-number'>28</span>
-<span class='line-number'>29</span>
-<span class='line-number'>30</span>
-<span class='line-number'>31</span>
-<span class='line-number'>32</span>
-<span class='line-number'>33</span>
-<span class='line-number'>34</span>
-<span class='line-number'>35</span>
-<span class='line-number'>36</span>
-<span class='line-number'>37</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="cp">#pragma mark - Lifecycle</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">init</span> <span class="p">{}</span>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">dealloc</span> <span class="p">{}</span>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">viewDidLoad</span> <span class="p">{}</span>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">viewWillAppear:</span><span class="p">(</span><span class="kt">BOOL</span><span class="p">)</span><span class="nv">animated</span> <span class="p">{}</span>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">didReceiveMemoryWarning</span> <span class="p">{}</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">#pragma mark - Custom Accessors</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setCustomProperty:</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nv">value</span> <span class="p">{}</span>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nf">customProperty</span> <span class="p">{}</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">#pragma mark - IBActions</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">IBAction</span><span class="p">)</span><span class="nf">submitData:</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nv">sender</span> <span class="p">{}</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">#pragma mark - Public</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">publicMethod</span> <span class="p">{}</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">#pragma mark - Private</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">privateMethod</span> <span class="p">{}</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">#pragma mark - Protocol conformance</span>
-</span><span class='line'><span class="cp">#pragma mark - UITextFieldDelegate</span>
-</span><span class='line'><span class="cp">#pragma mark - UITableViewDataSource</span>
-</span><span class='line'><span class="cp">#pragma mark - UITableViewDelegate</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">#pragma mark - NSCopying</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nf">copyWithZone:</span><span class="p">(</span><span class="n">NSZone</span> <span class="o">*</span><span class="p">)</span><span class="nv">zone</span> <span class="p">{}</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">#pragma mark - NSObject</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nf">description</span> <span class="p">{}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="空格"></a>空格</h2>
-
-<ul>
-<li>使用2个空格缩进（理由是可以在保持打印空白的基础上，尽量减少换行的可能性），不要使用tab缩进，可以在Xcode的preference下进行修改（默认是4个空格）；</li>
-<li>方法中的<code>{}</code>和在<code>if</code>/<code>else</code>/<code>switch</code>/<code>while</code>等语法中出现的<code>{}</code>在本行开始，而结束于新一行。</li>
-</ul>
-
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="n">isHappy</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="c1">//Do something</span>
-</span><span class='line'><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>  <span class="c1">//Do something else</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">user</span><span class="p">.</span><span class="n">isHappy</span><span class="p">)</span>
-</span><span class='line'><span class="p">{</span>
-</span><span class='line'>    <span class="c1">//Do something</span>
-</span><span class='line'><span class="p">}</span>
-</span><span class='line'><span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>    <span class="c1">//Do something else</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<ul>
-<li>方法之间应该有且只有一空行来保持代码结构清晰，方法中的空白行用来划分功能，但是经常你可能需要将它们重构为新的方法；</li>
-<li>推荐使用自动提示的语法结构，不过<code>@sythesize</code>和<code>@dyamic</code>可以声明在新行；</li>
-<li><code>冒号对齐</code>这样的方法调用结构要避免，假如方法中出现3个以上的冒号，这样的调用结构会使代码可读性很差。千万别在含有block的方法中去对齐冒号，这样Xcode的缩进会使其非法。</li>
-</ul>
-
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="c1">// blocks are easily readable</span>
-</span><span class='line'><span class="p">[</span><span class="n">UIView</span> <span class="nl">animateWithDuration:</span><span class="mf">1.0</span> <span class="nl">animations:</span><span class="o">^</span><span class="p">{</span>
-</span><span class='line'>  <span class="c1">// something</span>
-</span><span class='line'><span class="p">}</span> <span class="nl">completion:</span><span class="o">^</span><span class="p">(</span><span class="kt">BOOL</span> <span class="n">finished</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="c1">// something</span>
-</span><span class='line'><span class="p">}];</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="c1">// colon-aligning makes the block indentation hard to read</span>
-</span><span class='line'><span class="p">[</span><span class="n">UIView</span> <span class="nl">animateWithDuration:</span><span class="mf">1.0</span>
-</span><span class='line'>                 <span class="nl">animations:</span><span class="o">^</span><span class="p">{</span>
-</span><span class='line'>                     <span class="c1">// something</span>
-</span><span class='line'>                 <span class="p">}</span>
-</span><span class='line'>                 <span class="nl">completion:</span><span class="o">^</span><span class="p">(</span><span class="kt">BOOL</span> <span class="n">finished</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>                     <span class="c1">// something</span>
-</span><span class='line'>                 <span class="p">}];</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="注释"></a>注释</h2>
-
-<p>注释主要用来解释这段代码为什么存在于此，注意所有注释需要及时更新或删除。</p>
-
-<p>大段的注释要避免，有必要可以加到单独的文档，注释需要一些简短的说明。PS：不包括那些为生成文档而做的注释（一些工具可以通过代码中的注释生成文档）。</p>
-
-<h2><a name="命名"></a>命名</h2>
-
-<p>Apple的命名习惯是尽可能详细，尤其是和内存管理相关的。</p>
-
-<p>长的，描述性的方法和变量名命名是被推荐的。</p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">UIButton</span> <span class="o">*</span><span class="n">settingsButton</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">UIButton</span> <span class="o">*</span><span class="n">setBut</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>类名和常量名必须要有三个字母的命名前缀（主要为了避免和Apple大多数两个前缀的命名冲突，比如UIButton，CAAnimation，CGRect等），不过Core Data的实体命名可以省略这些前缀。比如raywenderlich.com的命名前缀为RTW。</p>
-
-<p>常量需要驼峰型命名，所有单词首字母大写，且使用相关类名作为前缀。</p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">static</span> <span class="n">NSTimeInterval</span> <span class="k">const</span> <span class="n">RWTTutorialViewControllerNavigationFadeAnimationDuration</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">static</span> <span class="n">NSTimeInterval</span> <span class="k">const</span> <span class="n">fadetime</span> <span class="o">=</span> <span class="mf">1.7</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>property使用驼峰形命名，保证开头单词小写，且使用Apple的自动合成规则，除了特殊情况，不要手动声明<code>@synthesize</code>。</p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">descriptiveVariableName</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="kt">id</span> <span class="n">varnm</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="下划线"></a>下划线</h2>
-
-<p>当使用property时，实例变量的读写要使用<code>self.</code>，这样的话所有的property可以清楚地区分出来。</p>
-
-<p>一个例外：在初始化方法中，需要的实例变量要直接使用<code>_variableName</code>型，为了避免调用getter/setter方法可能出现的循环引用。</p>
-
-<p>临时变量不能使用下划线。</p>
-
-<h2><a name="方法"></a>方法</h2>
-
-<p>在方法声明时，方法类型（-/+）后要有一个空格。方法段之间也要有一个空格。在每个变量前要加一个描述性的词语用来描述这个变量。</p>
-
-<p>不要在用于描述的词语中加入“and”，具体例子见下：</p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setExampleText:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">text</span> <span class="nf">image:</span><span class="p">(</span><span class="n">UIImage</span> <span class="o">*</span><span class="p">)</span><span class="nv">image</span><span class="p">;</span>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">sendAction:</span><span class="p">(</span><span class="kt">SEL</span><span class="p">)</span><span class="nv">aSelector</span> <span class="nf">to:</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nv">anObject</span> <span class="nf">forAllCells:</span><span class="p">(</span><span class="kt">BOOL</span><span class="p">)</span><span class="nv">flag</span><span class="p">;</span>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nf">viewWithTag:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">tag</span><span class="p">;</span>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">initWithWidth:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">width</span> <span class="nf">height:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">height</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">setT:</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nv">text</span> <span class="nf">i:</span><span class="p">(</span><span class="n">UIImage</span> <span class="o">*</span><span class="p">)</span><span class="nv">image</span><span class="p">;</span>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">sendAction:</span><span class="p">(</span><span class="kt">SEL</span><span class="p">)</span><span class="nv">aSelector</span> <span class="o">:</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="n">anObject</span> <span class="o">:</span><span class="p">(</span><span class="kt">BOOL</span><span class="p">)</span><span class="n">flag</span><span class="p">;</span>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nf">taggedView:</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">)</span><span class="nv">tag</span><span class="p">;</span>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">initWithWidth:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">width</span> <span class="nf">andHeight:</span><span class="p">(</span><span class="n">CGFloat</span><span class="p">)</span><span class="nv">height</span><span class="p">;</span>
-</span><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">initWith:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="nv">width</span> <span class="nf">and:</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="nv">height</span><span class="p">;</span>  <span class="c1">// Never do this.</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="变量"></a>变量</h2>
-
-<p>变量命名尽量使用描述性的词语。单个字母的命名除了在<code>for()</code>循环中，其他地方都是不允许的。</p>
-
-<p>星号声明了指向变量的指针，例如：<code>NSString *text</code>，不是<code>NSString* text</code>或<code>NSString * text</code>，除了在声明常量的时候（例如：<code>NSString *const text</code>）。</p>
-
-<p>如果可能的话，使用<a href="#%E7%A7%81%E6%9C%89%E5%B1%9E%E6%80%A7">私有属性</a>，而不是实例变量，尽管使用实例变量也是对的，不过这样的协定可以保持代码的一致性。</p>
-
-<p>只有在初始化方法（如<code>init</code>，<code>initWithCoder:</code>等），<code>dealloc</code>和setter/getter方法中使用下划线加变量名的读写方法，更多关于这一情况的说明见<a href="https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/MemoryMgmt/Articles/mmPractical.html#//apple_ref/doc/uid/TP40004447-SW6">Apple相关文档</a></p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@interface</span> <span class="nc">RWTTutorial</span> : <span class="nc">NSObject</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">tutorialName</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">@end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@interface</span> <span class="nc">RWTTutorial</span> : <span class="nc">NSObject</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">NSString</span> <span class="o">*</span><span class="n">tutorialName</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="属性"></a>属性</h2>
-
-<p>属性需要清楚地列出，属性的property类型顺序应该是先内存相关，再原子性相关，这与从IB中自动关联的属性的顺序是一致的。</p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">weak</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UIView</span> <span class="o">*</span><span class="n">containerView</span><span class="p">;</span>
-</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">tutorialName</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">weak</span><span class="p">)</span> <span class="kt">IBOutlet</span> <span class="n">UIView</span> <span class="o">*</span><span class="n">containerView</span><span class="p">;</span>
-</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">tutorialName</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>带有不可变性质的属性（比如：NSString）推荐使用<code>copy</code>而不是<code>strong</code>，理由是其他人可能传入一个其对应的可变实例（比如：NSMutableString），而你可能不会注意到。</p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">copy</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">tutorialName</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">NSString</span> <span class="o">*</span><span class="n">tutorialName</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="点表达式"></a>点表达式</h2>
-
-<p>读写property时应一直使用点表达式，这使代码变得简洁，而<code>[]</code>表达式用于其他所有的实例中。</p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">NSInteger</span> <span class="n">arrayCount</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">array</span> <span class="n">count</span><span class="p">];</span>
-</span><span class='line'><span class="n">view</span><span class="p">.</span><span class="n">backgroundColor</span> <span class="o">=</span> <span class="p">[</span><span class="n">UIColor</span> <span class="n">orangeColor</span><span class="p">];</span>
-</span><span class='line'><span class="p">[</span><span class="n">UIApplication</span> <span class="n">sharedApplication</span><span class="p">].</span><span class="n">delegate</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">NSInteger</span> <span class="n">arrayCount</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">array</span><span class="p">.</span><span class="n">count</span><span class="p">;</span>
-</span><span class='line'><span class="p">[</span><span class="n">view</span> <span class="nl">setBackgroundColor:</span><span class="p">[</span><span class="n">UIColor</span> <span class="n">orangeColor</span><span class="p">]];</span>
-</span><span class='line'><span class="n">UIApplication</span><span class="p">.</span><span class="n">sharedApplication</span><span class="p">.</span><span class="n">delegate</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="文字量"></a>文字量</h2>
-
-<p><code>NSString</code>，<code>NSDictionary</code>，<code>NSArry</code>，<code>NSNumber</code>如果可能的话，尽量使用它们的不可变实例。<code>NSArray</code>和<code>NSDictionary</code>不能存在<code>nil</code>值，否则会引起崩溃。</p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">NSArray</span> <span class="o">*</span><span class="n">names</span> <span class="o">=</span> <span class="err">@</span><span class="p">[</span><span class="s">@&quot;Brian&quot;</span><span class="p">,</span> <span class="s">@&quot;Matt&quot;</span><span class="p">,</span> <span class="s">@&quot;Chris&quot;</span><span class="p">,</span> <span class="s">@&quot;Alex&quot;</span><span class="p">,</span> <span class="s">@&quot;Steve&quot;</span><span class="p">,</span> <span class="s">@&quot;Paul&quot;</span><span class="p">];</span>
-</span><span class='line'><span class="n">NSDictionary</span> <span class="o">*</span><span class="n">productManagers</span> <span class="o">=</span> <span class="err">@</span><span class="p">{</span><span class="s">@&quot;iPhone&quot;</span><span class="o">:</span> <span class="s">@&quot;Kate&quot;</span><span class="p">,</span> <span class="s">@&quot;iPad&quot;</span><span class="o">:</span> <span class="s">@&quot;Kamal&quot;</span><span class="p">,</span> <span class="s">@&quot;Mobile Web&quot;</span><span class="o">:</span> <span class="s">@&quot;Bill&quot;</span><span class="p">};</span>
-</span><span class='line'><span class="n">NSNumber</span> <span class="o">*</span><span class="n">shouldUseLiterals</span> <span class="o">=</span> <span class="err">@</span><span class="n">YES</span><span class="p">;</span>
-</span><span class='line'><span class="n">NSNumber</span> <span class="o">*</span><span class="n">buildingStreetNumber</span> <span class="o">=</span> <span class="err">@</span><span class="mi">10018</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">NSArray</span> <span class="o">*</span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSArray</span> <span class="nl">arrayWithObjects:</span><span class="s">@&quot;Brian&quot;</span><span class="p">,</span> <span class="s">@&quot;Matt&quot;</span><span class="p">,</span> <span class="s">@&quot;Chris&quot;</span><span class="p">,</span> <span class="s">@&quot;Alex&quot;</span><span class="p">,</span> <span class="s">@&quot;Steve&quot;</span><span class="p">,</span> <span class="s">@&quot;Paul&quot;</span><span class="p">,</span> <span class="nb">nil</span><span class="p">];</span>
-</span><span class='line'><span class="n">NSDictionary</span> <span class="o">*</span><span class="n">productManagers</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSDictionary</span> <span class="nl">dictionaryWithObjectsAndKeys:</span> <span class="s">@&quot;Kate&quot;</span><span class="p">,</span> <span class="s">@&quot;iPhone&quot;</span><span class="p">,</span> <span class="s">@&quot;Kamal&quot;</span><span class="p">,</span> <span class="s">@&quot;iPad&quot;</span><span class="p">,</span> <span class="s">@&quot;Bill&quot;</span><span class="p">,</span> <span class="s">@&quot;Mobile Web&quot;</span><span class="p">,</span> <span class="nb">nil</span><span class="p">];</span>
-</span><span class='line'><span class="n">NSNumber</span> <span class="o">*</span><span class="n">shouldUseLiterals</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSNumber</span> <span class="nl">numberWithBool:</span><span class="n">YES</span><span class="p">];</span>
-</span><span class='line'><span class="n">NSNumber</span> <span class="o">*</span><span class="n">buildingStreetNumber</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSNumber</span> <span class="nl">numberWithInteger:</span><span class="mi">10018</span><span class="p">];</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="常量"></a>常量</h2>
-
-<p>常量推荐内联的字符串或数字，推荐定义为<code>static</code>变量，除非要作为宏，不然不要使用<code>#define</code>。</p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">static</span> <span class="n">NSString</span> <span class="o">*</span> <span class="k">const</span> <span class="n">RWTAboutViewControllerCompanyName</span> <span class="o">=</span> <span class="s">@&quot;RayWenderlich.com&quot;</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">static</span> <span class="n">CGFloat</span> <span class="k">const</span> <span class="n">RWTImageThumbnailHeight</span> <span class="o">=</span> <span class="mf">50.0</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="cp">#define CompanyName @&quot;RayWenderlich.com&quot;</span>
-</span><span class='line'>
-</span><span class='line'><span class="cp">#define thumbnailHeight 2</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="枚举类型"></a>枚举类型</h2>
-
-<p>当使用枚举型时，推荐使用新的固定基础类型定义，理由是有更强的类型检查和代码完成功能。SDK现在包含了一个宏来确保和推广使用固定基础类型：<code>NS_ENUM()</code>。</p>
-
-<p><strong>例如：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">typedef</span> <span class="nf">NS_ENUM</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">,</span> <span class="n">RWTLeftMenuTopItemType</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">RWTLeftMenuTopItemMain</span><span class="p">,</span>
-</span><span class='line'>  <span class="n">RWTLeftMenuTopItemShows</span><span class="p">,</span>
-</span><span class='line'>  <span class="n">RWTLeftMenuTopItemSchedule</span>
-</span><span class='line'><span class="p">};</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>也可以做明确的赋值</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">typedef</span> <span class="nf">NS_ENUM</span><span class="p">(</span><span class="n">NSInteger</span><span class="p">,</span> <span class="n">RWTGlobalConstants</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">RWTPinSizeMin</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
-</span><span class='line'>  <span class="n">RWTPinSizeMax</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
-</span><span class='line'>  <span class="n">RWTPinCountMin</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
-</span><span class='line'>  <span class="n">RWTPinCountMax</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
-</span><span class='line'><span class="p">};</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>旧式的k型常量定义只被用于书写CoreFoundation的C代码中。</p>
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">enum</span> <span class="n">GlobalConstants</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">kMaxPinSize</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
-</span><span class='line'>  <span class="n">kMaxPinCount</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span>
-</span><span class='line'><span class="p">};</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="分支语句"></a>分支语句</h2>
-
-<p>花括号对于分支语句并不是必须的，除非编译器强制使用。
-当一个分支包含多于一条语句，花括号需要添加。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-<span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">switch</span> <span class="p">(</span><span class="n">condition</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">case</span> <span class="mi">1</span><span class="o">:</span>
-</span><span class='line'>    <span class="c1">// ...</span>
-</span><span class='line'>    <span class="k">break</span><span class="p">;</span>
-</span><span class='line'>  <span class="k">case</span> <span class="mi">2</span><span class="o">:</span> <span class="p">{</span>
-</span><span class='line'>    <span class="c1">// ...</span>
-</span><span class='line'>    <span class="c1">// Multi-line example using braces</span>
-</span><span class='line'>    <span class="k">break</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="k">case</span> <span class="mi">3</span><span class="o">:</span>
-</span><span class='line'>    <span class="c1">// ...</span>
-</span><span class='line'>    <span class="k">break</span><span class="p">;</span>
-</span><span class='line'>  <span class="k">default</span><span class="o">:</span>
-</span><span class='line'>    <span class="c1">// ...</span>
-</span><span class='line'>    <span class="k">break</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>有时会出现一段代码被多个分支使用，这时就相当于“穿过”。一个“穿过”就是移除这一分支的‘break’语句，使代码继续执行下一分支。“穿过”这种情况需要在代码中进行注释。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">switch</span> <span class="p">(</span><span class="n">condition</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">case</span> <span class="mi">1</span><span class="o">:</span>
-</span><span class='line'>    <span class="c1">// ** fall-through! **</span>
-</span><span class='line'>  <span class="k">case</span> <span class="mi">2</span><span class="o">:</span>
-</span><span class='line'>    <span class="c1">// code executed for values 1 and 2</span>
-</span><span class='line'>    <span class="k">break</span><span class="p">;</span>
-</span><span class='line'>  <span class="k">default</span><span class="o">:</span>
-</span><span class='line'>    <span class="c1">// ...</span>
-</span><span class='line'>    <span class="k">break</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>当在<code>switch</code>语句中使用枚举类型，<code>default</code>是不需要的：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">RWTLeftMenuTopItemType</span> <span class="n">menuType</span> <span class="o">=</span> <span class="n">RWTLeftMenuTopItemMain</span><span class="p">;</span>
-</span><span class='line'><span class="k">switch</span> <span class="p">(</span><span class="n">menuType</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">case</span> <span class="nl">RWTLeftMenuTopItemMain:</span>
-</span><span class='line'>    <span class="c1">// ...</span>
-</span><span class='line'>    <span class="k">break</span><span class="p">;</span>
-</span><span class='line'>  <span class="k">case</span> <span class="nl">RWTLeftMenuTopItemShows:</span>
-</span><span class='line'>    <span class="c1">// ...</span>
-</span><span class='line'>    <span class="k">break</span><span class="p">;</span>
-</span><span class='line'>  <span class="k">case</span> <span class="nl">RWTLeftMenuTopItemSchedule:</span>
-</span><span class='line'>    <span class="c1">// ...</span>
-</span><span class='line'>    <span class="k">break</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="私有属性"></a>私有属性</h2>
-
-<p>私有属性应该定义到<code>.m</code>文件中的类扩展（匿名分类）中，命名的分类（如<code>RWTPrivate</code>，<code>private</code>）是不允许使用的，除非是在做另一个类的拓展。匿名分类可以暴露和共享于与<code>+Private.h</code>文件的命名惯例测试中。</p>
-
-<p><strong>例如：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@interface</span> <span class="nc">RWTDetailViewController</span> <span class="p">()</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">GADBannerView</span> <span class="o">*</span><span class="n">googleAdView</span><span class="p">;</span>
-</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">ADBannerView</span> <span class="o">*</span><span class="n">iAdView</span><span class="p">;</span>
-</span><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">strong</span><span class="p">,</span> <span class="n">nonatomic</span><span class="p">)</span> <span class="n">UIWebView</span> <span class="o">*</span><span class="n">adXWebView</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="k">@end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="布尔型"></a>布尔型</h2>
-
-<p>Objective-C使用<code>YES</code>和<code>NO</code>。因此<code>true</code>和<code>false</code>只用于CoreFoundation，C和C++中。由于<code>nil</code>意味着<code>NO</code>，拿<code>nil</code>来做比较条件是不允许的，永远不要直接拿<code>YES</code>来比较，因为<code>YES</code>被定义为1，而一个布尔型可以支持到8比特。</p>
-
-<p>这是为了文件间更多的一致性和更好的可读性。</p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">someObject</span><span class="p">)</span> <span class="p">{}</span>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">[</span><span class="n">anotherObject</span> <span class="n">boolValue</span><span class="p">])</span> <span class="p">{}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">someObject</span> <span class="o">==</span> <span class="nb">nil</span><span class="p">)</span> <span class="p">{}</span>
-</span><span class='line'><span class="k">if</span> <span class="p">([</span><span class="n">anotherObject</span> <span class="n">boolValue</span><span class="p">]</span> <span class="o">==</span> <span class="n">NO</span><span class="p">)</span> <span class="p">{}</span>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">isAwesome</span> <span class="o">==</span> <span class="n">YES</span><span class="p">)</span> <span class="p">{}</span> <span class="c1">// Never do this.</span>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">isAwesome</span> <span class="o">==</span> <span class="n">true</span><span class="p">)</span> <span class="p">{}</span> <span class="c1">// Never do this.</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>如果布尔型被命名为一个形容词，属性名可以省略<code>is</code>，但是getter方法要保持这一命名。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@property</span> <span class="p">(</span><span class="n">assign</span><span class="p">,</span> <span class="n">getter</span><span class="o">=</span><span class="n">isEditable</span><span class="p">)</span> <span class="kt">BOOL</span> <span class="n">editable</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>这一部分来自<a href="https://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/CodingGuidelines/Articles/NamingIvarsAndTypes.html#//apple_ref/doc/uid/20001284-BAJGIIJE">Cocoa Naming Guidelines</a>。</p>
-
-<h2><a name="条件语句"></a>条件语句</h2>
-
-<p>条件语句主体任何时候都要使用花括号，即使是只有一条语句也需要。这是为了避免错误。这些错误包括添加下一条语句，以为这条语句位于if主体中。另一个更危险的缺点是，if主体内的语句被注释掉，这时下一条语句无意中成为了if语句中的一部分。除此之外，这样的风格与其他条件语句格式保持了一致，便于查找。</p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">success</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">error</span><span class="p">)</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">success</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>或</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">error</span><span class="p">)</span> <span class="k">return</span> <span class="n">success</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="三元运算符"></a>三元运算符</h2>
-
-<p>三元运算符<code>?:</code>，只有在可以提高可读性和简洁性时才可使。单一的判断条件一般可以使用，当执行多个判断条件时推荐使用<code>if</code>语句提高可读性，或者将条件重构为实例变量。总的来说，使用三元运算符的最好时机是决定如何给一个变量赋值的时候。</p>
-
-<p>非布尔类型变量需要比较时，要添加<code>()</code>提高可读性。如果是布尔类型，则不需要。</p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">NSInteger</span> <span class="n">value</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
-</span><span class='line'><span class="n">result</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">?</span> <span class="n">x</span> <span class="o">:</span> <span class="n">y</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="kt">BOOL</span> <span class="n">isHorizontal</span> <span class="o">=</span> <span class="n">YES</span><span class="p">;</span>
-</span><span class='line'><span class="n">result</span> <span class="o">=</span> <span class="n">isHorizontal</span> <span class="o">?</span> <span class="n">x</span> <span class="o">:</span> <span class="n">y</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">result</span> <span class="o">=</span> <span class="n">a</span> <span class="o">&gt;</span> <span class="n">b</span> <span class="o">?</span> <span class="n">x</span> <span class="o">=</span> <span class="n">c</span> <span class="o">&gt;</span> <span class="n">d</span> <span class="o">?</span> <span class="n">c</span> <span class="o">:</span> <span class="n">d</span> <span class="o">:</span> <span class="n">y</span><span class="p">;</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="Init方法"></a>Init方法</h2>
-
-<p>Init方法遵守Apple生成的代码模板，<code>instancetype</code>应取代<code>id</code>作为返回值。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">-</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">init</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="n">init</span><span class="p">];</span>
-</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>    <span class="c1">// ...</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>关于<code>instancetype</code>参照<a href="#class-constructor-methods">Class Constructor Methods</a>。</p>
-
-<h2><a name="构造类方法"></a>构造类方法</h2>
-
-<p>当类构造方法使用时，同样需要注意返回值使用<code>instancetype</code>，而不是<code>id</code>，这样可确保编译器得知正确的结果类型。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">@interface</span> <span class="nc">Airplane</span>
-</span><span class='line'><span class="k">+</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">airplaneWithType:</span><span class="p">(</span><span class="n">RWTAirplaneType</span><span class="p">)</span><span class="nv">type</span><span class="p">;</span>
-</span><span class='line'><span class="k">@end</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>更多关于<code>instancetype</code>在<a href="http://nshipster.com/instancetype/">NSHipster.com</a>。</p>
-
-<h2><a name="CGRect相关函数"></a>CGRect相关函数</h2>
-
-<p>当读取一个<code>CGRect</code>的<code>x</code>、<code>y</code>、<code>width</code>、<code>height</code>时，要使用<code>CGGeometry</code>相关的函数，而不是直接读取结构体。参照Apple的相关文档：</p>
-
-<blockquote><p>All functions described in this reference that take CGRect data structures as inputs implicitly standardize those rectangles before calculating their results. For this reason, your applications should avoid directly reading and writing the data stored in the CGRect data structure. Instead, use the functions described here to manipulate rectangles and to retrieve their characteristics.</p></blockquote>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">CGRect</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">view</span><span class="p">.</span><span class="n">frame</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">CGFloat</span> <span class="n">x</span> <span class="o">=</span> <span class="n">CGRectGetMinX</span><span class="p">(</span><span class="n">frame</span><span class="p">);</span>
-</span><span class='line'><span class="n">CGFloat</span> <span class="n">y</span> <span class="o">=</span> <span class="n">CGRectGetMinY</span><span class="p">(</span><span class="n">frame</span><span class="p">);</span>
-</span><span class='line'><span class="n">CGFloat</span> <span class="n">width</span> <span class="o">=</span> <span class="n">CGRectGetWidth</span><span class="p">(</span><span class="n">frame</span><span class="p">);</span>
-</span><span class='line'><span class="n">CGFloat</span> <span class="n">height</span> <span class="o">=</span> <span class="n">CGRectGetHeight</span><span class="p">(</span><span class="n">frame</span><span class="p">);</span>
-</span><span class='line'><span class="n">CGRect</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">CGRectMake</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">);</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">CGRect</span> <span class="n">frame</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">view</span><span class="p">.</span><span class="n">frame</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'><span class="n">CGFloat</span> <span class="n">x</span> <span class="o">=</span> <span class="n">frame</span><span class="p">.</span><span class="n">origin</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
-</span><span class='line'><span class="n">CGFloat</span> <span class="n">y</span> <span class="o">=</span> <span class="n">frame</span><span class="p">.</span><span class="n">origin</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
-</span><span class='line'><span class="n">CGFloat</span> <span class="n">width</span> <span class="o">=</span> <span class="n">frame</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span><span class="p">;</span>
-</span><span class='line'><span class="n">CGFloat</span> <span class="n">height</span> <span class="o">=</span> <span class="n">frame</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">height</span><span class="p">;</span>
-</span><span class='line'><span class="n">CGRect</span> <span class="n">frame</span> <span class="o">=</span> <span class="p">(</span><span class="n">CGRect</span><span class="p">){</span> <span class="p">.</span><span class="n">origin</span> <span class="o">=</span> <span class="n">CGPointZero</span><span class="p">,</span> <span class="p">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">frame</span><span class="p">.</span><span class="n">size</span> <span class="p">};</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="愉快路径"></a>愉快路径</h2>
-
-<p>进行条件编程时，左边缘的代码应该是愉快路径。也就是说，不要嵌套<code>if</code>语句。多个<code>return</code>是允许的。</p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">someMethod</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">[</span><span class="n">someOther</span> <span class="n">boolValue</span><span class="p">])</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">return</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="c1">//Do something important</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">someMethod</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">if</span> <span class="p">([</span><span class="n">someOther</span> <span class="n">boolValue</span><span class="p">])</span> <span class="p">{</span>
-</span><span class='line'>    <span class="c1">//Do something important</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="异常处理"></a>异常处理</h2>
-
-<p>当方法通过引用的方式返回一个错误参数，使用返回值进行判断，而不是那个错误参数。</p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">;</span>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">[</span><span class="n">self</span> <span class="nl">trySomethingWithError:</span><span class="o">&amp;</span><span class="n">error</span><span class="p">])</span> <span class="p">{</span>
-</span><span class='line'>  <span class="c1">// Handle Error</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">NSError</span> <span class="o">*</span><span class="n">error</span><span class="p">;</span>
-</span><span class='line'><span class="p">[</span><span class="n">self</span> <span class="nl">trySomethingWithError:</span><span class="o">&amp;</span><span class="n">error</span><span class="p">];</span>
-</span><span class='line'><span class="k">if</span> <span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="c1">// Handle Error</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>一些Apple的API在成功的情况下向错误参数写入一些垃圾值，所以通过错误参数来判断会带来不良的影响。</p>
-
-<h2><a name="单例"></a>单例</h2>
-
-<p>单例对象生成共享实例时要注意线程安全。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="k">+</span> <span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">sharedInstance</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">static</span> <span class="kt">id</span> <span class="n">sharedInstance</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">static</span> <span class="n">dispatch_once_t</span> <span class="n">onceToken</span><span class="p">;</span>
-</span><span class='line'>  <span class="n">dispatch_once</span><span class="p">(</span><span class="o">&amp;</span><span class="n">onceToken</span><span class="p">,</span> <span class="o">^</span><span class="p">{</span>
-</span><span class='line'>    <span class="n">sharedInstance</span> <span class="o">=</span> <span class="p">[[</span><span class="n">self</span> <span class="n">alloc</span><span class="p">]</span> <span class="n">init</span><span class="p">];</span>
-</span><span class='line'>  <span class="p">});</span>
-</span><span class='line'>
-</span><span class='line'>  <span class="k">return</span> <span class="n">sharedInstance</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>这将避免一些<a href="http://cocoasamurai.blogspot.com/2011/04/singletons-your-doing-them-wrong.html">多线程下的应用崩溃</a>。</p>
-
-<h2><a name="换行"></a>换行</h2>
-
-<p>换行是一个重要的部分，本代码风格规则着重打印和在线的可读性。</p>
-
-<p>例如：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">self</span><span class="p">.</span><span class="n">productsRequest</span> <span class="o">=</span> <span class="p">[[</span><span class="n">SKProductsRequest</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithProductIdentifiers:</span><span class="n">productIdentifiers</span><span class="p">];</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>长代码的话，可以进行换行，在第二行开头遵照“空白”一节的规定，需要空两个空格。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="n">self</span><span class="p">.</span><span class="n">productsRequest</span> <span class="o">=</span> <span class="p">[[</span><span class="n">SKProductsRequest</span> <span class="n">alloc</span><span class="p">]</span>
-</span><span class='line'>  <span class="nl">initWithProductIdentifiers:</span><span class="n">productIdentifiers</span><span class="p">];</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<h2><a name="笑脸"></a>笑脸</h2>
-
-<p>笑脸是raywenderlich.com站点代码风格的显著特征。使用正确的笑脸表现编程时巨大的喜悦和激动是很重要的。使用方括号笑脸，是因为它是使用ASCII能获得的最大的笑脸···。使用以圆括号结尾的笑脸会出现一个半心形，所以不被推荐···。</p>
-
-<p><strong>推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="o">:</span><span class="p">]</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p><strong>不推荐：</strong></p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class='objc'><span class='line'><span class="o">:</span><span class="p">)</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-
-<h2><a name="Xcode工程"></a>Xcode工程</h2>
-
-<p>物理文件结构和Xcode工程文件结构要保持一致。Xcode项目中的新建分组都要对应文件系统中的文件夹。代码不但要按类型，也要按特征来分组，保证结构更清晰。</p>
-
-<p>可能的话，尽量打开&#8221;Treat Warnings as Errors&#8221;选项，如果你想忽略一个类型的警告，请查看<a href="http://clang.llvm.org/docs/UsersManual.html#controlling-diagnostics-via-pragmas">这里</a>。</p>
-
-<h2>其他Objective-C的代码风格规范</h2>
-
-<ul>
-<li><a href="https://github.com/RobotsAndPencils/objective-c-style-guide">Robots &amp; Pencils</a></li>
-<li><a href="https://github.com/NYTimes/objective-c-style-guide">New York Times</a></li>
-<li><a href="http://google-styleguide.googlecode.com/svn/trunk/objcguide.xml">Google</a></li>
-<li><a href="https://github.com/github/objective-c-conventions">GitHub</a></li>
-<li><a href="https://trac.adium.im/wiki/CodingStyle">Adium</a></li>
-<li><a href="https://gist.github.com/soffes/812796">Sam Soffes</a></li>
-<li><a href="http://cocoadevcentral.com/articles/000082.php">CocoaDevCentral</a></li>
-<li><a href="http://lukeredpath.co.uk/blog/my-objective-c-style-guide.html">Luke Redpath</a></li>
-<li><a href="http://www.cimgf.com/zds-code-style-guide/">Marcus Zarra</a></li>
-</ul>
-
 ]]></content>
   </entry>
   

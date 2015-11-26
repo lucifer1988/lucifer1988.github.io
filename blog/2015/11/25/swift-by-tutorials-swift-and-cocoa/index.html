@@ -1,0 +1,808 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Swift by Tutorials--Swift and Cocoa - 刘毅的技术博客</title>
+  <meta name="author" content="刘毅">
+
+  
+  <meta name="description" content="Swift是一门新推出的语言，但是核心框架还是Cocoa，这与OC是一致的，Cocoa的Foundation和UIKit框架对于开发应用仍是最重要的。这一章将创建一个应用，主要介绍Swift一Cocoa直接的交互，同时了解Cocoa的设计模式如何在Swift中体现出来。 Getting &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucifer1988.github.io/blog/2015/11/25/swift-by-tutorials-swift-and-cocoa">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="刘毅的技术博客" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<script type="text/javascript">
+
+function addBlankTargetForLinks () {
+
+  $('a[href^="http"]').each(function(){
+
+      $(this).attr('target', '_blank');
+
+  });
+
+}
+
+$(document).bind('DOMNodeInserted', function(event) {
+
+  addBlankTargetForLinks();
+
+});
+
+</script>
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">刘毅的技术博客</a></h1>
+  
+    <h2>记录自己的学习生活点滴，也希望和大家交流分享！</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucifer1988.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">首页</a></li>
+  <li><a href="/blog/archives">所有文章</a></li>
+  <li><a href="/blog/categories/ios">iOS开发专题</a></li>
+  <li><a href="http://weibo.com/u/2638849461" target="_blank">我的微博</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Swift by Tutorials--Swift and Cocoa</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-25T11:20:10+08:00" pubdate data-updated="true">Nov 25<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>Swift是一门新推出的语言，但是核心框架还是Cocoa，这与OC是一致的，Cocoa的Foundation和UIKit框架对于开发应用仍是最重要的。这一章将创建一个应用，主要介绍Swift一Cocoa直接的交互，同时了解Cocoa的设计模式如何在Swift中体现出来。</p>
+
+<!--more-->
+
+
+<h2>Getting started</h2>
+
+<p>作者提供了一个starter project，添加了一个viewcontroller和之前介绍的JSON.swift（帮助解析JSON的工具类），另外还有facebook的SDK，所以接下来会介绍如何在Swift中混用OC代码。</p>
+
+<h2>Bridging Swift and Objectivec-C</h2>
+
+<p>通过<strong>bridging</strong>技术，可以让我们在Swift和OC间相互调用。</p>
+
+<h3>Swift bridging header</h3>
+
+<p>新建一个OC的.h文件，如：CafeHunter-ObjCBridging.h，然后在<strong>Build Settings</strong>中找到<strong>Objective-C Bridging Header</strong>，填写该头文件的路径，如：CafeHunter/CafeHunter-ObjCBridging.h，然后可以在该头文件中添加所需的OC头文件，如下，这样就可以在Swift中使用OC的类和方法了。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="cp">#import &lt;FacebookSDK/FacebookSDK.h&gt;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">FBSettings</span><span class="p">.</span><span class="n">setDefaultAppID</span><span class="p">(</span><span class="s">&quot;INSERT_YOUR_FB_APP_ID&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Objective-C compatibility header</h3>
+
+<p>那么如何在OC中使用Swift代码呢？还记得刚才在<strong>Build Settings</strong>中找到的<strong>Objective-C Bridging Header</strong>上面的<strong>Install Objective-C Compatibility Header</strong>吗？该项就是控制Swift向OC转换的开关，默认是打开的。</p>
+
+<p>在report navigation的Build，中可以找到<strong> Copy CafeHunter-Swift.h</strong>的信息，可以双击打开该文件，你会发现你用Swift中创建的继承于OC的类和方法都在这里有对应的OC代码，而且实际上还有用@objec标记的代码，也有对应的转化。需要注意的两点是：</p>
+
+<ol>
+<li>Swift中的私有方法是没有转化的，因为理论上外部不可能使用私有方法，但私有方法仍会注册在runtime中。</li>
+<li>转化的代码每个类之前会有一行类似<strong>SWIFT_CLASS(&ldquo;_TtC10CafeHunter11AppDelegate&rdquo;)</strong>的代码，实际上是Swift的压缩命名，为每个类添加了命名空间，也是该类在runtime中实际的名字，即使不同库中有相同名类，编译器也会通过该类名，准确找到对应的类。</li>
+</ol>
+
+
+<h2>Adding the UI</h2>
+
+<p>添加一个FaceBook的登录View和MKMapView到Storybiard，然后关联到代码，如下。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="err">@</span><span class="kt">IBOutlet</span> <span class="n">weak</span> <span class="n">var</span> <span class="nl">mapView:</span> <span class="n">MKMapView</span><span class="o">!</span>
+</span><span class='line'><span class="err">@</span><span class="kt">IBOutlet</span> <span class="n">weak</span> <span class="n">var</span> <span class="nl">loginView:</span> <span class="n">FBLoginView</span><span class="o">!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>有几点说明：</p>
+
+<ol>
+<li>outlet的类型是optional的，而且是隐式拆解的，这是因为如果不这么设置，编译器会发现这些变量没有在初始化中赋值，从而报错，所以这是为了避免编译器报错的手段，但我们知道它会在IB中初始化，所以采用了隐式拆解。使用outlet时不用再去拆解，但同时需要注意在view加载之前调用它们会导致崩溃，这点需要谨记。</li>
+<li>outlet被加了weak关键字，这和OC中是一致的，是因为viewController的view对outlet是有强引用的，所以不必再添加额外的强引用。</li>
+</ol>
+
+
+<h3>Showing the user&rsquo;s location</h3>
+
+<p>在Swift中长把协议的实现放在单独的extension中，这样可以将代码分组，但依然可以访问原类的变量和方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">extension</span> <span class="nl">ViewController:</span> <span class="n">MKMapViewDelegate</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">func</span> <span class="n">mapView</span><span class="p">(</span><span class="nl">mapView:</span> <span class="n">MKMapView</span><span class="p">,</span> <span class="n">didFailToLocateUserWithError</span> <span class="nl">error:</span> <span class="n">NSError</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">alert</span> <span class="o">=</span> <span class="n">UIAlertController</span><span class="p">(</span><span class="nl">title:</span> <span class="s">&quot;Error&quot;</span><span class="p">,</span> <span class="nl">message:</span> <span class="s">&quot;Failed to obtain location!&quot;</span><span class="p">,</span> <span class="nl">preferredStyle:</span> <span class="p">.</span><span class="n">Alert</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">alert</span><span class="p">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">UIAlertAction</span><span class="p">(</span><span class="nl">title:</span> <span class="s">&quot;OK&quot;</span><span class="p">,</span> <span class="nl">style:</span> <span class="p">.</span><span class="n">Default</span><span class="p">,</span> <span class="nl">handler:</span> <span class="nb">nil</span><span class="p">))</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">presentViewController</span><span class="p">(</span><span class="n">alert</span><span class="p">,</span> <span class="nl">animated:</span> <span class="n">true</span><span class="p">,</span> <span class="nl">completion:</span> <span class="nb">nil</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">func</span> <span class="n">mapView</span><span class="p">(</span><span class="nl">mapView:</span> <span class="n">MKMapView</span><span class="p">,</span> <span class="n">didUpdateUserLocation</span> <span class="nl">userLocation:</span> <span class="n">MKUserLocation</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">newLocation</span> <span class="o">=</span> <span class="n">userLocation</span><span class="p">.</span><span class="n">location</span><span class="o">!</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">distance</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">lastLoction</span><span class="o">?</span><span class="p">.</span><span class="n">distanceFromLocation</span><span class="p">(</span><span class="n">newLocation</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">distance</span> <span class="o">==</span> <span class="nb">nil</span> <span class="o">||</span> <span class="n">distance</span> <span class="o">&gt;</span> <span class="n">searchDistance</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">lastLoction</span> <span class="o">=</span> <span class="n">newLocation</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">centerMapOnLocation</span><span class="p">(</span><span class="n">newLocation</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">fetchCafesAroundLocation</span><span class="p">(</span><span class="n">newLocation</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>本节其他部分都是一些业务逻辑方面的内容，数不赘述。</p>
+
+<h2>Fetching data</h2>
+
+<p>前面的开发进行到了最后一步，就是将用户位置附近的咖啡馆找出来，并在地图上展示，这依赖于一个FaceBook的接口访问，同时本地需要定义咖啡馆的模型。</p>
+
+<h3>Building the data model</h3>
+
+<p>先定义Cafe的model，首先你会想到Cafe在这里是一个纯数据类型，你可能会使用struct，因为Swift中struct也是model的选择之一。</p>
+
+<p>但同时，你希望Cafe可以直接被显示到地图上，那么它就必须遵循MKAnnotation协议，这时，编译器便会报错，因为MKAnnotation是OC的协议，Cafe遵循该协议，必须可以被转化为OC代码，但struct在OC中只是一个C的数据类型，无法转化，所以这里必须声明Cafe为class，且必须继承自NSObject，因为MKAnnotation也遵循NSObject协议。最后，别忘了在init()结尾，添加<strong>super.init()</strong>，这样才能调到NSObject的初始化方法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">import</span> <span class="n">Foundation</span>
+</span><span class='line'><span class="n">import</span> <span class="n">MapKit</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">class</span> <span class="nl">Cafe:</span> <span class="n">NSObject</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">fbid:</span> <span class="n">String</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">name:</span> <span class="n">String</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">location:</span> <span class="n">CLLocationCoordinate2D</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">street:</span> <span class="n">String</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">city:</span> <span class="n">String</span>
+</span><span class='line'>  <span class="n">let</span> <span class="nl">zip:</span> <span class="n">String</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">init</span><span class="p">(</span><span class="nl">fbid:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">name:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">location:</span> <span class="n">CLLocationCoordinate2D</span><span class="p">,</span> <span class="nl">street:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">city:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">zip:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">fbid</span> <span class="o">=</span> <span class="n">fbid</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">location</span> <span class="o">=</span> <span class="n">location</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">street</span> <span class="o">=</span> <span class="n">street</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">city</span> <span class="o">=</span> <span class="n">city</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">zip</span> <span class="o">=</span> <span class="n">zip</span>
+</span><span class='line'>    <span class="n">super</span><span class="p">.</span><span class="n">init</span><span class="p">()</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">extension</span> <span class="nl">Cafe:</span> <span class="n">MKAnnotation</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">title:</span> <span class="n">String</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">name</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">coordinate:</span> <span class="n">CLLocationCoordinate2D</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">return</span> <span class="n">location</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Fetching from Facebook</h3>
+
+<p>下面将从Facebook的接口获取数据。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">urlString</span> <span class="o">=</span> <span class="s">&quot;https://graph.facebook.com/v2.0/search/&quot;</span>
+</span><span class='line'><span class="n">urlString</span> <span class="o">+=</span> <span class="s">&quot;?access_token=&quot;</span>
+</span><span class='line'><span class="n">urlString</span> <span class="o">+=</span> <span class="s">&quot;\(FBSession.activeSession().accessTokenData.accessToken)&quot;</span>
+</span><span class='line'><span class="n">urlString</span> <span class="o">+=</span> <span class="s">&quot;&amp;type=place&quot;</span>
+</span><span class='line'><span class="n">urlString</span> <span class="o">+=</span> <span class="s">&quot;&amp;q=cafe&quot;</span>
+</span><span class='line'><span class="n">urlString</span> <span class="o">+=</span> <span class="s">&quot;&amp;center=\(location.coordinate.latitude),&quot;</span>
+</span><span class='line'><span class="n">urlString</span> <span class="o">+=</span> <span class="s">&quot;\(location.coordinate.longitude)&quot;</span>
+</span><span class='line'><span class="n">urlString</span> <span class="o">+=</span> <span class="s">&quot;&amp;distance=\(Int(searchDistance))&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">url</span> <span class="o">=</span> <span class="n">NSURL</span><span class="p">(</span><span class="nl">string:</span> <span class="n">urlString</span><span class="p">)</span><span class="o">!</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="s">&quot;Request URL: \(url)&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">request</span> <span class="o">=</span> <span class="n">NSURLRequest</span><span class="p">(</span><span class="nl">URL:</span> <span class="n">url</span><span class="p">)</span>
+</span><span class='line'><span class="n">NSURLConnection</span><span class="p">.</span><span class="n">sendAsynchronousRequest</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="nl">queue:</span> <span class="n">NSOperationQueue</span><span class="p">.</span><span class="n">mainQueue</span><span class="p">())</span> <span class="p">{</span> <span class="p">(</span><span class="nl">response:</span> <span class="n">NSURLResponse</span><span class="o">?</span><span class="p">,</span> <span class="nl">data:</span> <span class="n">NSData</span><span class="o">?</span><span class="p">,</span> <span class="nl">error:</span> <span class="n">NSError</span><span class="o">?</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Void</span> <span class="k">in</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">error</span> <span class="o">!=</span> <span class="nb">nil</span> <span class="p">{</span>
+</span><span class='line'>      <span class="n">let</span> <span class="n">alert</span> <span class="o">=</span> <span class="n">UIAlertController</span><span class="p">(</span><span class="nl">title:</span> <span class="s">&quot;Oops!&quot;</span><span class="p">,</span> <span class="nl">message:</span> <span class="s">&quot;An error occured&quot;</span><span class="p">,</span> <span class="nl">preferredStyle:</span> <span class="p">.</span><span class="n">Alert</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">alert</span><span class="p">.</span><span class="n">addAction</span><span class="p">(</span><span class="n">UIAlertAction</span><span class="p">(</span> <span class="nl">title:</span> <span class="s">&quot;OK&quot;</span><span class="p">,</span> <span class="nl">style:</span> <span class="p">.</span><span class="n">Default</span><span class="p">,</span> <span class="nl">handler:</span> <span class="nb">nil</span><span class="p">))</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">presentViewController</span><span class="p">(</span><span class="n">alert</span><span class="p">,</span> <span class="nl">animated:</span> <span class="n">true</span><span class="p">,</span> <span class="nl">completion:</span> <span class="nb">nil</span><span class="p">)</span>
+</span><span class='line'>      <span class="k">return</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">let</span> <span class="nl">jsonObject:</span> <span class="n">AnyObject</span><span class="o">!</span> <span class="o">=</span> <span class="n">try</span><span class="o">?</span> <span class="n">NSJSONSerialization</span><span class="p">.</span><span class="n">JSONObjectWithData</span><span class="p">(</span><span class="n">data</span><span class="o">!</span><span class="p">,</span> <span class="nl">options:</span> <span class="n">NSJSONReadingOptions</span><span class="p">(</span><span class="nl">rawValue:</span> <span class="mi">0</span><span class="p">))</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="n">let</span> <span class="n">jsonObject</span> <span class="o">=</span> <span class="n">jsonObject</span> <span class="n">as</span><span class="o">?</span> <span class="p">[</span><span class="nl">String:</span><span class="n">AnyObject</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">let</span> <span class="n">data</span> <span class="o">=</span> <span class="n">JSONValue</span><span class="p">.</span><span class="n">fromObject</span><span class="p">(</span><span class="n">jsonObject</span><span class="p">)</span><span class="o">?</span><span class="p">[</span><span class="s">&quot;data&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">array</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">var</span> <span class="nl">cafes:</span> <span class="p">[</span><span class="n">Cafe</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'>            <span class="k">for</span> <span class="n">cafeJSON</span> <span class="k">in</span> <span class="n">data</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="n">let</span> <span class="n">cafeJSON</span> <span class="o">=</span> <span class="n">cafeJSON</span><span class="p">.</span><span class="n">object</span> <span class="p">{</span>
+</span><span class='line'>                <span class="k">if</span> <span class="n">let</span> <span class="n">cafe</span> <span class="o">=</span> <span class="n">Cafe</span><span class="p">.</span><span class="n">fromJSON</span><span class="p">(</span><span class="n">cafeJSON</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                    <span class="n">cafes</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">cafe</span><span class="p">)</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">mapView</span><span class="p">.</span><span class="n">removeAnnotations</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">cafes</span><span class="p">)</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">cafes</span> <span class="o">=</span> <span class="n">cafes</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">mapView</span><span class="p">.</span><span class="n">addAnnotations</span><span class="p">(</span><span class="n">cafes</span><span class="p">)</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<ol>
+<li>首先拼接要访问的URL，采用了String拼接，而不是stringWithFormat:，这样代码比较清晰</li>
+<li>然后将string转化为NSURL，虽然NSURL的参数需要NSString，但是使用String也没问题，这是因为Swift对它们进行了无缝的桥接。</li>
+<li>使用了NSURLConnection的异步请求，使用closure处理回调。</li>
+<li>JSON的反序列化，目前Swift2.0采用了try/catch这样的写法，而弃用了之前OC的传入NSError**参数的做法，代码更简洁。</li>
+<li>NSJSONSerialization的JSONObjectWithData()方法实际返回的是NSDictionary，但是我们使用时是转化成[NSObject:AnyObject]，这也是Swift的隐式转换，还有NSArray和[AnyObject]。</li>
+<li>具体的JSON对象的解析，使用了JSON.swift库，关于这个库的原理在之前讲过，主要是利用enum的新特性，为每一种JSON元素类型提供了type。</li>
+</ol>
+
+
+<h3>Parsing the JSON data</h3>
+
+<p>让我们在Cafe类中添加一个直接从JSON初始化的方法，在取JSON每一个元素时，一定要注意使用optional类型，这样可以保证不会因为某个值不存在而崩溃。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="n">func</span> <span class="n">fromJSON</span><span class="p">(</span><span class="nl">json:</span> <span class="p">[</span><span class="nl">String:</span><span class="n">JSONValue</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Cafe</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>   <span class="n">let</span> <span class="n">fbid</span> <span class="o">=</span> <span class="n">json</span><span class="p">[</span><span class="s">&quot;id&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">string</span>
+</span><span class='line'>   <span class="n">let</span> <span class="n">name</span> <span class="o">=</span> <span class="n">json</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">string</span>
+</span><span class='line'>   <span class="n">let</span> <span class="n">latitude</span> <span class="o">=</span> <span class="n">json</span><span class="p">[</span><span class="s">&quot;location&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">[</span><span class="s">&quot;latitude&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="kt">double</span>
+</span><span class='line'>   <span class="n">let</span> <span class="n">longitude</span> <span class="o">=</span> <span class="n">json</span><span class="p">[</span><span class="s">&quot;location&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">[</span><span class="s">&quot;longitude&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="kt">double</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="k">if</span> <span class="n">fbid</span> <span class="o">!=</span> <span class="nb">nil</span> <span class="o">&amp;&amp;</span> <span class="n">name</span> <span class="o">!=</span> <span class="nb">nil</span> <span class="o">&amp;&amp;</span> <span class="n">latitude</span> <span class="o">!=</span> <span class="nb">nil</span> <span class="o">&amp;&amp;</span> <span class="n">longitude</span> <span class="o">!=</span> <span class="nb">nil</span> <span class="p">{</span>
+</span><span class='line'>       <span class="n">var</span> <span class="nl">street:</span> <span class="n">String</span>
+</span><span class='line'>       <span class="k">if</span> <span class="n">let</span> <span class="n">maybeStreet</span> <span class="o">=</span> <span class="n">json</span><span class="p">[</span><span class="s">&quot;location&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">[</span><span class="s">&quot;street&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">string</span> <span class="p">{</span>
+</span><span class='line'>           <span class="n">street</span> <span class="o">=</span> <span class="n">maybeStreet</span>
+</span><span class='line'>       <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>           <span class="n">street</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+</span><span class='line'>       <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>       <span class="n">var</span> <span class="nl">city:</span> <span class="n">String</span>
+</span><span class='line'>       <span class="k">if</span> <span class="n">let</span> <span class="n">maybeCity</span> <span class="o">=</span> <span class="n">json</span><span class="p">[</span><span class="s">&quot;location&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">[</span><span class="s">&quot;city&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">string</span> <span class="p">{</span>
+</span><span class='line'>           <span class="n">city</span> <span class="o">=</span> <span class="n">maybeCity</span>
+</span><span class='line'>       <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>           <span class="n">city</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+</span><span class='line'>       <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>       <span class="n">var</span> <span class="nl">zip:</span> <span class="n">String</span>
+</span><span class='line'>       <span class="k">if</span> <span class="n">let</span> <span class="n">maybeZip</span> <span class="o">=</span> <span class="n">json</span><span class="p">[</span><span class="s">&quot;location&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">[</span><span class="s">&quot;zip&quot;</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">string</span> <span class="p">{</span>
+</span><span class='line'>           <span class="n">zip</span> <span class="o">=</span> <span class="n">maybeZip</span>
+</span><span class='line'>       <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>           <span class="n">zip</span> <span class="o">=</span> <span class="s">&quot;&quot;</span>
+</span><span class='line'>       <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>       <span class="n">let</span> <span class="n">location</span> <span class="o">=</span> <span class="n">CLLocationCoordinate2D</span><span class="p">(</span><span class="nl">latitude:</span> <span class="n">latitude</span><span class="o">!</span><span class="p">,</span> <span class="nl">longitude:</span> <span class="n">longitude</span><span class="o">!</span><span class="p">)</span>
+</span><span class='line'>       <span class="k">return</span> <span class="n">Cafe</span><span class="p">(</span><span class="nl">fbid:</span> <span class="n">fbid</span><span class="o">!</span><span class="p">,</span> <span class="nl">name:</span> <span class="n">name</span><span class="o">!</span><span class="p">,</span> <span class="nl">location:</span> <span class="n">location</span><span class="p">,</span> <span class="nl">street:</span> <span class="n">street</span><span class="p">,</span> <span class="nl">city:</span> <span class="n">city</span><span class="p">,</span> <span class="nl">zip:</span> <span class="n">zip</span><span class="p">)</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>   <span class="k">return</span> <span class="nb">nil</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>从OC的角度考虑，我们可能会问，为什么不写一个secondary初始化方法？这是由于Swift决定的，某个类初始化方法是不能返回nil值的，如果可以，那么所有的Swift类型都是optional类型了，那么区分optional就没有意义，所以我们一定要注意，像构建这类可能返回nil的初始化方法，最好采用该类型的工厂方法来实现。</p>
+
+<h2>Selectors</h2>
+
+<p>这一小节想给app加一个刷新按钮，引出OC中的target/selector模式在Swift中如何使用的问题。</p>
+
+<p>OC中的方法调用是动态分发的，即方法的调用者（target）和方法名（SEL）都是可以在runtime动态分发的，而且你可以在runtime中修改这些值，而编译器不会在意该方法有没有实现。而在Swift中，所有的方法调用在编译期间就会决定，不再采用动态分发。那么如何解决Swift中调用原OC中需要target/SEL的方法，就需要得到解决。</p>
+
+<p>Swift给出的方案是使用一个结构体Selector，Selector遵循了StringLiteralConvertible协议，其内部使用时可以直接从String转换，而使用者只需传入一个String即可。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">self</span><span class="p">.</span><span class="n">navigationItem</span><span class="p">.</span><span class="n">leftBarButtonItem</span> <span class="o">=</span> <span class="n">UIBarButtonItem</span><span class="p">(</span><span class="nl">barButtonSystemItem:</span> <span class="p">.</span><span class="n">Refresh</span><span class="p">,</span> <span class="nl">target:</span> <span class="n">self</span><span class="p">,</span> <span class="nl">action:</span> <span class="s">&quot;refresh:&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">public</span> <span class="n">convenience</span> <span class="n">init</span><span class="p">(</span><span class="n">barButtonSystemItem</span> <span class="nl">systemItem:</span> <span class="n">UIBarButtonSystemItem</span><span class="p">,</span> <span class="nl">target:</span> <span class="n">AnyObject</span><span class="o">?</span><span class="p">,</span> <span class="nl">action:</span> <span class="n">Selector</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>你可以尝试不去实现refresh:方法，而编译器也不会报错，而在执行时才会报错，这就是因为它的真正实现还是使用了OC的动态分发，只是做了Swift的桥接。</p>
+
+<h2>Protocols and delegates</h2>
+
+<p>接下来会为每个cafe创建一个detail view，并定义一个protocol，使用委托模式，并确保可以桥接到OC。</p>
+
+<h3>Creating the detail view</h3>
+
+<p>创建对应的viewController，并在storyboard上定义好xib。</p>
+
+<p>这里声明了一个Cafe变量作为数据源，如下，与以往不同的是，添加了didSet()方法，该方法会在cafe被赋值之后会调用，类似OC中的KVO，你可以为实现变量的didSet和willSet，分别在赋值前和复制后调用。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="nl">cafe:</span> <span class="n">Cafe</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">didSet</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">setupWithCafe</span><span class="p">()</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在Cafe类添加一个pictureURL变量，是一个computed property，提供了返回值。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="nl">pictureURL:</span> <span class="n">NSURL</span> <span class="p">{</span>
+</span><span class='line'><span class="k">return</span> <span class="n">NSURL</span><span class="p">(</span><span class="nl">string:</span> <span class="s">&quot;http://graph.facebook.com/place/picture?id=\(self.fbid)&amp;type=large&quot;</span><span class="p">)</span><span class="o">!</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>接下来是setupWithCafe()方法，由于该方法放在了cafe的didSet中调用了，而且存在很多outlet存在，需要判断这些outlet是否加载完成，所以先进行了self.isViewLoaded()判断。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">private</span> <span class="n">func</span> <span class="nf">setupWithCafe</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">!</span><span class="n">self</span><span class="p">.</span><span class="n">isViewLoaded</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">if</span> <span class="n">let</span> <span class="n">cafe</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">cafe</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">cafe</span><span class="p">.</span><span class="n">name</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">nameLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">cafe</span><span class="p">.</span><span class="n">name</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">streetLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">cafe</span><span class="p">.</span><span class="n">street</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">cityLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">cafe</span><span class="p">.</span><span class="n">city</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">zipLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">cafe</span><span class="p">.</span><span class="n">zip</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">let</span> <span class="n">request</span> <span class="o">=</span> <span class="n">NSURLRequest</span><span class="p">(</span><span class="nl">URL:</span> <span class="n">cafe</span><span class="p">.</span><span class="n">pictureURL</span><span class="p">)</span>
+</span><span class='line'>    <span class="n">NSURLConnection</span><span class="p">.</span><span class="n">sendAsynchronousRequest</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="nl">queue:</span> <span class="n">NSOperationQueue</span><span class="p">.</span><span class="n">mainQueue</span><span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>      <span class="p">(</span><span class="nl">response:</span> <span class="n">NSURLResponse</span><span class="o">?</span><span class="p">,</span> <span class="nl">data:</span> <span class="n">NSData</span><span class="o">?</span><span class="p">,</span> <span class="nl">error:</span> <span class="n">NSError</span><span class="o">?</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Void</span> <span class="k">in</span>
+</span><span class='line'>      <span class="n">let</span> <span class="n">image</span> <span class="o">=</span> <span class="n">UIImage</span><span class="p">(</span><span class="nl">data:</span> <span class="n">data</span><span class="o">!</span><span class="p">)</span>
+</span><span class='line'>      <span class="n">self</span><span class="p">.</span><span class="n">imageView</span><span class="p">.</span><span class="n">image</span> <span class="o">=</span> <span class="n">image</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>Wiring up the detail view</h3>
+
+<p>在ViewController中，通过实现mapView(mapView: MKMapView!, viewForAnnotation annotation: MKAnnotation!) &ndash;> MKAnnotationView!和mapView(mapView: MKMapView!, annotationView view: MKAnnotationView!, calloutAccessoryControlTapped control: UIControl!)两个MKMapViewDelegate的方法，完成了通过点击大头针，弹出详情按钮，再进入详情页的功能。</p>
+
+<p>这里还想将ViewController作为CafeViewController的委托，在CafeViewController点击返回时调用。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="err">@</span><span class="n">objc</span> <span class="n">protocol</span> <span class="n">CafeViewControllerDelegate</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">optional</span> <span class="n">func</span> <span class="n">cafeViewControllerDidFinish</span><span class="p">(</span><span class="nl">viewController:</span> <span class="n">CafeViewController</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里在声明protocol前加了<strong>@objc</strong>关键字是因为该protocol有optional方法，因为这样可以使Swift添加多个runtime检测，来检测protocol的一致性和是否实现了optional类型的方法。同时这也限制了，protocol的实现者必须是class类型，因为runtime对@obj的检测需要对象为class。而你也可以通过在protocol后加限制来实现。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="err">@</span><span class="n">objc</span> <span class="n">protocol</span> <span class="nl">CafeViewControllerDelegate:</span> <span class="n">class</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">optional</span> <span class="n">func</span> <span class="n">cafeViewControllerDidFinish</span><span class="p">(</span><span class="nl">viewController:</span> <span class="n">CafeViewController</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然后在CafeViewController添加delegate变量，与OC一样，使用weak属性，需要注意的是声明为optional类型，因为不是一定有委托对象的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">weak</span> <span class="n">var</span> <span class="nl">delegate:</span> <span class="n">CafeViewControllerDelegate</span><span class="o">?</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然后是delegate的调用，这里使用了optional chain，delegate的存在与cafeViewControllerDidFinish()方法的实现与否都是不确定的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="err">@</span><span class="kt">IBAction</span> <span class="n">private</span> <span class="n">func</span> <span class="n">back</span><span class="p">(</span><span class="nl">sender:</span> <span class="n">AnyObject</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">self</span><span class="p">.</span><span class="n">delegate</span><span class="o">?</span><span class="p">.</span><span class="n">cafeViewControllerDidFinish</span><span class="o">?</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>最后，是在ViewController中的delegate实现。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">extension</span> <span class="nl">ViewController:</span> <span class="n">CafeViewControllerDelegate</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">func</span> <span class="n">cafeViewControllerDidFinish</span><span class="p">(</span><span class="nl">viewController:</span> <span class="n">CafeViewController</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">dismissViewControllerAnimated</span><span class="p">(</span><span class="n">true</span><span class="p">,</span> <span class="nl">completion:</span> <span class="nb">nil</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">刘毅</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-25T11:20:10+08:00" pubdate data-updated="true">Nov 25<span>th</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ios/'>iOS</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <style>
+    .flash-video{display:none;}
+</style>
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <span class="jiathis_txt">分享到：</span>
+  <a class="jiathis_button_qzone">QQ空间</a>
+  <a class="jiathis_button_tsina">新浪微博</a>
+  <a class="jiathis_button_tqq">腾讯微博</a>
+  <a class="jiathis_button_renren">人人网</a>
+  <a class="jiathis_button_douban">豆瓣</a>
+  <a class="jiathis_button_weixin">微信</a>
+  <a href="http://www.jiathis.com/share?uid=1885095" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript">
+var jiathis_config = {data_track_clickback:'true'};
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1885095" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+
+<br />
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1885095"></script>
+<!-- UY END -->
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/11/23/swift-by-tutorials-functional-programming/" title="Previous Post: Swift by Tutorials--Functional Programming">&laquo; Swift by Tutorials--Functional Programming</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/11/25/swift-by-tutorials-swift-and-cocoa/">Swift by Tutorials--Swift and Cocoa</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/23/swift-by-tutorials-functional-programming/">Swift by Tutorials--Functional Programming</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/20/swift-by-tutorials-enums-and-switch-statements/">Swift by Tutorials--Enums and Switch Statements</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/09/calayer-and-coreanimation/">CALayer&amp;CoreAnimation</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/05/ioskai-fa-bei-wang-lu-1/">iOS开发备忘录1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/30/hui-da-sunnyde-55dao-iosmian-shi-ti-2/">回答Sunny的55道iOS面试题2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/28/hui-da-sunnyde-55dao-iosmian-shi-ti-1/">回答Sunny的55道iOS面试题1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/20/react-nativechu-tan-1/">React Native初探1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/20/swift-by-tutorials-functions-and-closures/">Swift by Tutorials--Functions and Closures</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/15/swift-by-tutorials-generics/">Swift by Tutorials--Generics</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>About Me</h1>
+    <p> iOS开发, 菜鸟程序猿, Dotar<br/>
+      <br/>我的经历:
+      <br/>2007.9 进入吉大学习高端大气的电子信息工程
+      <br/>2011.9 考研失利,转投中传计算机专业,接触iOS
+      <br/>2013.8 入职盘古,以iOS程序员的身份开始职业生涯<br/>
+      <br/>我的微博: <a href="http://weibo.com/u/2638849461" target="_blank">JamesRaynor-刘毅</a>
+      <br/>我的git主页: <a href="https://github.com/lucifer1988" target="_blank">lucifer1988</a>
+      <br/>
+      <br/><span id="wb_follow_btn"></span>
+  </p>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - 刘毅 -
+  <span class="credit">Powered by <a href="http://octopress.org" target="_blank">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=3350288267" type="text/javascript" charset="utf-8"></script>
+<script>
+    WB2.anyWhere(function(W){
+        W.widget.followButton({
+            'uid': 2638849461,
+            'nick_name': 'JamesRaynor-刘毅',
+            'id': "wb_follow_btn",
+            'show_head' : true, 
+            'show_name' : true, 
+            'show_cancel': false
+        });
+    });
+</script>
+6vvqnj09Z6
+
+</body>
+</html>
