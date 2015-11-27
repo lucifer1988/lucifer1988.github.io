@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-11-26T16:56:08+08:00</updated>
+  <updated>2015-11-27T11:06:13+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,479 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Swift by Tutorials--Swift Quick Reference]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/11/26/swift-by-tutorials-swift-quick-reference/"/>
+    <updated>2015-11-26T17:09:12+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/11/26/swift-by-tutorials-swift-quick-reference</id>
+    <content type="html"><![CDATA[<p>这是Swift by Tutorials的最后一章，主要是提供一个Swift实践代码的快速查找手册，方便开发时快速查阅。</p>
+
+<!--more-->
+
+
+<h2>Language basics</h2>
+
+<p>```objectivec
+// variables can be updated
+var variableNumber: Int = 1
+variableNumber = variableNumber + 1</p>
+
+<p>// constants cannot be updated
+let constNumber: Int = 1
+// constNumber = constNumber + 1 &lt;&ndash; error!</p>
+
+<p>// inferred type
+let inferredInt = 1</p>
+
+<p>// Swift types
+let int: Int = 20
+let double: Double = 3.5
+let float: Float = 4.5
+let bool: Bool = false
+let str: String = &ldquo;Hello Swift!&rdquo;</p>
+
+<p>// explicit type conversion
+let pi = 3.1415
+let multiplier = 2
+let twoPi = pi * Double(multiplier)
+```</p>
+
+<p>Tips:</p>
+
+<ul>
+<li>尽量将数值定义为常量let，不仅会使代码更健壮，也可以获得更多的编译器优化</li>
+<li>Swift是强类型的语言，所以很多地方需要手动类型转换</li>
+</ul>
+
+
+<h2>Basic control structures</h2>
+
+<p>```objectivec
+for index in 1..&lt;3 {
+  // loops with index taking values 1,2
+}</p>
+
+<p>for index in 1&hellip;3 {
+  // loops with index taking values 1,2,3
+}</p>
+
+<p>//<a href="http://stackoverflow.com/questions/32197250/using-stride-in-swift-2-0">http://stackoverflow.com/questions/32197250/using-stride-in-swift-2-0</a>
+for index in 10.stride(to: 20, by: 2) {
+  // loops form 10 to 20 (inclusive) in steps of 2
+}</p>
+
+<p>var index = 0
+while index &lt; 5 {
+  // loops 5 times
+  index++
+}</p>
+
+<p>index = 0
+repeat {
+  // loops 5 times
+  index++
+} while index &lt; 5</p>
+
+<p>// if/else
+let temperature = 45
+if temperature > 60 {
+  print(&ldquo;It&rsquo;s hot!&rdquo;)
+} else if temperature > 40 {
+  print(&ldquo;It&rsquo;s warm&rdquo;)
+} else {
+  print(&ldquo;It&rsquo;s chilly&rdquo;)
+}
+```</p>
+
+<h2>Tuples</h2>
+
+<p>```objectivec
+let tuple = (1, 3, 5)   // inferred type (Int, Int, Int)
+let tuple2 = (1, 5.0)   // inferred type (Int, Double)
+let tuple3: (Double, Double) = (5, 6)</p>
+
+<p>// indexing a tuple
+print(tuple.0)
+print(tuple.1)
+print(tuple.2)</p>
+
+<p>// a tuple with named elements
+let product = (id: 24, name: &ldquo;Swift Book&rdquo;)
+print(product.name)</p>
+
+<p>// decomposing a tuple
+let (x, y, z) = tuple
+print(&ldquo;(x), (y), (z)&rdquo;) // &ldquo;1, 3, 5&rdquo;
+```</p>
+
+<p>Tips：</p>
+
+<ul>
+<li>Tuples在快速创建简易的复合类型时非常实用，而大多数情况struct是更好的选择，它有更强的类型安全和更好的功能性</li>
+</ul>
+
+
+<h2>Arrays</h2>
+
+<p>```objectivec
+import Foundation</p>
+
+<p>// empty array creation
+let empty1 = <a href="">String</a>
+let empty2 = Array<String>()
+let empty3: [String] = []</p>
+
+<p>// a constant array with inferred type
+let animals = [&ldquo;cat&rdquo;, &ldquo;dog&rdquo;, &ldquo;chicken&rdquo;]
+// animals.append(&ldquo;cow&rdquo;)  &lt;&ndash; error!
+// animals[2] = &ldquo;fish&rdquo;    &lt;&ndash; error!</p>
+
+<p>// a variable array with explicit type
+var mutableAnimals: [String] = [&ldquo;cat&rdquo;, &ldquo;dog&rdquo;, &ldquo;chicken&rdquo;]
+mutableAnimals.append(&ldquo;cow&rdquo;)
+mutableAnimals[2] = &ldquo;fish&rdquo;</p>
+
+<p>// iteration
+for animal in animals {
+  print(animal)
+}</p>
+
+<p>// array API
+animals[0]                      // &ldquo;cat&rdquo;
+animals[1..&lt;3]                  // &ldquo;dog&rdquo;, &ldquo;chicken&rdquo;
+animals.count                   // &ldquo;3&rdquo;
+animals.contains(&ldquo;cat&rdquo;)        // true
+mutableAnimals.removeAtIndex(0) // &ldquo;cat&rdquo;</p>
+
+<p>// functional API
+animals.map { $0.uppercaseString }   // &ldquo;CAT&rdquo;, &ldquo;DOG&rdquo;, &hellip;
+animals.filter { $0.hasPrefix(&ldquo;c&rdquo;) } // &ldquo;cat&rdquo;, &ldquo;chicken&rdquo;
+animals.sort { $0 &lt; $1 }           // &ldquo;cat&rdquo;, &ldquo;chicken&rdquo;, &hellip;</p>
+
+<p>// bridged NSArray API
+let nsArray = animals as NSArray
+nsArray.objectAtIndex(2)        // &ldquo;chicken&rdquo;
+```</p>
+
+<p>Tips：</p>
+
+<ul>
+<li>Swift中的Array是数值类型</li>
+</ul>
+
+
+<h2>Dictionaries</h2>
+
+<p>```objectivec
+// empty dictionary creation
+let empty1 = <a href="">Int:String</a>
+let empty2 = Dictionary&lt;Int, String>()
+let empty3: [Int:String] = [:]</p>
+
+<p>// a constant dictionary with inferred type
+let animals = [24 : &ldquo;cat&rdquo;, 36 : &ldquo;dog&rdquo;]
+// animals[88] = &ldquo;fish&rdquo;   &lt;&ndash; error!</p>
+
+<p>// a variable dictionary with explicit type
+var mutableAnimals: [Int:String] = [24 : &ldquo;cat&rdquo;, 36 : &ldquo;dog&rdquo;]
+mutableAnimals[55] = &ldquo;fish&rdquo;
+mutableAnimals[24] = &ldquo;chicken&rdquo;</p>
+
+<p>// dictionary API
+animals[24]                 // &ldquo;cat&rdquo;
+animals[1]                  // nil
+animals.count               // &ldquo;2&rdquo;
+mutableAnimals.removeValueForKey(24) // &ldquo;chicken&rdquo;</p>
+
+<p>// dictionary values are returned as optionals
+animals[24]!.hasPrefix(&ldquo;c&rdquo;) // true</p>
+
+<p>// iteration
+for (key, value) in animals {
+  print(key)
+  print(value)
+}
+```</p>
+
+<p>Tips：</p>
+
+<ul>
+<li>Swift中的Dictionary是数值类型</li>
+</ul>
+
+
+<h2>Optionals</h2>
+
+<p>```objectivec
+// an optional variable
+var maybeString: String?   // defaults to nil
+maybeString = nil          // can be assigned a nil value
+maybeString = &ldquo;fish&rdquo;       // can be assigned a value</p>
+
+<p>// unwrapping an optional
+if let unwrappedString = maybeString {
+  // unwrappedString is a String rather than an optional String
+  print(unwrappedString.hasPrefix(&ldquo;f&rdquo;)) // &ldquo;true&rdquo;
+} else {
+  print(&ldquo;maybeString is nil&rdquo;)
+}</p>
+
+<p>// forced unwrapping &ndash; will fail at runtime if the optional is nil
+if maybeString!.hasPrefix(&ldquo;f&rdquo;) {
+  print(&ldquo;maybeString starts with &lsquo;f&rsquo;&rdquo;)
+}</p>
+
+<p>// optional chaining, returning an optional with the
+// result of hasPrefix, which is then unwrapped
+if let hasPrefix = maybeString?.hasPrefix(&ldquo;f&rdquo;) {
+  if hasPrefix {</p>
+
+<pre><code>print("maybeString starts with 'f'")
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>// null coalesce
+var anOptional: Int?
+var coalesced = anOptional ?? 3 // anOptional is nil, coalesced to 3
+```</p>
+
+<h2>Implicitly unwrapped optionals</h2>
+
+<p>```objectivec
+// an implicitely unwrapped optional variable
+var maybeString: String!
+maybeString = nil
+maybeString = &ldquo;fish&rdquo;</p>
+
+<p>// methods invoked directly, failing at runtime if the optional is nil
+if maybeString.hasPrefix(&ldquo;f&rdquo;) {
+  print(&ldquo;maybeString starts with &lsquo;f&rsquo;&rdquo;)
+}else {
+  print(&ldquo;maybeString does not start with an &lsquo;f&rsquo;&rdquo;)
+}
+```</p>
+
+<p>Tips：</p>
+
+<ul>
+<li>隐式拆解的optional一般的使用场景是，类和结构体中初始化时不会给一个property赋值，而在稍后在使用前会进行赋值</li>
+<li>虽然使用上不需要再去拆解，但是它仍是optional类型，所以依然需要注意它为nil时的调用</li>
+</ul>
+
+
+<h2>Switch</h2>
+
+<p>```objectivec
+let bit = Bit.Zero</p>
+
+<p>// a simple switch statement on an enum
+switch bit {
+case .Zero:
+  print(&ldquo;zero&rdquo;)
+case .One:
+  print(&ldquo;one&rdquo;)
+}</p>
+
+<p>// interval matching
+let time = 45
+switch time {
+case 0..&lt;60:
+  print(&ldquo;A few seconds ago&rdquo;)
+case 60..&lt;(60 * 4):
+  print(&ldquo;A few minutes ago&rdquo;)
+default:                 // default required in order
+  print(&ldquo;Ages ago!&rdquo;)   // to be exhaustive
+}</p>
+
+<p>// tuples and value bindings
+let boardLocation = (2, 5)
+switch boardLocation {
+case (3, 4), (3, 3), (4, 3), (4, 4):
+  print(&ldquo;central location&rdquo;)
+case (let x, let y):
+  print(&ldquo;((x), (y) is not in the center&rdquo;)
+}
+```</p>
+
+<p>Tips：</p>
+
+<ul>
+<li>Swift中的switch需要覆盖所有的case</li>
+</ul>
+
+
+<h2>Enums</h2>
+
+<p>```objectivec
+// enum declaration
+enum Direction {
+  case North, South, East, West
+}</p>
+
+<p>// assignment
+var direction = Direction.North
+direction = .South   // enum type inferred</p>
+
+<p>// switching on enums
+switch direction {
+case .North:
+  print(&ldquo;Going North&rdquo;)
+default:
+  print(&ldquo;Going someplace else!&rdquo;)
+}</p>
+
+<p>// advanced enumerations &ndash; using generics
+enum Result<T> {
+  case Failure
+  // enumeration member with associated value
+  case Success(T)
+}</p>
+
+<p>// creating an instance &ndash; where the type T is an Int
+var result = Result.Success(22)</p>
+
+<p>// switching and extracting the associated value
+switch result {
+case .Failure:
+  print(&ldquo;Operation failed&rdquo;)
+case .Success(let value):
+  print(&ldquo;Operation returned value (value)&rdquo;)
+}
+```</p>
+
+<h2>Functions</h2>
+
+<p>```objectivec
+// a simple function
+func voidFunc(message: String) {
+  print(message);
+}
+voidFunc(&ldquo;Hello Swift!&rdquo;)</p>
+
+<p>// a function that returns a value
+func multiply(arg1: Double, arg2: Double) &ndash;> Double {
+  return arg1 * arg2
+}
+let result = multiply(20.0, arg2: 35.2)</p>
+
+<p>// external and default parameters names
+func multiplyTwo(first first: Double, andSecond second: Double) &ndash;> Double {
+  return first * second
+}
+let result2 = multiplyTwo(first: 20.0, andSecond: 35.2)</p>
+
+<p>// inout parameters
+func square(inout number: Double) {
+  number *= number
+}
+var number = 4.0
+square(&amp;number) // number = 16</p>
+
+<p>// function types
+let myFunc: (Double, Double) &ndash;> Double = multiplyTwo</p>
+
+<p>// a generic function
+func areEqual&lt;T: Equatable>(op1: T, op2: T) &ndash;> Bool {
+  return op1 == op2
+}
+```</p>
+
+<h2>Closures</h2>
+
+<p>```objectivec
+let animals = [&ldquo;fish&rdquo;, &ldquo;cat&rdquo; , &ldquo;chicken&rdquo;, &ldquo;dog&rdquo;]</p>
+
+<p>animals.sort({
+  (one: String, two: String) &ndash;> Bool in
+  return one > two
+})</p>
+
+<p>animals.sort({
+  (one, two) &ndash;> Bool in // inferred argument types
+  return one > two
+})</p>
+
+<p>animals.sort({
+  (one, two) in        // inferred return type
+  return one > two
+})</p>
+
+<p>animals.sort({
+  // no brackets around parameters
+  one, two in return one > two
+})</p>
+
+<p>animals.sort({
+  // no return keyword
+  one, two in one > two
+})</p>
+
+<p>// shorthand arguments
+animals.sort({ $0 > $1 })</p>
+
+<p>// trailing closure
+animals.sort() { $0 > $1 }
+animals.sort { $0 > $1 }
+animals.sort(>)
+```</p>
+
+<h2>Classes and protocols</h2>
+
+<p>```objectivec
+public class BaseClass {
+  private let id: Int            // private constant property</p>
+
+<p>  init(id: Int) {</p>
+
+<pre><code>self.id = id
+</code></pre>
+
+<p>  }</p>
+
+<pre><code>class func numberOfLegs() -&gt;Int {
+return 4;
+}
+</code></pre>
+
+<p>}</p>
+
+<p>protocol NamedType {
+  var name: String { get }       // a property with a getter
+}</p>
+
+<p>public class Animal: BaseClass, NamedType {</p>
+
+<p>  private(set) var name: String  // variable with public getter</p>
+
+<pre><code>                             // and private setter
+</code></pre>
+
+<p>  var size: Double = 45.0        // implicit internal property
+  public let fullName: String    // public constant property</p>
+
+<p>  init (id: Int, name: String, fullName: String) {</p>
+
+<pre><code>// all properties initialized before base init invoked
+self.name = name;
+self.fullName = fullName;
+
+// super initialiser invoked
+super.init(id: id)
+
+// methods on self can now be called
+</code></pre>
+
+<p>  }
+}</p>
+
+<p>// creating an instance
+var animal = Animal(id: 24, name: &ldquo;cat&rdquo;, fullName: &ldquo;Felis catus&rdquo;)
+```</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Swift by Tutorials--Swift and Cocoa]]></title>
@@ -2970,148 +3443,6 @@ NSArray *transitionTypes;
 </code></p>
 
 <p>注意：转场动画设置参数完全同基本动画参数设置；同直接使用转场动画不同的是使用UIView的装饰方法进行转场动画其动画效果较少，因为这里无法直接使用私有API。</p>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[iOS开发备忘录1]]></title>
-    <link href="http://lucifer1988.github.io/blog/2015/11/05/ioskai-fa-bei-wang-lu-1/"/>
-    <updated>2015-11-05T13:41:03+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2015/11/05/ioskai-fa-bei-wang-lu-1</id>
-    <content type="html"><![CDATA[<p>总结一些iOS开发必备的知识点，结构可能会比较杂，可以当做备忘录使用，不断更新中。</p>
-
-<!--more-->
-
-
-<h2>1.library和framework的比较</h2>
-
-<p>library也就是我们常用的.a文件，而framework就是.framework文件，当然还有.dylib这样的文件。</p>
-
-<h3>静态库和动态库的区别</h3>
-
-<ul>
-<li>静态库：链接时完整地拷贝至可执行文件夹中，被多次使用时会有多份冗余拷贝。</li>
-<li>动态库：链接时不复制，程序运行是由系统动态加载到内存，供程序调用，系统只加载一次，多个程序共用，节省内存。</li>
-</ul>
-
-
-<h3>iOS库的形式</h3>
-
-<ul>
-<li>静态库：.a和.framework</li>
-<li>动态库：.dylib和.framework</li>
-<li>系统提供的.framework是动态的，而自己开发的.framework是静态的</li>
-</ul>
-
-
-<h3>.a和.framework区别</h3>
-
-<ul>
-<li>.a就是一个纯二进制的文件，而.framework还会包含头文件和资源文件</li>
-<li>.a一般是要配合.h头文件使用的，.framework是可以直接使用的</li>
-<li>实际上.framework = .a + .h + sourceFile</li>
-</ul>
-
-
-<h3>需要注意的问题</h3>
-
-<ul>
-<li>注意理解：无论是.a静态库还.framework静态库，我们需要的都是二进制文件+.h+其它资源文件的形式，不同的是，.a本身就是二进制文件，需要我们自己配上.h和其它文件才能使用，而.framework本身已经包含了.h和其它文件，可以直接使用。</li>
-<li>图片资源的处理：两种静态库，一般都是把图片文件单独的放在一个.bundle文件中，一般.bundle的名字和.a或.framework的名字相同。.bundle文件很好弄，新建一个文件夹，把它改名为.bundle就可以了，右键，显示包内容可以向其中添加图片资源。</li>
-<li>category是我们实际开发项目中经常用到的，把category打成静态库是没有问题的，但是在用这个静态库的工程中，调用category中的方法时会有找不到该方法的运行时错误（selector not recognized），解决办法是：在使用静态库的工程中配置other linker flags的值为-ObjC。</li>
-<li>如果一个静态库很复杂，需要暴露的.h比较多的话，就可以在静态库的内部创建一个.h文件（一般这个.h文件的名字和静态库的名字相同），然后把所有需要暴露出来的.h文件都集中放在这个.h文件中，而那些原本需要暴露的.h都不需要再暴露了，只需要把.h暴露出来就可以了。</li>
-<li>创建.a文件的一篇<a href="http://www.raywenderlich.com/41377/creating-a-static-library-in-ios-tutorial">博客</a>，创建.framework的一篇<a href="http://www.raywenderlich.com/65964/create-a-framework-for-ios">博客</a>。</li>
-</ul>
-
-
-<!--more-->
-
-
-<h2>2.事件响应链The Responder Chain</h2>
-
-<h3>事件的传递顺序</h3>
-
-<p>当用户触发的一个事件发生，UIKit会创建一个包含要处理的事件信息的事件对象。然后她会将事件对象放入active app’s（应用程序对象，每个程序对应唯一一个）事件队列。对于触摸事件，事件对象就是UIEvent对象封装的一系列触摸集合。对于动作事件，这个事件对象依赖于使用的framework和你关心哪种动作事件。</p>
-
-<h3>事件类型</h3>
-
-<p>事件通过特殊的路径传递直到被传递到一个可以处理该事件的对象。首先，单例的UIApplication对象从顶层的队列中获取事件，然后分发。典型的，它将事件发送到App的key window对象，window则为了处理该事件而发送它到初始化对象（initial object），这个初始化对像依靠事件类型。</p>
-
-<ul>
-<li>触摸事件（Touch events）。对于触摸事件，window对象首先会尝试将事件传递给事件发生的view。这个view就是所谓的hit-test view。寻找hit-test view的方法叫hit-testing，具体描述见<a href="https://developer.apple.com/library/ios/documentation/EventHandling/Conceptual/EventHandlingiPhoneOS/event_delivery_responder_chain/event_delivery_responder_chain.html#//apple_ref/doc/uid/TP40009541-CH4-SW4">Apple文档</a>。</li>
-<li>动作事件和远程控制事件（Motion and remote control events）。在这些事件中，window对象发送事件到第一个响应器。第一个响应器的具体描述见<a href="https://developer.apple.com/library/ios/documentation/EventHandling/Conceptual/EventHandlingiPhoneOS/event_delivery_responder_chain/event_delivery_responder_chain.html#//apple_ref/doc/uid/TP40009541-CH4-SW1">Apple文档</a>。</li>
-</ul>
-
-
-<p>事件传递路径的最终目的时找出能处理和响应该事件的对象。因此，UIKit给适合处理该事件的对象发送事件。对于触摸事件，这个对象就是hit-test view，对于其他事件，这个对象就是第一个响应器（first responder）。</p>
-
-<h3>触摸事件的响应链</h3>
-
-<p>iOS使用hit-testing寻找触摸的view。 Hit-Testing通过检查触摸点是否在关联的view边界内，如果在，则递归地（recursively）检查该view的所有子view。在层级上处于lowest（就是用户直接接触view）且边界范围包含触摸点的view成为hit-test view。确定hit-test view后，它传递触摸事件给该view。</p>
-
-<p>举例说明，假设用户触摸了图中的view E。iOS通过如下顺序查找hit-test view。</p>
-
-<p><img src="https://developer.apple.com/library/ios/documentation/EventHandling/Conceptual/EventHandlingiPhoneOS/Art/hit_testing_2x.png" alt="image" /></p>
-
-<ol>
-<li>触摸点在view A中，所以要检查子view B和C。</li>
-<li>触摸点不在view B中，但在C中，所以检查C的子view D和E。</li>
-<li>触摸点不在D中，但在E中。</li>
-</ol>
-
-
-<p><a href="https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIView_Class/index.html#//apple_ref/occ/instm/UIView/hitTest:withEvent:">hitTest:withEvent:</a>方法通过传递进来CGPoint和UIEvent返回hit test view。该方法调用<a href="https://developer.apple.com/library/ios/documentation/UIKit/Reference/UIView_Class/index.html#//apple_ref/occ/instm/UIView/pointInside:withEvent:">pointInside:withEvent:</a>方法，如果传入hitTest:withEvent:的point在view的边界范围内，则pointInside:withEvent:返回YES。然后，这个方法会在view的所有子view中递归的调用hitTest:withEvent:。</p>
-
-<p>如果传入hitTest:withEvent:的point不在view的边界范围内，则pointInside:withEvent:返回NO。这个point会被忽略，hitTest:withEvent:返回nil。如果一个子view返回NO，则它所在的view的层级上的分支的子view都会被忽略。</p>
-
-<p>Hit-test view是处理触摸事件的第一选择，如果hit-test view不能处理事件，该事件将从事件响应链中寻找响应器，直到系统找到一个处理事件的对象。</p>
-
-<h3>响应器链</h3>
-
-<p>一些类型的事件的传递依赖响应器链。响应器链（responder chain）是一系列相关的响应器对象。它开始于第一个响应器终止于应用对象（application object）。如果第一个responder不处理事件，则会根据responder chain将event传递给下一个responder。</p>
-
-<p>Responder object，即可以响应和处理事件的对象。UIResponder类是所有responder对象的基类，它定义了动态的接口，不仅处理事件也包括处理响应行为。包括UIApplication，UIViewController，和UIView类都是responder，这意味着所有view和大部分关键的controller对象都是responder。但是Core Animation layers不是responders。</p>
-
-<p>First responder被设计来第一个接收事件。典型的，first responder是一个view object。之所以成为第一个responder由于两个原因：</p>
-
-<ol>
-<li>覆盖canBecomeFirstResponder方法，返回YES。</li>
-<li>接收becomeFirstResponder消息。如果必须，一个object能发送给自身这个消息。</li>
-</ol>
-
-
-<h3>响应器链的传输路径</h3>
-
-<p>如果初始化对象（initial object）—— 即hit-test view或者first responder —— 不处理事件，UIKit会将事件传递给responder chain的下一个responder。每个responder决定它是传递事件还是通过nextResponder方法传递给它的下一个responder。这个操作继续直到一个responder处理event或者没有responder了。</p>
-
-<p>Responder chain 序列在iOS确定一个事件并将它传递给initial object（通常是view）时开始。所以initial view有处理事件的第一个机会。下图描述了两个不同的事件传递路径（因为不同的app 设置）。一个App的事件传递路径由app特殊的构成决定，但事件传递路径会遵守相同的规则。</p>
-
-<p><img src="http://lucifer1988.github.io/images/responser_chain.jpeg"></p>
-
-<h3>手动指定当前view不响应事件</h3>
-
-<p>```objectivec
-&ndash;(BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {</p>
-
-<pre><code>for (UIView *view in self.subviews) {
-    if (!view.hidden &amp;&amp; view.userInteractionEnabled &amp;&amp; [view pointInside:[self convertPoint:point toView:view] withEvent:event])
-        return YES;
-}
-return NO;
-</code></pre>
-
-<p>}
-```</p>
-
-<h3>总结</h3>
-
-<p>事件的传递和响应分两个链：</p>
-
-<ul>
-<li>传递链：由系统向离用户最近的view传递。UIKit –> active app’s event queue –> window –> root view –>……–>lowest view</li>
-<li>响应链：由离用户最近的view向系统传递。initial view –> super view –> …..–> view controller –> window –> Application</li>
-</ul>
-
 ]]></content>
   </entry>
   

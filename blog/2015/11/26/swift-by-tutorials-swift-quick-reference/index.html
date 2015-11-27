@@ -1,0 +1,1111 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Swift by Tutorials--Swift Quick Reference - 刘毅的技术博客</title>
+  <meta name="author" content="刘毅">
+
+  
+  <meta name="description" content="这是Swift by Tutorials的最后一章，主要是提供一个Swift实践代码的快速查找手册，方便开发时快速查阅。 Language basics 1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+// variables &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucifer1988.github.io/blog/2015/11/26/swift-by-tutorials-swift-quick-reference">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="刘毅的技术博客" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<script type="text/javascript">
+
+function addBlankTargetForLinks () {
+
+  $('a[href^="http"]').each(function(){
+
+      $(this).attr('target', '_blank');
+
+  });
+
+}
+
+$(document).bind('DOMNodeInserted', function(event) {
+
+  addBlankTargetForLinks();
+
+});
+
+</script>
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">刘毅的技术博客</a></h1>
+  
+    <h2>记录自己的学习生活点滴，也希望和大家交流分享！</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucifer1988.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">首页</a></li>
+  <li><a href="/blog/archives">所有文章</a></li>
+  <li><a href="/blog/categories/ios">iOS开发专题</a></li>
+  <li><a href="http://weibo.com/u/2638849461" target="_blank">我的微博</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Swift by Tutorials--Swift Quick Reference</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-26T17:09:12+08:00" pubdate data-updated="true">Nov 26<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>这是Swift by Tutorials的最后一章，主要是提供一个Swift实践代码的快速查找手册，方便开发时快速查阅。</p>
+
+<!--more-->
+
+
+<h2>Language basics</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">// variables can be updated</span>
+</span><span class='line'><span class="n">var</span> <span class="nl">variableNumber:</span> <span class="n">Int</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'><span class="n">variableNumber</span> <span class="o">=</span> <span class="n">variableNumber</span> <span class="o">+</span> <span class="mi">1</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// constants cannot be updated</span>
+</span><span class='line'><span class="n">let</span> <span class="nl">constNumber:</span> <span class="n">Int</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'><span class="c1">// constNumber = constNumber + 1 &lt;- error!</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// inferred type</span>
+</span><span class='line'><span class="n">let</span> <span class="n">inferredInt</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// Swift types</span>
+</span><span class='line'><span class="n">let</span> <span class="kt">int</span><span class="o">:</span> <span class="n">Int</span> <span class="o">=</span> <span class="mi">20</span>
+</span><span class='line'><span class="n">let</span> <span class="kt">double</span><span class="o">:</span> <span class="n">Double</span> <span class="o">=</span> <span class="mf">3.5</span>
+</span><span class='line'><span class="n">let</span> <span class="kt">float</span><span class="o">:</span> <span class="n">Float</span> <span class="o">=</span> <span class="mf">4.5</span>
+</span><span class='line'><span class="n">let</span> <span class="nl">bool:</span> <span class="n">Bool</span> <span class="o">=</span> <span class="n">false</span>
+</span><span class='line'><span class="n">let</span> <span class="nl">str:</span> <span class="n">String</span> <span class="o">=</span> <span class="s">&quot;Hello Swift!&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// explicit type conversion</span>
+</span><span class='line'><span class="n">let</span> <span class="n">pi</span> <span class="o">=</span> <span class="mf">3.1415</span>
+</span><span class='line'><span class="n">let</span> <span class="n">multiplier</span> <span class="o">=</span> <span class="mi">2</span>
+</span><span class='line'><span class="n">let</span> <span class="n">twoPi</span> <span class="o">=</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">Double</span><span class="p">(</span><span class="n">multiplier</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Tips:</p>
+
+<ul>
+<li>尽量将数值定义为常量let，不仅会使代码更健壮，也可以获得更多的编译器优化</li>
+<li>Swift是强类型的语言，所以很多地方需要手动类型转换</li>
+</ul>
+
+
+<h2>Basic control structures</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">for</span> <span class="n">index</span> <span class="k">in</span> <span class="mf">1.</span><span class="p">.</span><span class="o">&lt;</span><span class="mi">3</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// loops with index taking values 1,2</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for</span> <span class="n">index</span> <span class="k">in</span> <span class="mf">1.</span><span class="p">.</span><span class="mf">.3</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// loops with index taking values 1,2,3</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">//http://stackoverflow.com/questions/32197250/using-stride-in-swift-2-0</span>
+</span><span class='line'><span class="k">for</span> <span class="n">index</span> <span class="k">in</span> <span class="mf">10.</span><span class="n">stride</span><span class="p">(</span><span class="nl">to:</span> <span class="mi">20</span><span class="p">,</span> <span class="nl">by:</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// loops form 10 to 20 (inclusive) in steps of 2</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">var</span> <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'><span class="k">while</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="mi">5</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// loops 5 times</span>
+</span><span class='line'>  <span class="n">index</span><span class="o">++</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span class='line'><span class="n">repeat</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// loops 5 times</span>
+</span><span class='line'>  <span class="n">index</span><span class="o">++</span>
+</span><span class='line'><span class="p">}</span> <span class="k">while</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="mi">5</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// if/else</span>
+</span><span class='line'><span class="n">let</span> <span class="n">temperature</span> <span class="o">=</span> <span class="mi">45</span>
+</span><span class='line'><span class="k">if</span> <span class="n">temperature</span> <span class="o">&gt;</span> <span class="mi">60</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;It&#39;s hot!&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="n">temperature</span> <span class="o">&gt;</span> <span class="mi">40</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;It&#39;s warm&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;It&#39;s chilly&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Tuples</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">tuple</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>   <span class="c1">// inferred type (Int, Int, Int)</span>
+</span><span class='line'><span class="n">let</span> <span class="n">tuple2</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>   <span class="c1">// inferred type (Int, Double)</span>
+</span><span class='line'><span class="n">let</span> <span class="nl">tuple3:</span> <span class="p">(</span><span class="n">Double</span><span class="p">,</span> <span class="n">Double</span><span class="p">)</span> <span class="o">=</span> <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// indexing a tuple</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">tuple</span><span class="mf">.0</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">tuple</span><span class="mf">.1</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">tuple</span><span class="mf">.2</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// a tuple with named elements</span>
+</span><span class='line'><span class="n">let</span> <span class="n">product</span> <span class="o">=</span> <span class="p">(</span><span class="kt">id</span><span class="o">:</span> <span class="mi">24</span><span class="p">,</span> <span class="nl">name:</span> <span class="s">&quot;Swift Book&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">product</span><span class="p">.</span><span class="n">name</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// decomposing a tuple</span>
+</span><span class='line'><span class="n">let</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span> <span class="o">=</span> <span class="n">tuple</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="s">&quot;\(x), \(y), \(z)&quot;</span><span class="p">)</span> <span class="c1">// &quot;1, 3, 5&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Tips：</p>
+
+<ul>
+<li>Tuples在快速创建简易的复合类型时非常实用，而大多数情况struct是更好的选择，它有更强的类型安全和更好的功能性</li>
+</ul>
+
+
+<h2>Arrays</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">import</span> <span class="n">Foundation</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// empty array creation</span>
+</span><span class='line'><span class="n">let</span> <span class="n">empty1</span> <span class="o">=</span> <span class="p">[</span><span class="n">String</span><span class="p">]()</span>
+</span><span class='line'><span class="n">let</span> <span class="n">empty2</span> <span class="o">=</span> <span class="n">Array</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span><span class="p">()</span>
+</span><span class='line'><span class="n">let</span> <span class="nl">empty3:</span> <span class="p">[</span><span class="n">String</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// a constant array with inferred type</span>
+</span><span class='line'><span class="n">let</span> <span class="n">animals</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;cat&quot;</span><span class="p">,</span> <span class="s">&quot;dog&quot;</span><span class="p">,</span> <span class="s">&quot;chicken&quot;</span><span class="p">]</span>
+</span><span class='line'><span class="c1">// animals.append(&quot;cow&quot;)  &lt;- error!</span>
+</span><span class='line'><span class="c1">// animals[2] = &quot;fish&quot;    &lt;- error!</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// a variable array with explicit type</span>
+</span><span class='line'><span class="n">var</span> <span class="nl">mutableAnimals:</span> <span class="p">[</span><span class="n">String</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;cat&quot;</span><span class="p">,</span> <span class="s">&quot;dog&quot;</span><span class="p">,</span> <span class="s">&quot;chicken&quot;</span><span class="p">]</span>
+</span><span class='line'><span class="n">mutableAnimals</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;cow&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="n">mutableAnimals</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;fish&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// iteration</span>
+</span><span class='line'><span class="k">for</span> <span class="n">animal</span> <span class="k">in</span> <span class="n">animals</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="n">animal</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// array API</span>
+</span><span class='line'><span class="n">animals</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>                      <span class="c1">// &quot;cat&quot;</span>
+</span><span class='line'><span class="n">animals</span><span class="p">[</span><span class="mf">1.</span><span class="p">.</span><span class="o">&lt;</span><span class="mi">3</span><span class="p">]</span>                  <span class="c1">// &quot;dog&quot;, &quot;chicken&quot;</span>
+</span><span class='line'><span class="n">animals</span><span class="p">.</span><span class="n">count</span>                   <span class="c1">// &quot;3&quot;</span>
+</span><span class='line'><span class="n">animals</span><span class="p">.</span><span class="n">contains</span><span class="p">(</span><span class="s">&quot;cat&quot;</span><span class="p">)</span>        <span class="c1">// true</span>
+</span><span class='line'><span class="n">mutableAnimals</span><span class="p">.</span><span class="n">removeAtIndex</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="c1">// &quot;cat&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// functional API</span>
+</span><span class='line'><span class="n">animals</span><span class="p">.</span><span class="n">map</span> <span class="p">{</span> <span class="n">$0</span><span class="p">.</span><span class="n">uppercaseString</span> <span class="p">}</span>   <span class="c1">// &quot;CAT&quot;, &quot;DOG&quot;, ...</span>
+</span><span class='line'><span class="n">animals</span><span class="p">.</span><span class="n">filter</span> <span class="p">{</span> <span class="n">$0</span><span class="p">.</span><span class="n">hasPrefix</span><span class="p">(</span><span class="s">&quot;c&quot;</span><span class="p">)</span> <span class="p">}</span> <span class="c1">// &quot;cat&quot;, &quot;chicken&quot;</span>
+</span><span class='line'><span class="n">animals</span><span class="p">.</span><span class="n">sort</span> <span class="p">{</span> <span class="n">$0</span> <span class="o">&lt;</span> <span class="n">$1</span> <span class="p">}</span>           <span class="c1">// &quot;cat&quot;, &quot;chicken&quot;, ...</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// bridged NSArray API</span>
+</span><span class='line'><span class="n">let</span> <span class="n">nsArray</span> <span class="o">=</span> <span class="n">animals</span> <span class="n">as</span> <span class="n">NSArray</span>
+</span><span class='line'><span class="n">nsArray</span><span class="p">.</span><span class="n">objectAtIndex</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>        <span class="c1">// &quot;chicken&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Tips：</p>
+
+<ul>
+<li>Swift中的Array是数值类型</li>
+</ul>
+
+
+<h2>Dictionaries</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">// empty dictionary creation</span>
+</span><span class='line'><span class="n">let</span> <span class="n">empty1</span> <span class="o">=</span> <span class="p">[</span><span class="nl">Int:</span><span class="n">String</span><span class="p">]()</span>
+</span><span class='line'><span class="n">let</span> <span class="n">empty2</span> <span class="o">=</span> <span class="n">Dictionary</span><span class="o">&lt;</span><span class="n">Int</span><span class="p">,</span> <span class="n">String</span><span class="o">&gt;</span><span class="p">()</span>
+</span><span class='line'><span class="n">let</span> <span class="nl">empty3:</span> <span class="p">[</span><span class="nl">Int:</span><span class="n">String</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="o">:</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// a constant dictionary with inferred type</span>
+</span><span class='line'><span class="n">let</span> <span class="n">animals</span> <span class="o">=</span> <span class="p">[</span><span class="mi">24</span> <span class="o">:</span> <span class="s">&quot;cat&quot;</span><span class="p">,</span> <span class="mi">36</span> <span class="o">:</span> <span class="s">&quot;dog&quot;</span><span class="p">]</span>
+</span><span class='line'><span class="c1">// animals[88] = &quot;fish&quot;   &lt;- error!</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// a variable dictionary with explicit type</span>
+</span><span class='line'><span class="n">var</span> <span class="nl">mutableAnimals:</span> <span class="p">[</span><span class="nl">Int:</span><span class="n">String</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">24</span> <span class="o">:</span> <span class="s">&quot;cat&quot;</span><span class="p">,</span> <span class="mi">36</span> <span class="o">:</span> <span class="s">&quot;dog&quot;</span><span class="p">]</span>
+</span><span class='line'><span class="n">mutableAnimals</span><span class="p">[</span><span class="mi">55</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;fish&quot;</span>
+</span><span class='line'><span class="n">mutableAnimals</span><span class="p">[</span><span class="mi">24</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;chicken&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// dictionary API</span>
+</span><span class='line'><span class="n">animals</span><span class="p">[</span><span class="mi">24</span><span class="p">]</span>                 <span class="c1">// &quot;cat&quot;</span>
+</span><span class='line'><span class="n">animals</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>                  <span class="c1">// nil</span>
+</span><span class='line'><span class="n">animals</span><span class="p">.</span><span class="n">count</span>               <span class="c1">// &quot;2&quot;</span>
+</span><span class='line'><span class="n">mutableAnimals</span><span class="p">.</span><span class="n">removeValueForKey</span><span class="p">(</span><span class="mi">24</span><span class="p">)</span> <span class="c1">// &quot;chicken&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// dictionary values are returned as optionals</span>
+</span><span class='line'><span class="n">animals</span><span class="p">[</span><span class="mi">24</span><span class="p">]</span><span class="o">!</span><span class="p">.</span><span class="n">hasPrefix</span><span class="p">(</span><span class="s">&quot;c&quot;</span><span class="p">)</span> <span class="c1">// true</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// iteration</span>
+</span><span class='line'><span class="k">for</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="k">in</span> <span class="n">animals</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Tips：</p>
+
+<ul>
+<li>Swift中的Dictionary是数值类型</li>
+</ul>
+
+
+<h2>Optionals</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">// an optional variable</span>
+</span><span class='line'><span class="n">var</span> <span class="nl">maybeString:</span> <span class="n">String</span><span class="o">?</span>   <span class="c1">// defaults to nil</span>
+</span><span class='line'><span class="n">maybeString</span> <span class="o">=</span> <span class="nb">nil</span>          <span class="c1">// can be assigned a nil value</span>
+</span><span class='line'><span class="n">maybeString</span> <span class="o">=</span> <span class="s">&quot;fish&quot;</span>       <span class="c1">// can be assigned a value</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// unwrapping an optional</span>
+</span><span class='line'><span class="k">if</span> <span class="n">let</span> <span class="n">unwrappedString</span> <span class="o">=</span> <span class="n">maybeString</span> <span class="p">{</span>
+</span><span class='line'>  <span class="c1">// unwrappedString is a String rather than an optional String</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="n">unwrappedString</span><span class="p">.</span><span class="n">hasPrefix</span><span class="p">(</span><span class="s">&quot;f&quot;</span><span class="p">))</span> <span class="c1">// &quot;true&quot;</span>
+</span><span class='line'><span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;maybeString is nil&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// forced unwrapping - will fail at runtime if the optional is nil</span>
+</span><span class='line'><span class="k">if</span> <span class="n">maybeString</span><span class="o">!</span><span class="p">.</span><span class="n">hasPrefix</span><span class="p">(</span><span class="s">&quot;f&quot;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;maybeString starts with &#39;f&#39;&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// optional chaining, returning an optional with the </span>
+</span><span class='line'><span class="c1">// result of hasPrefix, which is then unwrapped</span>
+</span><span class='line'><span class="k">if</span> <span class="n">let</span> <span class="n">hasPrefix</span> <span class="o">=</span> <span class="n">maybeString</span><span class="o">?</span><span class="p">.</span><span class="n">hasPrefix</span><span class="p">(</span><span class="s">&quot;f&quot;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">hasPrefix</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="s">&quot;maybeString starts with &#39;f&#39;&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// null coalesce</span>
+</span><span class='line'><span class="n">var</span> <span class="nl">anOptional:</span> <span class="n">Int</span><span class="o">?</span>
+</span><span class='line'><span class="n">var</span> <span class="n">coalesced</span> <span class="o">=</span> <span class="n">anOptional</span> <span class="o">??</span> <span class="mi">3</span> <span class="c1">// anOptional is nil, coalesced to 3</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Implicitly unwrapped optionals</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">// an implicitely unwrapped optional variable</span>
+</span><span class='line'><span class="n">var</span> <span class="nl">maybeString:</span> <span class="n">String</span><span class="o">!</span>
+</span><span class='line'><span class="n">maybeString</span> <span class="o">=</span> <span class="nb">nil</span>
+</span><span class='line'><span class="n">maybeString</span> <span class="o">=</span> <span class="s">&quot;fish&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// methods invoked directly, failing at runtime if the optional is nil</span>
+</span><span class='line'><span class="k">if</span> <span class="n">maybeString</span><span class="p">.</span><span class="n">hasPrefix</span><span class="p">(</span><span class="s">&quot;f&quot;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;maybeString starts with &#39;f&#39;&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span><span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;maybeString does not start with an &#39;f&#39;&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Tips：</p>
+
+<ul>
+<li>隐式拆解的optional一般的使用场景是，类和结构体中初始化时不会给一个property赋值，而在稍后在使用前会进行赋值</li>
+<li>虽然使用上不需要再去拆解，但是它仍是optional类型，所以依然需要注意它为nil时的调用</li>
+</ul>
+
+
+<h2>Switch</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">bit</span> <span class="o">=</span> <span class="n">Bit</span><span class="p">.</span><span class="n">Zero</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// a simple switch statement on an enum</span>
+</span><span class='line'><span class="k">switch</span> <span class="n">bit</span> <span class="p">{</span>
+</span><span class='line'><span class="k">case</span> <span class="p">.</span><span class="nl">Zero:</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;zero&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">case</span> <span class="p">.</span><span class="nl">One:</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;one&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// interval matching</span>
+</span><span class='line'><span class="n">let</span> <span class="n">time</span> <span class="o">=</span> <span class="mi">45</span>
+</span><span class='line'><span class="k">switch</span> <span class="n">time</span> <span class="p">{</span>
+</span><span class='line'><span class="k">case</span> <span class="mf">0.</span><span class="p">.</span><span class="o">&lt;</span><span class="mi">60</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;A few seconds ago&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">case</span> <span class="mf">60.</span><span class="p">.</span><span class="o">&lt;</span><span class="p">(</span><span class="mi">60</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;A few minutes ago&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">default</span><span class="o">:</span>                 <span class="c1">// default required in order</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;Ages ago!&quot;</span><span class="p">)</span>   <span class="c1">// to be exhaustive</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// tuples and value bindings</span>
+</span><span class='line'><span class="n">let</span> <span class="n">boardLocation</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</span><span class='line'><span class="k">switch</span> <span class="n">boardLocation</span> <span class="p">{</span>
+</span><span class='line'><span class="k">case</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;central location&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">case</span> <span class="p">(</span><span class="n">let</span> <span class="n">x</span><span class="p">,</span> <span class="n">let</span> <span class="n">y</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;(\(x), \(y) is not in the center&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Tips：</p>
+
+<ul>
+<li>Swift中的switch需要覆盖所有的case</li>
+</ul>
+
+
+<h2>Enums</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">// enum declaration</span>
+</span><span class='line'><span class="k">enum</span> <span class="n">Direction</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">North</span><span class="p">,</span> <span class="n">South</span><span class="p">,</span> <span class="n">East</span><span class="p">,</span> <span class="n">West</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// assignment</span>
+</span><span class='line'><span class="n">var</span> <span class="n">direction</span> <span class="o">=</span> <span class="n">Direction</span><span class="p">.</span><span class="n">North</span>
+</span><span class='line'><span class="n">direction</span> <span class="o">=</span> <span class="p">.</span><span class="n">South</span>   <span class="c1">// enum type inferred</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// switching on enums</span>
+</span><span class='line'><span class="k">switch</span> <span class="n">direction</span> <span class="p">{</span>
+</span><span class='line'><span class="k">case</span> <span class="p">.</span><span class="nl">North:</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;Going North&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">default</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;Going someplace else!&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// advanced enumerations - using generics</span>
+</span><span class='line'><span class="k">enum</span> <span class="n">Result</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">Failure</span>
+</span><span class='line'>  <span class="c1">// enumeration member with associated value</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">Success</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// creating an instance - where the type T is an Int</span>
+</span><span class='line'><span class="n">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">Result</span><span class="p">.</span><span class="n">Success</span><span class="p">(</span><span class="mi">22</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// switching and extracting the associated value</span>
+</span><span class='line'><span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+</span><span class='line'><span class="k">case</span> <span class="p">.</span><span class="nl">Failure:</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;Operation failed&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">case</span> <span class="p">.</span><span class="n">Success</span><span class="p">(</span><span class="n">let</span> <span class="n">value</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="s">&quot;Operation returned value \(value)&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Functions</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">// a simple function</span>
+</span><span class='line'><span class="n">func</span> <span class="nf">voidFunc</span><span class="p">(</span><span class="nl">message:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="n">message</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">voidFunc</span><span class="p">(</span><span class="s">&quot;Hello Swift!&quot;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// a function that returns a value</span>
+</span><span class='line'><span class="n">func</span> <span class="n">multiply</span><span class="p">(</span><span class="nl">arg1:</span> <span class="n">Double</span><span class="p">,</span> <span class="nl">arg2:</span> <span class="n">Double</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Double</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">arg1</span> <span class="o">*</span> <span class="n">arg2</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">let</span> <span class="n">result</span> <span class="o">=</span> <span class="n">multiply</span><span class="p">(</span><span class="mf">20.0</span><span class="p">,</span> <span class="nl">arg2:</span> <span class="mf">35.2</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// external and default parameters names</span>
+</span><span class='line'><span class="n">func</span> <span class="n">multiplyTwo</span><span class="p">(</span><span class="n">first</span> <span class="nl">first:</span> <span class="n">Double</span><span class="p">,</span> <span class="n">andSecond</span> <span class="nl">second:</span> <span class="n">Double</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Double</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">first</span> <span class="o">*</span> <span class="n">second</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">let</span> <span class="n">result2</span> <span class="o">=</span> <span class="n">multiplyTwo</span><span class="p">(</span><span class="nl">first:</span> <span class="mf">20.0</span><span class="p">,</span> <span class="nl">andSecond:</span> <span class="mf">35.2</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// inout parameters</span>
+</span><span class='line'><span class="n">func</span> <span class="n">square</span><span class="p">(</span><span class="n">inout</span> <span class="nl">number:</span> <span class="n">Double</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">number</span> <span class="o">*=</span> <span class="n">number</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">var</span> <span class="n">number</span> <span class="o">=</span> <span class="mf">4.0</span>
+</span><span class='line'><span class="n">square</span><span class="p">(</span><span class="o">&amp;</span><span class="n">number</span><span class="p">)</span> <span class="c1">// number = 16</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// function types</span>
+</span><span class='line'><span class="n">let</span> <span class="nl">myFunc:</span> <span class="p">(</span><span class="n">Double</span><span class="p">,</span> <span class="n">Double</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Double</span> <span class="o">=</span> <span class="n">multiplyTwo</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// a generic function</span>
+</span><span class='line'><span class="n">func</span> <span class="n">areEqual</span><span class="o">&lt;</span><span class="nl">T:</span> <span class="n">Equatable</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">op1:</span> <span class="n">T</span><span class="p">,</span> <span class="nl">op2:</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="p">{</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">op1</span> <span class="o">==</span> <span class="n">op2</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Closures</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">animals</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;fish&quot;</span><span class="p">,</span> <span class="s">&quot;cat&quot;</span> <span class="p">,</span> <span class="s">&quot;chicken&quot;</span><span class="p">,</span> <span class="s">&quot;dog&quot;</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">animals</span><span class="p">.</span><span class="n">sort</span><span class="p">({</span>
+</span><span class='line'>  <span class="p">(</span><span class="nl">one:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">two:</span> <span class="n">String</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="k">in</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">one</span> <span class="o">&gt;</span> <span class="n">two</span>
+</span><span class='line'><span class="p">})</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">animals</span><span class="p">.</span><span class="n">sort</span><span class="p">({</span>
+</span><span class='line'>  <span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">two</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="k">in</span> <span class="c1">// inferred argument types</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">one</span> <span class="o">&gt;</span> <span class="n">two</span>
+</span><span class='line'><span class="p">})</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">animals</span><span class="p">.</span><span class="n">sort</span><span class="p">({</span>
+</span><span class='line'>  <span class="p">(</span><span class="n">one</span><span class="p">,</span> <span class="n">two</span><span class="p">)</span> <span class="k">in</span>        <span class="c1">// inferred return type</span>
+</span><span class='line'>  <span class="k">return</span> <span class="n">one</span> <span class="o">&gt;</span> <span class="n">two</span>
+</span><span class='line'><span class="p">})</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">animals</span><span class="p">.</span><span class="n">sort</span><span class="p">({</span>
+</span><span class='line'>  <span class="c1">// no brackets around parameters</span>
+</span><span class='line'>  <span class="n">one</span><span class="p">,</span> <span class="n">two</span> <span class="k">in</span> <span class="k">return</span> <span class="n">one</span> <span class="o">&gt;</span> <span class="n">two</span>
+</span><span class='line'><span class="p">})</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">animals</span><span class="p">.</span><span class="n">sort</span><span class="p">({</span>
+</span><span class='line'>  <span class="c1">// no return keyword</span>
+</span><span class='line'>  <span class="n">one</span><span class="p">,</span> <span class="n">two</span> <span class="k">in</span> <span class="n">one</span> <span class="o">&gt;</span> <span class="n">two</span>
+</span><span class='line'><span class="p">})</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// shorthand arguments</span>
+</span><span class='line'><span class="n">animals</span><span class="p">.</span><span class="n">sort</span><span class="p">({</span> <span class="n">$0</span> <span class="o">&gt;</span> <span class="n">$1</span> <span class="p">})</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// trailing closure</span>
+</span><span class='line'><span class="n">animals</span><span class="p">.</span><span class="n">sort</span><span class="p">()</span> <span class="p">{</span> <span class="n">$0</span> <span class="o">&gt;</span> <span class="n">$1</span> <span class="p">}</span>
+</span><span class='line'><span class="n">animals</span><span class="p">.</span><span class="n">sort</span> <span class="p">{</span> <span class="n">$0</span> <span class="o">&gt;</span> <span class="n">$1</span> <span class="p">}</span>
+</span><span class='line'><span class="n">animals</span><span class="p">.</span><span class="n">sort</span><span class="p">(</span><span class="o">&gt;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>Classes and protocols</h2>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">public</span> <span class="n">class</span> <span class="n">BaseClass</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">private</span> <span class="n">let</span> <span class="kt">id</span><span class="o">:</span> <span class="n">Int</span>            <span class="c1">// private constant property</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">init</span><span class="p">(</span><span class="kt">id</span><span class="o">:</span> <span class="n">Int</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="kt">id</span> <span class="o">=</span> <span class="kt">id</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">class</span> <span class="n">func</span> <span class="n">numberOfLegs</span><span class="p">()</span> <span class="o">-&gt;</span><span class="n">Int</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="mi">4</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">protocol</span> <span class="n">NamedType</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">name:</span> <span class="n">String</span> <span class="p">{</span> <span class="n">get</span> <span class="p">}</span>       <span class="c1">// a property with a getter</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">public</span> <span class="n">class</span> <span class="nl">Animal:</span> <span class="n">BaseClass</span><span class="p">,</span> <span class="n">NamedType</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">private</span><span class="p">(</span><span class="n">set</span><span class="p">)</span> <span class="n">var</span> <span class="nl">name:</span> <span class="n">String</span>  <span class="c1">// variable with public getter</span>
+</span><span class='line'>                                 <span class="c1">// and private setter</span>
+</span><span class='line'>  <span class="n">var</span> <span class="nl">size:</span> <span class="n">Double</span> <span class="o">=</span> <span class="mf">45.0</span>        <span class="c1">// implicit internal property</span>
+</span><span class='line'>  <span class="n">public</span> <span class="n">let</span> <span class="nl">fullName:</span> <span class="n">String</span>    <span class="c1">// public constant property</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="n">init</span> <span class="p">(</span><span class="kt">id</span><span class="o">:</span> <span class="n">Int</span><span class="p">,</span> <span class="nl">name:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">fullName:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// all properties initialized before base init invoked</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="p">;</span>
+</span><span class='line'>    <span class="n">self</span><span class="p">.</span><span class="n">fullName</span> <span class="o">=</span> <span class="n">fullName</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// super initialiser invoked</span>
+</span><span class='line'>    <span class="n">super</span><span class="p">.</span><span class="n">init</span><span class="p">(</span><span class="kt">id</span><span class="o">:</span> <span class="kt">id</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1">// methods on self can now be called</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">// creating an instance</span>
+</span><span class='line'><span class="n">var</span> <span class="n">animal</span> <span class="o">=</span> <span class="n">Animal</span><span class="p">(</span><span class="kt">id</span><span class="o">:</span> <span class="mi">24</span><span class="p">,</span> <span class="nl">name:</span> <span class="s">&quot;cat&quot;</span><span class="p">,</span> <span class="nl">fullName:</span> <span class="s">&quot;Felis catus&quot;</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">刘毅</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-26T17:09:12+08:00" pubdate data-updated="true">Nov 26<span>th</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ios/'>iOS</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <style>
+    .flash-video{display:none;}
+</style>
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <span class="jiathis_txt">分享到：</span>
+  <a class="jiathis_button_qzone">QQ空间</a>
+  <a class="jiathis_button_tsina">新浪微博</a>
+  <a class="jiathis_button_tqq">腾讯微博</a>
+  <a class="jiathis_button_renren">人人网</a>
+  <a class="jiathis_button_douban">豆瓣</a>
+  <a class="jiathis_button_weixin">微信</a>
+  <a href="http://www.jiathis.com/share?uid=1885095" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript">
+var jiathis_config = {data_track_clickback:'true'};
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1885095" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+
+<br />
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1885095"></script>
+<!-- UY END -->
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/11/25/swift-by-tutorials-swift-and-cocoa/" title="Previous Post: Swift by Tutorials--Swift and Cocoa">&laquo; Swift by Tutorials--Swift and Cocoa</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/11/26/swift-by-tutorials-swift-quick-reference/">Swift by Tutorials--Swift Quick Reference</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/25/swift-by-tutorials-swift-and-cocoa/">Swift by Tutorials--Swift and Cocoa</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/23/swift-by-tutorials-functional-programming/">Swift by Tutorials--Functional Programming</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/20/swift-by-tutorials-enums-and-switch-statements/">Swift by Tutorials--Enums and Switch Statements</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/09/calayer-and-coreanimation/">CALayer&amp;CoreAnimation</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/05/ioskai-fa-bei-wang-lu-1/">iOS开发备忘录1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/30/hui-da-sunnyde-55dao-iosmian-shi-ti-2/">回答Sunny的55道iOS面试题2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/28/hui-da-sunnyde-55dao-iosmian-shi-ti-1/">回答Sunny的55道iOS面试题1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/20/react-nativechu-tan-1/">React Native初探1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/20/swift-by-tutorials-functions-and-closures/">Swift by Tutorials--Functions and Closures</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>About Me</h1>
+    <p> iOS开发, 菜鸟程序猿, Dotar<br/>
+      <br/>我的经历:
+      <br/>2007.9 进入吉大学习高端大气的电子信息工程
+      <br/>2011.9 考研失利,转投中传计算机专业,接触iOS
+      <br/>2013.8 入职盘古,以iOS程序员的身份开始职业生涯<br/>
+      <br/>我的微博: <a href="http://weibo.com/u/2638849461" target="_blank">JamesRaynor-刘毅</a>
+      <br/>我的git主页: <a href="https://github.com/lucifer1988" target="_blank">lucifer1988</a>
+      <br/>
+      <br/><span id="wb_follow_btn"></span>
+  </p>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - 刘毅 -
+  <span class="credit">Powered by <a href="http://octopress.org" target="_blank">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=3350288267" type="text/javascript" charset="utf-8"></script>
+<script>
+    WB2.anyWhere(function(W){
+        W.widget.followButton({
+            'uid': 2638849461,
+            'nick_name': 'JamesRaynor-刘毅',
+            'id': "wb_follow_btn",
+            'show_head' : true, 
+            'show_name' : true, 
+            'show_cancel': false
+        });
+    });
+</script>
+6vvqnj09Z6
+
+</body>
+</html>
