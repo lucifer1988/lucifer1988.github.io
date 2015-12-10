@@ -4,7 +4,7 @@
   <title><![CDATA[刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-11-27T11:06:13+08:00</updated>
+  <updated>2015-12-10T16:58:36+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,504 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Swifter读书笔记1]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/11/27/swifterdu-shu-bi-ji-1/"/>
+    <updated>2015-11-27T14:24:30+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/11/27/swifterdu-shu-bi-ji-1</id>
+    <content type="html"><![CDATA[<p>继续Swift的进阶学习，这一阶段使用的是<a href="http://weibo.com/onevcat">王巍（onevcat）</a>的Swifter一书，书中记录了100个Swift开发的Tips，本章包含了Tip1~Tip20。</p>
+
+<!--more-->
+
+
+<h2>1.柯里化（Currying）</h2>
+
+<p>Currying我们在之前的Swift by Tutorials中也学习过，是一种可以使函数分布调用的方式，也可以充当产生新方法的工厂方法，例如：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">greaterThan</span><span class="p">(</span><span class="nl">comparor:</span> <span class="n">Int</span><span class="p">)(</span><span class="nl">Input:</span> <span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">Input</span> <span class="o">&gt;</span> <span class="n">comparor</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">greaterThan10</span> <span class="o">=</span> <span class="n">greaterThan</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">greaterThan10</span><span class="p">(</span><span class="nl">Input:</span> <span class="mi">12</span><span class="p">)</span>
+</span><span class='line'><span class="n">greaterThan10</span><span class="p">(</span><span class="nl">Input:</span> <span class="mi">1</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>作者举了一个实践的例子，我们之前也讲过Swift中的Selector只能通过String类型来赋值，从实用角度讲，是很好的与OC的Target/Action做了桥接，但是任然无法保证调用的安全性，用例就是借助Currying对selector调用做了改造，<a href="http://oleb.net/blog/2014/07/swift-instance-methods-curried-functions/?utm_campaign=iOS_Dev_Weekly_Issue_157&amp;utm_medium=email&amp;utm_source=iOS%2BDev%2BWeekly">这篇博客</a>做了详细说明。</p>
+
+<p>首先通过以下的例子，我们可以得知，一个类的方法也是可以被获取的，这因为Swift中方法是第一类对象，例如最后depositor的调用，它的类型就是<strong>BankAccount &ndash;> (Double) &ndash;> ()</strong>，其实也是currying调用，利用这一特性，博主自己对selector的调用进行了改造。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="n">BankAccount</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="n">balance</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">deposit</span><span class="p">(</span><span class="nl">amount:</span> <span class="n">Double</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">balance</span> <span class="o">+=</span> <span class="n">amount</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">account</span> <span class="o">=</span> <span class="n">BankAccount</span><span class="p">()</span>
+</span><span class='line'><span class="n">account</span><span class="p">.</span><span class="n">deposit</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">account</span><span class="p">.</span><span class="n">balance</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">depositor</span> <span class="o">=</span> <span class="n">BankAccount</span><span class="p">.</span><span class="n">deposit</span>
+</span><span class='line'><span class="n">depositor</span><span class="p">(</span><span class="n">account</span><span class="p">)(</span><span class="mi">100</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">account</span><span class="p">.</span><span class="n">balance</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这样改变了selector的调用方式，现在开发者需要传入target和一个(T) &ndash;> () &ndash;> ()类型的action，而不采用之前的字符串输入，这当然保证了该方法一定会被响应，因为如果，该类型没有这个方法，在编译期间就会报错，而不会是在runtime中。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">protocol</span> <span class="n">TargetAction</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">func</span> <span class="n">performAction</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">TargetActionWrapper</span><span class="o">&lt;</span><span class="nl">T:</span> <span class="n">AnyObject</span><span class="o">&gt;:</span> <span class="n">TargetAction</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">weak</span> <span class="n">var</span> <span class="nl">target:</span> <span class="n">T</span><span class="o">?</span>
+</span><span class='line'>    <span class="n">let</span> <span class="nl">action:</span> <span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">performAction</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">let</span> <span class="n">t</span> <span class="o">=</span> <span class="n">target</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">action</span><span class="p">(</span><span class="n">t</span><span class="p">)()</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">enum</span> <span class="n">ControlEvent</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">TouchUpInside</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">ValueChanged</span>
+</span><span class='line'>    <span class="c1">//...</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">class</span> <span class="n">Control</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="nl">ControlEvent:</span> <span class="n">TargetAction</span><span class="p">]()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">setTarget</span><span class="o">&lt;</span><span class="nl">T:</span> <span class="n">AnyObject</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">target:</span> <span class="n">T</span><span class="p">,</span> <span class="nl">action:</span> <span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="p">(),</span> <span class="nl">controlEvent:</span> <span class="n">ControlEvent</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">actions</span><span class="p">[</span><span class="n">controlEvent</span><span class="p">]</span> <span class="o">=</span> <span class="n">TargetActionWrapper</span><span class="p">(</span><span class="nl">target:</span> <span class="n">target</span><span class="p">,</span> <span class="nl">action:</span> <span class="n">action</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">removeTargetForCotrolEvent</span><span class="p">(</span><span class="nl">controlEvent:</span> <span class="n">ControlEvent</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">actions</span><span class="p">[</span><span class="n">controlEvent</span><span class="p">]</span> <span class="o">=</span> <span class="nb">nil</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">performActionForControlEvent</span><span class="p">(</span><span class="nl">controlEvent:</span> <span class="n">ControlEvent</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">actions</span><span class="p">[</span><span class="n">controlEvent</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">performAction</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="n">MyViewController</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">button</span> <span class="o">=</span> <span class="n">Control</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">button</span><span class="p">.</span><span class="n">setTarget</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="nl">action:</span> <span class="n">MyViewController</span><span class="p">.</span><span class="n">onButtonTap</span><span class="p">,</span> <span class="nl">controlEvent:</span> <span class="p">.</span><span class="n">TouchUpInside</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">onButtonTap</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">println</span><span class="p">(</span><span class="s">&quot;Button was tapped&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>2.Struct Mutable的方法</h2>
+
+<p>这个问题，之前的<a href="http://lucifer1988.github.io/blog/2015/10/15/swift-by-tutorials-generics/">Swift by Tutorials</a>也提到过，结构体的实例方法是不能修改自己声明的变量的，因为Struct是数值型的，默认是不可变的，所以如果某个方法需要修改结构体的变量，就需要添加<strong>mutating</strong>关键字，使得编译器可以对结构体进行copy-on-write操作。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">struct</span> <span class="n">User</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">age:</span> <span class="n">Int</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">weight:</span> <span class="n">Int</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">height:</span> <span class="n">Int</span>
+</span><span class='line'>    <span class="n">mutating</span> <span class="n">func</span> <span class="n">gainWeight</span><span class="p">(</span><span class="nl">newWeight:</span> <span class="n">Int</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">weight</span> <span class="o">+=</span> <span class="n">newWeight</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>3.将protocol的方法声明为mutating</h2>
+
+<p>这个问题是承接上一个问题的，Swift中的protocol是可以被class、struct、enum实现的，所以如果protocol中一些方法正好会修改到自身变量，但没有加<strong>mutating</strong>关键字的话，struct和enum实现该方法时就无法编过，所以一定要在设计protocol时考虑这个问题。另外，我补充一点，如果这个protocol只是给class实现的，那么可以不加mutating，同时也可以使用<strong>protocol ClassOnlyProtocol: class</strong>这样的写法，告诉使用者，该协议只能实现于class。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">import</span> <span class="n">UIKit</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">protocol</span> <span class="n">Vehicle</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">numberOfWheels:</span> <span class="n">Int</span> <span class="p">{</span><span class="n">get</span><span class="p">}</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">color:</span> <span class="n">UIColor</span> <span class="p">{</span><span class="n">get</span> <span class="n">set</span><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">mutating</span> <span class="n">func</span> <span class="n">changeColor</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="nl">MyCar:</span> <span class="n">Vehicle</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">numberOfWheels</span> <span class="o">=</span> <span class="mi">4</span>
+</span><span class='line'>    <span class="n">var</span> <span class="n">color</span> <span class="o">=</span> <span class="n">UIColor</span><span class="p">.</span><span class="n">blueColor</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">mutating</span> <span class="n">func</span> <span class="n">changeColor</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">color</span> <span class="o">=</span> <span class="n">UIColor</span><span class="p">.</span><span class="n">redColor</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>4.Sequence</h2>
+
+<p>在Swift中，只要实现了SequenceType，就可以使用for&hellip;in快速遍历，而需要先实现一个GeneratorType来控制遍历的顺序。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="nl">ReverseGenerator:</span> <span class="n">GeneratorType</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">typealias</span> <span class="n">Element</span> <span class="o">=</span> <span class="n">Int</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">counter:</span> <span class="n">Element</span>
+</span><span class='line'>    <span class="n">init</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">array:</span> <span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">counter</span> <span class="o">=</span> <span class="n">array</span><span class="p">.</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">init</span><span class="p">(</span><span class="nl">start:</span> <span class="n">Int</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">counter</span> <span class="o">=</span> <span class="n">start</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">next</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Element</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">counter</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="nb">nil</span> <span class="o">:</span> <span class="n">counter</span><span class="o">--</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">ReverseSequence</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;:</span> <span class="n">SequenceType</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">array:</span> <span class="p">[</span><span class="n">T</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">init</span> <span class="p">(</span><span class="nl">array:</span> <span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">array</span> <span class="o">=</span> <span class="n">array</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">typealias</span> <span class="n">Generator</span> <span class="o">=</span> <span class="n">ReverseGenerator</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">generate</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Generator</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">ReverseGenerator</span><span class="p">(</span><span class="nl">array:</span> <span class="n">array</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">ReverseSequence</span><span class="p">(</span><span class="nl">array:</span> <span class="n">arr</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="s">&quot;Index \(i) is \(arr[i])&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>for&hellip;in如何利用这两个协议，作者给出了一个解释。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">g</span> <span class="o">=</span> <span class="n">array</span><span class="p">.</span><span class="n">generate</span><span class="p">()</span>
+</span><span class='line'><span class="k">while</span> <span class="n">let</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">g</span><span class="p">.</span><span class="n">next</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>而且你也可以免费使用map，filter，reduce这些函数，因为SequenceType的几个extension实现了他们。关于这几个函数的使用，我们在Swift by Tutorials做了很多介绍。</p>
+
+<h2>5.多元组(Tuple)</h2>
+
+<p>Tuple我们之前也介绍过，主要用于简单场景的复合数据类型，作者举了一个CGRect的方法在OC和Swift中的实践。</p>
+
+<p>CGRect有个函数<strong>CGRectDivide()</strong>，用来切割矩形区域，由于会返回两个新的CGRect，而OC又没有返回多个结果的机制，只能先声明两个CGRect，然后将指针传入函数，等待函数对其赋值。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//CGRectDivide(CGRect rect, CGRect *slice, CGRect *remainder, CGFloat amount, CGRectEdge edge)</span>
+</span><span class='line'><span class="n">CGRect</span> <span class="n">rect</span> <span class="o">=</span> <span class="n">CGRectMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">);</span>
+</span><span class='line'><span class="n">CGRect</span> <span class="n">small</span><span class="p">;</span>
+</span><span class='line'><span class="n">CGRect</span> <span class="n">large</span><span class="p">;</span>
+</span><span class='line'><span class="n">CGRectDivide</span><span class="p">(</span><span class="n">rect</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">small</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">large</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">CGRectMinXEdge</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>而在Swift中由于有了元组，可以优雅的进行实现，同时，由于Swift中结构体可以添加方法，所以将原来的函数直接作为了CGRect的一个方法，使得实现更加简洁。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//func rectsByDividing(atDistance: CGFloat, fromEdge: CGRectEdge) -&gt; (slice: CGRect, remainder: CGRect)</span>
+</span><span class='line'><span class="n">let</span> <span class="n">rect</span> <span class="o">=</span> <span class="n">CGRectMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span><span class='line'><span class="n">let</span> <span class="p">(</span><span class="n">small</span><span class="p">,</span> <span class="n">large</span><span class="p">)</span> <span class="o">=</span> <span class="n">rect</span><span class="p">.</span><span class="n">rectsByDividing</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="nl">fromEdge:</span> <span class="p">.</span><span class="n">MinXEdge</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>6.@autoclosure和??</h2>
+
+<p>@autoclosure是简化代码的一个关键字，之前说过方法是Swift中的第一类对象，所以会在Swift中出现大量的匿名方法，即闭包closure作为参数，如下例。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">logIfTrue</span><span class="p">(</span><span class="err">@</span><span class="n">autoclosure</span> <span class="nl">predicate:</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Bool</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">predicate</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">print</span><span class="p">(</span><span class="s">&quot;True&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">logIfTrue</span><span class="p">({</span><span class="k">return</span> <span class="mi">2</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>当然按照之前介绍的简化策略，上面的调用可以简化为：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">logIfTrue</span><span class="p">{</span><span class="mi">2</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然而我们可以在方法定义时加上@autoclosure，这样调用时，Swift会自动将输入的参数转化为closure，但需要注意的是使用@autoclosure关键字时，闭包的参数只能是()，如果包含参数时，不能使用该关键字。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">logIfTrue</span><span class="p">(</span><span class="err">@</span><span class="n">autoclosure</span> <span class="nl">predicate:</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Bool</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">predicate</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">print</span><span class="p">(</span><span class="s">&quot;True&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">logIfTrue</span><span class="p">(</span><span class="mi">2</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>??可以用来对Optional类型进行空值判断，并赋默认值，用法如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="nl">level:</span> <span class="n">Int</span><span class="o">?</span>
+</span><span class='line'><span class="n">var</span> <span class="n">startLevel</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'><span class="n">var</span> <span class="n">currentLevel</span> <span class="o">=</span> <span class="n">level</span> <span class="o">??</span> <span class="n">startLevel</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>??的具体实现如下，两个版本的区别是默认值是否是optional类型，但是需要注意的是输入的第二个参数被封装成了一个闭包的类型，作者猜测了??方法的具体实现。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="err">@</span><span class="n">warn_unused_result</span>
+</span><span class='line'><span class="n">public</span> <span class="n">func</span> <span class="o">??&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">optional:</span> <span class="n">T</span><span class="o">?</span><span class="p">,</span> <span class="err">@</span><span class="n">autoclosure</span> <span class="nl">defaultValue:</span> <span class="p">()</span> <span class="n">throws</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="o">?</span><span class="p">)</span> <span class="n">rethrows</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="o">?</span>
+</span><span class='line'><span class="err">@</span><span class="n">warn_unused_result</span>
+</span><span class='line'><span class="n">public</span> <span class="n">func</span> <span class="o">??&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">optional:</span> <span class="n">T</span><span class="o">?</span><span class="p">,</span> <span class="err">@</span><span class="n">autoclosure</span> <span class="nl">defaultValue:</span> <span class="p">()</span> <span class="n">throws</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">)</span> <span class="n">rethrows</span> <span class="o">-&gt;</span> <span class="n">T</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="o">??&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">optional:</span> <span class="n">T</span><span class="o">?</span><span class="p">,</span> <span class="err">@</span><span class="n">autoclosure</span> <span class="nl">defaultValue:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">switch</span> <span class="n">optional</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">case</span> <span class="p">.</span><span class="n">Some</span><span class="p">(</span><span class="n">let</span> <span class="n">value</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">value</span>
+</span><span class='line'>        <span class="k">case</span> <span class="p">.</span><span class="nl">None:</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">defaultValue</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里没有直接用T类型作为默认值的参数，而是封转了一个方法，这是一种优化手段。这样，系统在开始判断optional是否有值之前就不需要开辟默认值的内存，只有在optional为nil时，才去准备默认值。但是在开发者调用??方法时又不需要输入一个闭包参数，而仍是一个数值，这就是巧妙的利用了@autoclosure关键字。</p>
+
+<p>作者留出了关于Swift的||和&amp;&amp;的实现，其实他们的情况也和??一样，需要分布判断，下面是我给出的答案。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="o">||&lt;</span><span class="n">T</span> <span class="o">:</span> <span class="n">BooleanType</span><span class="p">,</span> <span class="n">U</span> <span class="o">:</span> <span class="n">BooleanType</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">lhs:</span> <span class="n">T</span><span class="p">,</span> <span class="err">@</span><span class="n">autoclosure</span> <span class="nl">rhs:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">U</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">switch</span> <span class="n">lhs</span><span class="p">.</span><span class="n">boolValue</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nl">true:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">true</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nl">false:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">rhs</span><span class="p">().</span><span class="n">boolValue</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="o">&amp;&amp;&lt;</span><span class="n">T</span> <span class="o">:</span> <span class="n">BooleanType</span><span class="p">,</span> <span class="n">U</span> <span class="o">:</span> <span class="n">BooleanType</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">lhs:</span> <span class="n">T</span><span class="p">,</span> <span class="err">@</span><span class="n">autoclosure</span> <span class="nl">rhs:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">U</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">switch</span> <span class="n">lhs</span><span class="p">.</span><span class="n">boolValue</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nl">false:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">false</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nl">true:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">rhs</span><span class="p">().</span><span class="n">boolValue</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Swift by Tutorials--Swift Quick Reference]]></title>
@@ -14318,247 +14816,6 @@ NSStringFromClass([super class]) = Son
 </span></code></pre></td></tr></table></div></figure>
 
 
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Effective Objective-C读书笔记2]]></title>
-    <link href="http://lucifer1988.github.io/blog/2015/07/22/effective-objective-cdu-shu-bi-ji-2/"/>
-    <updated>2015-07-22T17:09:55+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2015/07/22/effective-objective-cdu-shu-bi-ji-2</id>
-    <content type="html"><![CDATA[<p>继续上一篇，这篇的主题是Objects，Messaging，and the Runtime。</p>
-
-<!--more-->
-
-
-<h2>Item6 Understand Properties</h2>
-
-<ol>
-<li>在C++和Java中常使用@public和@private来声明实例变量，但在OC中由于对象是在编译期间定义的，所以按照这种定义方法，在新增变量后会导致访问偏移量出错，除非重新编译，但是这样就失去了动态语言的优势。</li>
-<li>OC的解决方案是将实例变量作为可存储内存偏移量的类对象，这同时可以将实例变量定义到实现文件中，从而实现隐藏。Apple鼓励使用存取方法而不是直接访问实例变量，也是为了解决这一问题，@property就是为了方便提供getter和setter方法。</li>
-<li>OC中的点方法类似C中访问结构体的成员，但其实是编译器转化为了对应的getter方法。</li>
-</ol>
-
-
-<h3>Property Attributes</h3>
-
-<ol>
-<li>主要说下有关内存管理的property属性，主要有assign，strong，weak，unsafe_unretained，copy。</li>
-<li>assign：主要用于标量的property属性，简单的赋值操作，引用计数不变。</li>
-<li>strong：声明的是持有关系，新值会被retain，旧值release，引用计数加1。</li>
-<li>weak：声明的是非持有关系，与assign类似，如果指向的对象被释放，该值也会被释放。</li>
-<li>unsafe_unretained：可以理解为针对对象的assign属性，但是所指向的对象被释放后，该值不会被释放，所以容易造成野指针，一般很少用到它。</li>
-<li>copy：与strong类似，只不过所赋值的引用计数不变，旧值会被赋给一个所赋值copy的引用计数为1的对象，一般用于不可变对象，可能被赋可变对象的值时，这样可确保旧值改变时，不可变对象不发生变化。</li>
-<li>get=&lt;>：可以自定义getter方法的名字，一般用于布尔型property，一般getter方法以is开头。</li>
-<li>额外1：如果对一不可变对象复制，copy是指针复制（浅拷贝）和mutableCopy就是对象复制（深拷贝）。如果是对可变对象复制，都是深拷贝，但是copy返回的对象是不可变的。</li>
-<li>额外2：不要在init（包括自定义的初始化方法）和dealloc中使用setter和getter方法。</li>
-<li>atomic用以确保线程安全，但是iOS平台的property基本都是nonatomic的，主要是因为性能问题，而且atomic也并非完全是线程安全的（例如一个线程频繁访问一个对象时，另一线程同时在写入，前一线程也会拿到不同的值），而在Mac OS X就不存在这个性能瓶颈了。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item7 Access Instance Variables Primarliy Directly When Accessing Them Internally</h2>
-
-<ol>
-<li>本章讨论的是如何在内部使用实例变量，有两种方式，一是使用生成的存取方法，二是直接使用实例变量。</li>
-<li>优缺点如下：
-
-<ol>
-<li>直接访问对象，速度会快，绕开了OC的method dispatch，编译器会直接访问存储对象的内存。</li>
-<li>直接访问对象会绕开与内存相关的setter方法，例如你设置的copy型的setter，只会按照retain来执行。</li>
-<li>直接访问对象不会触发KVO。</li>
-<li>使用存取方法会使调试变得简单，你可以在getter/setter添加断点。</li>
-</ol>
-</li>
-<li>比较推荐的做法是，在存对象的时候使用setter方法，而在读取对象时直接读取，这样既享受了快速读取，也可以利用property控制保存对象。</li>
-<li>但是这么做还是有一些需要注意的地方：
-
-<ol>
-<li>在初始化方法中，一定要使用直接赋值的方法，主要是因为怕子类复写了对象的setter方法，而导致异常，如果一个对象声明在了父类的内部，而子类不能直接访问它，你也不能直接访问读取该变量，这种情况只能通过setter赋值
-2.如果实例变量使用了延时加载，那么读取一定要使用getter方法，不然这个对象永远都不会有值。</li>
-</ol>
-</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item8 Understand Object Equality</h2>
-
-<ol>
-<li>比较两个对象，不使用==，那样只会比较指针的值，而一般使用<em>isEqual:</em>，如果对象有自己的专有比较方法，例如<em>isEqualToString:</em>，优先使用这些方法，速度会快些。</li>
-<li><em>&ndash;(NSUIntegetr)hash;</em>是一个与比较对象息息相关的方法，hash相同的对象不一定相同，而相同的对象hash值一定相同。</li>
-<li>所以自定义对象重写<em>isEqual:</em>方法，也一定要重写hash方法，共有三种方案：
-
-<ol>
-<li>返回一个常数，这个方案优点是使用单个对象时快，但是如果把大量对象放入同一集合，由于hash值相同，集合会挨个检查这些对象是否真的相同，从而导致向一个集合添加大量对象时就会很慢；</li>
-<li>使用一个拼接的唯一字符串，然后进行hash，这个方案避免了上面的问题，但是出现了单个对象需要生成一个字符串，从而影响了速度的问题；</li>
-<li>先取一系列变量的hash值，再将其异或，这个方案算是为了避免上述问题的折衷方案。</li>
-</ol>
-</li>
-</ol>
-
-
-<h3>Class-Specific Equality Methods</h3>
-
-<ol>
-<li>自定义类可以通过重写<em>isEqual:</em>方法，在方法里判断如果是同一类型，就调用上面的比较方法，如不是就调用父类的<em>isEqual:</em>方法，这样可以实现子类也可以与父类进行比较。</li>
-</ol>
-
-
-<h3>Deep versus Shallow Equality</h3>
-
-<ol>
-<li>有时你并不需要判断对象的所有信息是否相同，比如来自数据库的信息，可能只通过判断id就可以进行判断，所谓的浅比较就是这样。</li>
-</ol>
-
-
-<h3>Equality of Mutable Classes in Containers</h3>
-
-<ol>
-<li>这一部分主要讲的是，向集合添加可变对象，然后改变该对象，是有可能让集合出现重复对象的，这点值得关注。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item9 Use the Class Cluster Pattern to Hide Implementation Detail</h2>
-
-<ol>
-<li>类簇是OC中很重要的一个设计模式，例如UIButton的创建，类簇解决的问题是需要统一创建同一基本类型的不同对象，而同时避免暴露子类和父类内部复杂的switch语句。</li>
-</ol>
-
-
-<h3>Creating a Class Cluster</h3>
-
-<ol>
-<li>创建类簇的思路：一个基类，一些空方法，一个创建对象的工厂方法，继承的子类对空方法重写。这样的类簇有个缺点就是用户可能以为自己使用的类就是那个基类，而不知道其实是它的子类。</li>
-</ol>
-
-
-<h3>Class Clusters in Cocoa</h3>
-
-<ol>
-<li>由于很多Cocoa类都是使用了类簇模式，所以类似<em>[maybeAnArray class] == [NSArray class]</em>这样的校验类型的方法是不会返回正确值的，而要使用<em>[maybeAnArray isKindOfClass:[NSArray class]]</em>。</li>
-<li>添加一个类簇的子类而不去改写其基类的工厂方法，对于NSArray是可以的，但是有三点要求：1、必须是该类簇基类的子类；2、该子类必须定义自己的存储空间，也就是说内部要有一个NSArray的对象来实现数据的存储；3、子类必须重写类簇文档中规定重写的方法。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item10 Use Associated Objects to Attach Custom Data to Existing Classes</h2>
-
-<ol>
-<li>有时为了为一个类绑定一些信息，而又不方便添加多余的property或者继承这个类，可以考虑使用<em>association</em>，类似字典型的键值读取，也可以设置内存管理策略，但是需要注意绑定的key必须是唯一的指针，而不只是值相同，所以一般使用全局的静态变量作为key。</li>
-</ol>
-
-
-<h3>An Example of Using Associated Objects</h3>
-
-<ol>
-<li>通过使用<em>Associated Objects</em>实现了UIAlertView的回调Block化，使得代码的可读性更好，也更方便。</li>
-<li><em>Associated Objects</em>提供了一个将对象之间互相绑定的方法，但是并不推荐大范围使用该方法，因为会导致调试变的更难。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item11 Understand the Role of objec_msgSend</h2>
-
-<ol>
-<li>OC利用动态绑定成为了真正的动态语言，OC中传递消息最终被转化为函数<em>void objc_msgSend(id self, SEL cmd, &hellip;)</em>，例如：<em>id returnValue = [someObkect messageName:parameter];</em>转化后，<em>id returnValue = objc_msgSend(someObject, @sleector(messageName:), parameter);</em>。</li>
-<li><em>objc_msgSend</em>执行的顺序是先在接受者实现的方法中找符合的方法来执行，如没有，向继承链上方逐级寻找符合的实现方法。</li>
-<li><em>objc_msgSend</em>会为每个类缓存一张查找表，来加速这一过程，但即使如此，还是比在C中直接调用静态调用函数慢，但这常常不是应用的瓶颈，这样来换取程序的灵活性还是值得的。</li>
-<li><em>objc_msgSend</em>是针对确定消息的处理，下面还有一些处理个别案例的方法。</li>
-<li><em>objc_msgSend_stret</em>用于处理用户返回适用于CPU寄存器的结构体的消息（不太懂）。</li>
-<li><em>objc_msgSend_fpret</em>用于处理返回浮点值的消息，一些结构需要在函数调用时对浮点数寄存器特殊处理，所以这是该方法存在的意义（不太懂）。</li>
-<li><em>objc_msgSendSuper</em>直接把消息转发给父类执行，类的所有方法都是一个个类似<em>&lt;return_type> Class_selector(id self, SEL _CMD, &hellip;)</em>这样的原型，这些方法指针存在该类的一个查找表中等待调用，该原型与<em>objc_msgSend</em>是相同的，也就实现了<a href="http://www.ruanyifeng.com/blog/2015/04/tail-call.html">尾部递归调用</a>的可能，这样会实现调用栈的空间复杂度保持O(1)，不会产生溢出。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item12 Understand Message Forwarding</h2>
-
-<ol>
-<li>转发路径是为了处理接受者无法处理消息的情况，分为两条路径：1、<em>dynamic method resolution</em>期望接收者自己在runtime添加处理方法；2、<em>full forwarding mechanism</em>到了这一步，runtime得知接收者是不可能对消息做出响应了，所以要求接收者自己处理该消息，又分为两步：(1)询问是否有其他对象可以接收消息，如果有则转发给该对象；(2)如果也没有替代的接收者，那么将使用<em>NSInvocation</em>来对消息进行封装，然后交给原接收者去处理。<a href="http://bugly.qq.com/blog/?p=64">这儿也做了详细解释</a>。</li>
-</ol>
-
-
-<h3>Dynamic Method Resolution</h3>
-
-<ol>
-<li><em>+(BOOL)resolveInstanceMethod:(SEL)selector</em>用于表明类有无实例方法可处理该消息，可以说是给予该类的第二次机会。</li>
-<li>这类方法是存在的，例如CoreData的@dynamic的property的accessing方法，而<em>+(BOOL)resolveInstanceMethod:(SEL)selector</em>对其的处理是判断是否是@dynamic property，如果是，向该类添加预备好的getter，setter方法，已确保类可以响应该消息。</li>
-</ol>
-
-
-<h3>Replacement Receiver</h3>
-
-<ol>
-<li><em>&ndash;(id)forwardTargetForSelector:(SEL)selector</em>用于返回可以替代原接收者的对象（如果其存在的话），这其实提供了一些多继承的特性，即原类内部可以有其他对象来实现这一方法。但是无法对消息进行修改，只是转发，如需修改消息，则需要采取最后一步。</li>
-</ol>
-
-
-<h3>Full Forwarding Mechanism</h3>
-
-<ol>
-<li>&ndash;(void)forwardInvocation:(NSInvocation*)invocation用于转发接收到的NSInvocation消息，可以进行简单转发，但这和上述的方法没有区别，而更为常见的用途是修改消息，如增加参数或者改变方法等。</li>
-<li>重写该方法时需要调用父类的相同方法来处理改invocation，这样会最终调用NSObject的<em>doesNotRecognizeSelector</em>，最终抛出异常，但如果你不希望程序崩溃，就不要去调用父类的方法。</li>
-</ol>
-
-
-<h3>The Full Picture</h3>
-
-<ol>
-<li>具体图表见<a href="http://bugly.qq.com/blog/?p=64">这儿</a>。</li>
-<li>解决的代价是越来越高的，所以最好在第一阶段解决这一问题。</li>
-</ol>
-
-
-<h3>Full Example of Dynamic Method Resolution</h3>
-
-<ol>
-<li>举例说明，将一个model中的所有对象都存在一个dictionary中，而这些对象申明为@dynamic，在<em>+(BOOL)resolveInstanceMethod:(SEL)selector</em>中根据selector的信息对相应的对象动态添加setter，getter方法，大幅减少代码量，但缺点是想特殊处理某个对象，就变得比较麻烦了。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item13 Consider Method Swizzling to Debug Opaque Methods</h2>
-
-<ol>
-<li><em>Method Swizzling</em>主要用于不知道类的源码，且不用继承、重写，即可为原方法添加hook的手段（其实是在runtime中先交换，再执行一次原方法而已-_-）。</li>
-<li>通过添加一个类的分类，在分类添加一个方法，在这个方法中进行递归调用，然后与目标方法进行交换，这时再执行原方法时，会依次执行这两个方法。<a href="http://blog.csdn.net/yiyaaixuexi/article/details/9374411">另外一篇文章也有说明</a>。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item14 Understand What a Class Object Is</h2>
-
-<ol>
-<li>Class本身也是一个结构体指针，叫objc_class，Class也有一个Class类型的isa指针，说明Class本身也是一个OC对象，他的类型叫做metaclass，Class有Class类型的super_class指针，用来指向他的父类Class。</li>
-</ol>
-
-
-<h3>Inspecting the Class Hierarchy</h3>
-
-<ol>
-<li><em>isMemberOfClass:</em>用于判断是否属于该类，<em>isKindOfClass:</em>用于判断是否属于该类或者该类的子类。原理还是利用上述的Class的isa和super_class指针。</li>
-<li>内省（自我类型检查）是OC中的重要技术，应用也很广泛，除了上述方法，也可利用<em>[object class] == [EOCSomeClass class]</em>来判断，之所以这么写是合理的，是因为每个class的Class类型是一个单例对象，所以可以直接比较指针。</li>
-<li>但是还是推荐使用默认的类型检测方法，因为这样可以利用消息转发技术，如果一个对象的所有方法都是代理对象执行的，那么调用class方法只会返回代理对象的类型，而调用<em>isKindOfClass:</em>方法，代理会把消息转给被代理的对象，会得到正确的类型。</li>
-</ol>
 
 ]]></content>
   </entry>

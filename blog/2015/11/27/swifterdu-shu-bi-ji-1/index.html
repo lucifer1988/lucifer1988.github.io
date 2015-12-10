@@ -1,0 +1,783 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Swifter读书笔记1 - 刘毅的技术博客</title>
+  <meta name="author" content="刘毅">
+
+  
+  <meta name="description" content="继续Swift的进阶学习，这一阶段使用的是王巍（onevcat）的Swifter一书，书中记录了100个Swift开发的Tips，本章包含了Tip1~Tip20。 1.柯里化（Currying） Currying我们在之前的Swift by Tutorials中也学习过， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucifer1988.github.io/blog/2015/11/27/swifterdu-shu-bi-ji-1">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="刘毅的技术博客" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<script type="text/javascript">
+
+function addBlankTargetForLinks () {
+
+  $('a[href^="http"]').each(function(){
+
+      $(this).attr('target', '_blank');
+
+  });
+
+}
+
+$(document).bind('DOMNodeInserted', function(event) {
+
+  addBlankTargetForLinks();
+
+});
+
+</script>
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">刘毅的技术博客</a></h1>
+  
+    <h2>记录自己的学习生活点滴，也希望和大家交流分享！</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucifer1988.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">首页</a></li>
+  <li><a href="/blog/archives">所有文章</a></li>
+  <li><a href="/blog/categories/ios">iOS开发专题</a></li>
+  <li><a href="http://weibo.com/u/2638849461" target="_blank">我的微博</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Swifter读书笔记1</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-27T14:24:30+08:00" pubdate data-updated="true">Nov 27<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>继续Swift的进阶学习，这一阶段使用的是<a href="http://weibo.com/onevcat">王巍（onevcat）</a>的Swifter一书，书中记录了100个Swift开发的Tips，本章包含了Tip1~Tip20。</p>
+
+<!--more-->
+
+
+<h2>1.柯里化（Currying）</h2>
+
+<p>Currying我们在之前的Swift by Tutorials中也学习过，是一种可以使函数分布调用的方式，也可以充当产生新方法的工厂方法，例如：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">greaterThan</span><span class="p">(</span><span class="nl">comparor:</span> <span class="n">Int</span><span class="p">)(</span><span class="nl">Input:</span> <span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">Input</span> <span class="o">&gt;</span> <span class="n">comparor</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">greaterThan10</span> <span class="o">=</span> <span class="n">greaterThan</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">greaterThan10</span><span class="p">(</span><span class="nl">Input:</span> <span class="mi">12</span><span class="p">)</span>
+</span><span class='line'><span class="n">greaterThan10</span><span class="p">(</span><span class="nl">Input:</span> <span class="mi">1</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>作者举了一个实践的例子，我们之前也讲过Swift中的Selector只能通过String类型来赋值，从实用角度讲，是很好的与OC的Target/Action做了桥接，但是任然无法保证调用的安全性，用例就是借助Currying对selector调用做了改造，<a href="http://oleb.net/blog/2014/07/swift-instance-methods-curried-functions/?utm_campaign=iOS_Dev_Weekly_Issue_157&amp;utm_medium=email&amp;utm_source=iOS%2BDev%2BWeekly">这篇博客</a>做了详细说明。</p>
+
+<p>首先通过以下的例子，我们可以得知，一个类的方法也是可以被获取的，这因为Swift中方法是第一类对象，例如最后depositor的调用，它的类型就是<strong>BankAccount &ndash;> (Double) &ndash;> ()</strong>，其实也是currying调用，利用这一特性，博主自己对selector的调用进行了改造。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="n">BankAccount</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="n">balance</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">deposit</span><span class="p">(</span><span class="nl">amount:</span> <span class="n">Double</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">balance</span> <span class="o">+=</span> <span class="n">amount</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">account</span> <span class="o">=</span> <span class="n">BankAccount</span><span class="p">()</span>
+</span><span class='line'><span class="n">account</span><span class="p">.</span><span class="n">deposit</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">account</span><span class="p">.</span><span class="n">balance</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">depositor</span> <span class="o">=</span> <span class="n">BankAccount</span><span class="p">.</span><span class="n">deposit</span>
+</span><span class='line'><span class="n">depositor</span><span class="p">(</span><span class="n">account</span><span class="p">)(</span><span class="mi">100</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">account</span><span class="p">.</span><span class="n">balance</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这样改变了selector的调用方式，现在开发者需要传入target和一个(T) &ndash;> () &ndash;> ()类型的action，而不采用之前的字符串输入，这当然保证了该方法一定会被响应，因为如果，该类型没有这个方法，在编译期间就会报错，而不会是在runtime中。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">protocol</span> <span class="n">TargetAction</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">func</span> <span class="n">performAction</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">TargetActionWrapper</span><span class="o">&lt;</span><span class="nl">T:</span> <span class="n">AnyObject</span><span class="o">&gt;:</span> <span class="n">TargetAction</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">weak</span> <span class="n">var</span> <span class="nl">target:</span> <span class="n">T</span><span class="o">?</span>
+</span><span class='line'>    <span class="n">let</span> <span class="nl">action:</span> <span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">performAction</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">if</span> <span class="n">let</span> <span class="n">t</span> <span class="o">=</span> <span class="n">target</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">action</span><span class="p">(</span><span class="n">t</span><span class="p">)()</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">enum</span> <span class="n">ControlEvent</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">TouchUpInside</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">ValueChanged</span>
+</span><span class='line'>    <span class="c1">//...</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">class</span> <span class="n">Control</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="nl">ControlEvent:</span> <span class="n">TargetAction</span><span class="p">]()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">setTarget</span><span class="o">&lt;</span><span class="nl">T:</span> <span class="n">AnyObject</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">target:</span> <span class="n">T</span><span class="p">,</span> <span class="nl">action:</span> <span class="p">(</span><span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="p">(),</span> <span class="nl">controlEvent:</span> <span class="n">ControlEvent</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">actions</span><span class="p">[</span><span class="n">controlEvent</span><span class="p">]</span> <span class="o">=</span> <span class="n">TargetActionWrapper</span><span class="p">(</span><span class="nl">target:</span> <span class="n">target</span><span class="p">,</span> <span class="nl">action:</span> <span class="n">action</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">removeTargetForCotrolEvent</span><span class="p">(</span><span class="nl">controlEvent:</span> <span class="n">ControlEvent</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">actions</span><span class="p">[</span><span class="n">controlEvent</span><span class="p">]</span> <span class="o">=</span> <span class="nb">nil</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">performActionForControlEvent</span><span class="p">(</span><span class="nl">controlEvent:</span> <span class="n">ControlEvent</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">actions</span><span class="p">[</span><span class="n">controlEvent</span><span class="p">]</span><span class="o">?</span><span class="p">.</span><span class="n">performAction</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="n">MyViewController</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">button</span> <span class="o">=</span> <span class="n">Control</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">button</span><span class="p">.</span><span class="n">setTarget</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="nl">action:</span> <span class="n">MyViewController</span><span class="p">.</span><span class="n">onButtonTap</span><span class="p">,</span> <span class="nl">controlEvent:</span> <span class="p">.</span><span class="n">TouchUpInside</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">onButtonTap</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">println</span><span class="p">(</span><span class="s">&quot;Button was tapped&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>2.Struct Mutable的方法</h2>
+
+<p>这个问题，之前的<a href="http://lucifer1988.github.io/blog/2015/10/15/swift-by-tutorials-generics/">Swift by Tutorials</a>也提到过，结构体的实例方法是不能修改自己声明的变量的，因为Struct是数值型的，默认是不可变的，所以如果某个方法需要修改结构体的变量，就需要添加<strong>mutating</strong>关键字，使得编译器可以对结构体进行copy-on-write操作。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">struct</span> <span class="n">User</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">age:</span> <span class="n">Int</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">weight:</span> <span class="n">Int</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">height:</span> <span class="n">Int</span>
+</span><span class='line'>    <span class="n">mutating</span> <span class="n">func</span> <span class="n">gainWeight</span><span class="p">(</span><span class="nl">newWeight:</span> <span class="n">Int</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">weight</span> <span class="o">+=</span> <span class="n">newWeight</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>3.将protocol的方法声明为mutating</h2>
+
+<p>这个问题是承接上一个问题的，Swift中的protocol是可以被class、struct、enum实现的，所以如果protocol中一些方法正好会修改到自身变量，但没有加<strong>mutating</strong>关键字的话，struct和enum实现该方法时就无法编过，所以一定要在设计protocol时考虑这个问题。另外，我补充一点，如果这个protocol只是给class实现的，那么可以不加mutating，同时也可以使用<strong>protocol ClassOnlyProtocol: class</strong>这样的写法，告诉使用者，该协议只能实现于class。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">import</span> <span class="n">UIKit</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">protocol</span> <span class="n">Vehicle</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">numberOfWheels:</span> <span class="n">Int</span> <span class="p">{</span><span class="n">get</span><span class="p">}</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">color:</span> <span class="n">UIColor</span> <span class="p">{</span><span class="n">get</span> <span class="n">set</span><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">mutating</span> <span class="n">func</span> <span class="n">changeColor</span><span class="p">()</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="nl">MyCar:</span> <span class="n">Vehicle</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="n">numberOfWheels</span> <span class="o">=</span> <span class="mi">4</span>
+</span><span class='line'>    <span class="n">var</span> <span class="n">color</span> <span class="o">=</span> <span class="n">UIColor</span><span class="p">.</span><span class="n">blueColor</span><span class="p">()</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">mutating</span> <span class="n">func</span> <span class="n">changeColor</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">color</span> <span class="o">=</span> <span class="n">UIColor</span><span class="p">.</span><span class="n">redColor</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>4.Sequence</h2>
+
+<p>在Swift中，只要实现了SequenceType，就可以使用for&hellip;in快速遍历，而需要先实现一个GeneratorType来控制遍历的顺序。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="nl">ReverseGenerator:</span> <span class="n">GeneratorType</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">typealias</span> <span class="n">Element</span> <span class="o">=</span> <span class="n">Int</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">counter:</span> <span class="n">Element</span>
+</span><span class='line'>    <span class="n">init</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">array:</span> <span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">counter</span> <span class="o">=</span> <span class="n">array</span><span class="p">.</span><span class="n">count</span> <span class="o">-</span> <span class="mi">1</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">init</span><span class="p">(</span><span class="nl">start:</span> <span class="n">Int</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">counter</span> <span class="o">=</span> <span class="n">start</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">next</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Element</span><span class="o">?</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">counter</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">?</span> <span class="nb">nil</span> <span class="o">:</span> <span class="n">counter</span><span class="o">--</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">struct</span> <span class="n">ReverseSequence</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;:</span> <span class="n">SequenceType</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">array:</span> <span class="p">[</span><span class="n">T</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">init</span> <span class="p">(</span><span class="nl">array:</span> <span class="p">[</span><span class="n">T</span><span class="p">])</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">array</span> <span class="o">=</span> <span class="n">array</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">typealias</span> <span class="n">Generator</span> <span class="o">=</span> <span class="n">ReverseGenerator</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="n">generate</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Generator</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">ReverseGenerator</span><span class="p">(</span><span class="nl">array:</span> <span class="n">array</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">]</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">ReverseSequence</span><span class="p">(</span><span class="nl">array:</span> <span class="n">arr</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="s">&quot;Index \(i) is \(arr[i])&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>for&hellip;in如何利用这两个协议，作者给出了一个解释。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">g</span> <span class="o">=</span> <span class="n">array</span><span class="p">.</span><span class="n">generate</span><span class="p">()</span>
+</span><span class='line'><span class="k">while</span> <span class="n">let</span> <span class="n">obj</span> <span class="o">=</span> <span class="n">g</span><span class="p">.</span><span class="n">next</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">print</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>而且你也可以免费使用map，filter，reduce这些函数，因为SequenceType的几个extension实现了他们。关于这几个函数的使用，我们在Swift by Tutorials做了很多介绍。</p>
+
+<h2>5.多元组(Tuple)</h2>
+
+<p>Tuple我们之前也介绍过，主要用于简单场景的复合数据类型，作者举了一个CGRect的方法在OC和Swift中的实践。</p>
+
+<p>CGRect有个函数<strong>CGRectDivide()</strong>，用来切割矩形区域，由于会返回两个新的CGRect，而OC又没有返回多个结果的机制，只能先声明两个CGRect，然后将指针传入函数，等待函数对其赋值。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//CGRectDivide(CGRect rect, CGRect *slice, CGRect *remainder, CGFloat amount, CGRectEdge edge)</span>
+</span><span class='line'><span class="n">CGRect</span> <span class="n">rect</span> <span class="o">=</span> <span class="n">CGRectMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">);</span>
+</span><span class='line'><span class="n">CGRect</span> <span class="n">small</span><span class="p">;</span>
+</span><span class='line'><span class="n">CGRect</span> <span class="n">large</span><span class="p">;</span>
+</span><span class='line'><span class="n">CGRectDivide</span><span class="p">(</span><span class="n">rect</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">small</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">large</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="n">CGRectMinXEdge</span><span class="p">);</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>而在Swift中由于有了元组，可以优雅的进行实现，同时，由于Swift中结构体可以添加方法，所以将原来的函数直接作为了CGRect的一个方法，使得实现更加简洁。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//func rectsByDividing(atDistance: CGFloat, fromEdge: CGRectEdge) -&gt; (slice: CGRect, remainder: CGRect)</span>
+</span><span class='line'><span class="n">let</span> <span class="n">rect</span> <span class="o">=</span> <span class="n">CGRectMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+</span><span class='line'><span class="n">let</span> <span class="p">(</span><span class="n">small</span><span class="p">,</span> <span class="n">large</span><span class="p">)</span> <span class="o">=</span> <span class="n">rect</span><span class="p">.</span><span class="n">rectsByDividing</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="nl">fromEdge:</span> <span class="p">.</span><span class="n">MinXEdge</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>6.@autoclosure和??</h2>
+
+<p>@autoclosure是简化代码的一个关键字，之前说过方法是Swift中的第一类对象，所以会在Swift中出现大量的匿名方法，即闭包closure作为参数，如下例。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">logIfTrue</span><span class="p">(</span><span class="err">@</span><span class="n">autoclosure</span> <span class="nl">predicate:</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Bool</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">predicate</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">print</span><span class="p">(</span><span class="s">&quot;True&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">logIfTrue</span><span class="p">({</span><span class="k">return</span> <span class="mi">2</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">})</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>当然按照之前介绍的简化策略，上面的调用可以简化为：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">logIfTrue</span><span class="p">{</span><span class="mi">2</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然而我们可以在方法定义时加上@autoclosure，这样调用时，Swift会自动将输入的参数转化为closure，但需要注意的是使用@autoclosure关键字时，闭包的参数只能是()，如果包含参数时，不能使用该关键字。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">logIfTrue</span><span class="p">(</span><span class="err">@</span><span class="n">autoclosure</span> <span class="nl">predicate:</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Bool</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="n">predicate</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">print</span><span class="p">(</span><span class="s">&quot;True&quot;</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="n">logIfTrue</span><span class="p">(</span><span class="mi">2</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>??可以用来对Optional类型进行空值判断，并赋默认值，用法如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="nl">level:</span> <span class="n">Int</span><span class="o">?</span>
+</span><span class='line'><span class="n">var</span> <span class="n">startLevel</span> <span class="o">=</span> <span class="mi">1</span>
+</span><span class='line'><span class="n">var</span> <span class="n">currentLevel</span> <span class="o">=</span> <span class="n">level</span> <span class="o">??</span> <span class="n">startLevel</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>??的具体实现如下，两个版本的区别是默认值是否是optional类型，但是需要注意的是输入的第二个参数被封装成了一个闭包的类型，作者猜测了??方法的具体实现。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="err">@</span><span class="n">warn_unused_result</span>
+</span><span class='line'><span class="n">public</span> <span class="n">func</span> <span class="o">??&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">optional:</span> <span class="n">T</span><span class="o">?</span><span class="p">,</span> <span class="err">@</span><span class="n">autoclosure</span> <span class="nl">defaultValue:</span> <span class="p">()</span> <span class="n">throws</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="o">?</span><span class="p">)</span> <span class="n">rethrows</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="o">?</span>
+</span><span class='line'><span class="err">@</span><span class="n">warn_unused_result</span>
+</span><span class='line'><span class="n">public</span> <span class="n">func</span> <span class="o">??&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">optional:</span> <span class="n">T</span><span class="o">?</span><span class="p">,</span> <span class="err">@</span><span class="n">autoclosure</span> <span class="nl">defaultValue:</span> <span class="p">()</span> <span class="n">throws</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">)</span> <span class="n">rethrows</span> <span class="o">-&gt;</span> <span class="n">T</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="o">??&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">optional:</span> <span class="n">T</span><span class="o">?</span><span class="p">,</span> <span class="err">@</span><span class="n">autoclosure</span> <span class="nl">defaultValue:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">T</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">switch</span> <span class="n">optional</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">case</span> <span class="p">.</span><span class="n">Some</span><span class="p">(</span><span class="n">let</span> <span class="n">value</span><span class="p">)</span><span class="o">:</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">value</span>
+</span><span class='line'>        <span class="k">case</span> <span class="p">.</span><span class="nl">None:</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">defaultValue</span><span class="p">()</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里没有直接用T类型作为默认值的参数，而是封转了一个方法，这是一种优化手段。这样，系统在开始判断optional是否有值之前就不需要开辟默认值的内存，只有在optional为nil时，才去准备默认值。但是在开发者调用??方法时又不需要输入一个闭包参数，而仍是一个数值，这就是巧妙的利用了@autoclosure关键字。</p>
+
+<p>作者留出了关于Swift的||和&amp;&amp;的实现，其实他们的情况也和??一样，需要分布判断，下面是我给出的答案。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="o">||&lt;</span><span class="n">T</span> <span class="o">:</span> <span class="n">BooleanType</span><span class="p">,</span> <span class="n">U</span> <span class="o">:</span> <span class="n">BooleanType</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">lhs:</span> <span class="n">T</span><span class="p">,</span> <span class="err">@</span><span class="n">autoclosure</span> <span class="nl">rhs:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">U</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">switch</span> <span class="n">lhs</span><span class="p">.</span><span class="n">boolValue</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nl">true:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">true</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nl">false:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">rhs</span><span class="p">().</span><span class="n">boolValue</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="o">&amp;&amp;&lt;</span><span class="n">T</span> <span class="o">:</span> <span class="n">BooleanType</span><span class="p">,</span> <span class="n">U</span> <span class="o">:</span> <span class="n">BooleanType</span><span class="o">&gt;</span><span class="p">(</span><span class="nl">lhs:</span> <span class="n">T</span><span class="p">,</span> <span class="err">@</span><span class="n">autoclosure</span> <span class="nl">rhs:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="n">U</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Bool</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">switch</span> <span class="n">lhs</span><span class="p">.</span><span class="n">boolValue</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nl">false:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">false</span>
+</span><span class='line'>    <span class="k">case</span> <span class="nl">true:</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">rhs</span><span class="p">().</span><span class="n">boolValue</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">刘毅</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-11-27T14:24:30+08:00" pubdate data-updated="true">Nov 27<span>th</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/ios/'>iOS</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <style>
+    .flash-video{display:none;}
+</style>
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <span class="jiathis_txt">分享到：</span>
+  <a class="jiathis_button_qzone">QQ空间</a>
+  <a class="jiathis_button_tsina">新浪微博</a>
+  <a class="jiathis_button_tqq">腾讯微博</a>
+  <a class="jiathis_button_renren">人人网</a>
+  <a class="jiathis_button_douban">豆瓣</a>
+  <a class="jiathis_button_weixin">微信</a>
+  <a href="http://www.jiathis.com/share?uid=1885095" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript">
+var jiathis_config = {data_track_clickback:'true'};
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1885095" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+
+<br />
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1885095"></script>
+<!-- UY END -->
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/11/26/swift-by-tutorials-swift-quick-reference/" title="Previous Post: Swift by Tutorials--Swift Quick Reference">&laquo; Swift by Tutorials--Swift Quick Reference</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/11/27/swifterdu-shu-bi-ji-1/">Swifter读书笔记1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/26/swift-by-tutorials-swift-quick-reference/">Swift by Tutorials--Swift Quick Reference</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/25/swift-by-tutorials-swift-and-cocoa/">Swift by Tutorials--Swift and Cocoa</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/23/swift-by-tutorials-functional-programming/">Swift by Tutorials--Functional Programming</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/20/swift-by-tutorials-enums-and-switch-statements/">Swift by Tutorials--Enums and Switch Statements</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/09/calayer-and-coreanimation/">CALayer&amp;CoreAnimation</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/05/ioskai-fa-bei-wang-lu-1/">iOS开发备忘录1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/30/hui-da-sunnyde-55dao-iosmian-shi-ti-2/">回答Sunny的55道iOS面试题2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/28/hui-da-sunnyde-55dao-iosmian-shi-ti-1/">回答Sunny的55道iOS面试题1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/20/react-nativechu-tan-1/">React Native初探1</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>About Me</h1>
+    <p> iOS开发, 菜鸟程序猿, Dotar<br/>
+      <br/>我的经历:
+      <br/>2007.9 进入吉大学习高端大气的电子信息工程
+      <br/>2011.9 考研失利,转投中传计算机专业,接触iOS
+      <br/>2013.8 入职盘古,以iOS程序员的身份开始职业生涯<br/>
+      <br/>我的微博: <a href="http://weibo.com/u/2638849461" target="_blank">JamesRaynor-刘毅</a>
+      <br/>我的git主页: <a href="https://github.com/lucifer1988" target="_blank">lucifer1988</a>
+      <br/>
+      <br/><span id="wb_follow_btn"></span>
+  </p>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - 刘毅 -
+  <span class="credit">Powered by <a href="http://octopress.org" target="_blank">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=3350288267" type="text/javascript" charset="utf-8"></script>
+<script>
+    WB2.anyWhere(function(W){
+        W.widget.followButton({
+            'uid': 2638849461,
+            'nick_name': 'JamesRaynor-刘毅',
+            'id': "wb_follow_btn",
+            'show_head' : true, 
+            'show_name' : true, 
+            'show_cancel': false
+        });
+    });
+</script>
+6vvqnj09Z6
+
+</body>
+</html>
