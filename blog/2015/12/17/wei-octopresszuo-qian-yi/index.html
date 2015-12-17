@@ -1,0 +1,358 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>为Octopress做迁移 - 刘毅的技术博客</title>
+  <meta name="author" content="刘毅">
+
+  
+  <meta name="description" content="最近刚换了工作，电脑也换了一个全新的，所有东西都做了一次大迁移，第一件事还是把Blog的环境迁过来，因为之前介绍的Octopress搭建是基于之前没有Octopress，第一次搭建的情况，而现在是git上已有了我们的博客环境，而要在新机器上将环境再重建起来，还是有很多不同的， &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucifer1988.github.io/blog/2015/12/17/wei-octopresszuo-qian-yi">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="刘毅的技术博客" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<script type="text/javascript">
+
+function addBlankTargetForLinks () {
+
+  $('a[href^="http"]').each(function(){
+
+      $(this).attr('target', '_blank');
+
+  });
+
+}
+
+$(document).bind('DOMNodeInserted', function(event) {
+
+  addBlankTargetForLinks();
+
+});
+
+</script>
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">刘毅的技术博客</a></h1>
+  
+    <h2>记录自己的学习生活点滴，也希望和大家交流分享！</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucifer1988.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">首页</a></li>
+  <li><a href="/blog/archives">所有文章</a></li>
+  <li><a href="/blog/categories/ios">iOS开发专题</a></li>
+  <li><a href="http://weibo.com/u/2638849461" target="_blank">我的微博</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">为Octopress做迁移</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-12-17T15:30:54+08:00" pubdate data-updated="true">Dec 17<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>最近刚换了工作，电脑也换了一个全新的，所有东西都做了一次大迁移，第一件事还是把Blog的环境迁过来，因为之前介绍的Octopress搭建是基于之前没有Octopress，第一次搭建的情况，而现在是git上已有了我们的博客环境，而要在新机器上将环境再重建起来，还是有很多不同的，所以这一篇博客会详细说明一下。</p>
+
+<!--more-->
+
+
+<h2>Octopress运作原理</h2>
+
+<p>Octopress的代码仓库有两个分支，<strong>source</strong>和<strong>master</strong>。<strong>source</strong>分支负责生成博客网站，而<strong>master</strong>分支就是我们的博客网站。</p>
+
+<p>在我们<a href="http://lucifer1988.github.io/blog/2014/02/13/hello-world-octopressfa-bu-wen-zhang-bu-zou/">第一次搭建博客环境时</a>，<strong>master</strong>分支是存储在<strong>_deploy</strong>子文件夹中的。由于该文件夹以下划线开头，所以在你执行<strong>git push origin source</strong>时，<strong>_deploy</strong>文件夹是被ignored，它只会在你执行<strong>rake deploy</strong>时更新。</p>
+
+<p>所以我们重建octopress时，也要按照这一顺序，clone source分支，将master分支重建于<strong>_deploy</strong>文件夹，安装依赖gems。</p>
+
+<h2>从github迁移新的Octopress环境</h2>
+
+<p>从github clone Octopress的source分支，因为git默认的clone命令是针对master分支的，所以很多人卡在了这一步，stackOverflow上有一个回答专门解决这一问题，<a href="http://stackoverflow.com/questions/1911109/clone-a-specific-git-branch">如何clone一个指定的git分支</a>。</p>
+
+<p>此外，在clone时还有可能遇到<strong>SSH connect to github fail</strong>的问题，github的官博有<a href="https://help.github.com/articles/updating-credentials-from-the-osx-keychain/">解决方法</a>。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">git</span> <span class="nb">clone</span> <span class="o">-</span><span class="n">b</span> <span class="n">source</span> <span class="n">git</span><span class="vi">@github</span><span class="o">.</span><span class="n">com</span><span class="ss">:username</span><span class="o">/</span><span class="n">username</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">git</span> <span class="n">octopress</span>
+</span><span class='line'><span class="n">cd</span> <span class="n">octopress</span>
+</span><span class='line'><span class="n">git</span> <span class="nb">clone</span> <span class="n">git</span><span class="vi">@github</span><span class="o">.</span><span class="n">com</span><span class="ss">:username</span><span class="o">/</span><span class="n">username</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">git</span> <span class="n">_deploy</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>安装依赖的gems，这一步与我们第一次搭建时没有区别。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="n">install</span> <span class="n">bundler</span>
+</span><span class='line'><span class="n">bundle</span> <span class="n">install</span>
+</span><span class='line'><span class="n">rake</span> <span class="n">install</span> <span class="c1"># 注意如果你之前自己修改过主题，可不做这一步，否则会重新安装默认主题</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>之后的新建，提交等步骤，和之前是一致的，就不赘述了。</p>
+
+<h2>如何在两台电脑之间更新博客</h2>
+
+<p>可能有人会有这样的需求，其实知道原理的话，也很容易，在一台电脑提交新博客之后，那么在另一台电脑开始工作之前，先从git上更新分支，再开始新博客的书写。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">cd</span> <span class="n">octopress</span>
+</span><span class='line'><span class="n">git</span> <span class="n">pull</span> <span class="n">origin</span> <span class="n">source</span>
+</span><span class='line'><span class="n">cd</span> <span class="o">.</span><span class="n">/_deploy</span>
+</span><span class='line'><span class="n">git</span> <span class="n">pull</span> <span class="n">origin</span> <span class="n">master</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>本文主要参考了以下两篇博文：</p>
+
+<ol>
+<li><a href="http://blog.zerosharp.com/clone-your-octopress-to-blog-from-two-places/">zerosharp的博文</a></li>
+<li><a href="https://github.com/Pazzilivo/Notes/blob/master/Git/octopress.md">Pazzilivo的笔记</a></li>
+</ol>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">刘毅</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-12-17T15:30:54+08:00" pubdate data-updated="true">Dec 17<span>th</span>, 2015</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/octopress/'>Octopress</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <style>
+    .flash-video{display:none;}
+</style>
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <span class="jiathis_txt">分享到：</span>
+  <a class="jiathis_button_qzone">QQ空间</a>
+  <a class="jiathis_button_tsina">新浪微博</a>
+  <a class="jiathis_button_tqq">腾讯微博</a>
+  <a class="jiathis_button_renren">人人网</a>
+  <a class="jiathis_button_douban">豆瓣</a>
+  <a class="jiathis_button_weixin">微信</a>
+  <a href="http://www.jiathis.com/share?uid=1885095" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript">
+var jiathis_config = {data_track_clickback:'true'};
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1885095" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+
+<br />
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1885095"></script>
+<!-- UY END -->
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/11/27/swifterdu-shu-bi-ji-1/" title="Previous Post: Swifter读书笔记1">&laquo; Swifter读书笔记1</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2015/12/17/wei-octopresszuo-qian-yi/">为Octopress做迁移</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/27/swifterdu-shu-bi-ji-1/">Swifter读书笔记1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/26/swift-by-tutorials-swift-quick-reference/">Swift by Tutorials--Swift Quick Reference</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/25/swift-by-tutorials-swift-and-cocoa/">Swift by Tutorials--Swift and Cocoa</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/23/swift-by-tutorials-functional-programming/">Swift by Tutorials--Functional Programming</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/20/swift-by-tutorials-enums-and-switch-statements/">Swift by Tutorials--Enums and Switch Statements</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/09/calayer-and-coreanimation/">CALayer&amp;CoreAnimation</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/05/ioskai-fa-bei-wang-lu-1/">iOS开发备忘录1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/30/hui-da-sunnyde-55dao-iosmian-shi-ti-2/">回答Sunny的55道iOS面试题2</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/28/hui-da-sunnyde-55dao-iosmian-shi-ti-1/">回答Sunny的55道iOS面试题1</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>About Me</h1>
+    <p> iOS开发老司机, Swift新司机<br/>
+      <br/>我的经历:
+      <br/>2007.9 进入吉大学习电子信息工程
+      <br/>2011.9 考研失利，转投中传计算机专业，接触iOS
+      <br/>2013.8 入职盘古搜索，以iOS程序员的身份开始职业生涯
+      <br/>2014.3 公司和即刻搜索合并，入职新成立的中国搜索
+      <br/>2015.12 人生第一次离职，离开国搜，入职联通支付<br/>
+      <br/>我的微博: <a href="http://weibo.com/u/2638849461" target="_blank">JamesRaynor-刘毅</a>
+      <br/>我的git主页: <a href="https://github.com/lucifer1988" target="_blank">lucifer1988</a>
+      <br/>
+      <br/><span id="wb_follow_btn"></span>
+  </p>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2015 - 刘毅 -
+  <span class="credit">Powered by <a href="http://octopress.org" target="_blank">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=3350288267" type="text/javascript" charset="utf-8"></script>
+<script>
+    WB2.anyWhere(function(W){
+        W.widget.followButton({
+            'uid': 2638849461,
+            'nick_name': 'JamesRaynor-刘毅',
+            'id': "wb_follow_btn",
+            'show_head' : true, 
+            'show_name' : true, 
+            'show_cancel': false
+        });
+    });
+</script>
+6vvqnj09Z6
+
+</body>
+</html>

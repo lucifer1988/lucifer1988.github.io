@@ -4,7 +4,7 @@
   <title><![CDATA[刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-12-10T16:58:36+08:00</updated>
+  <updated>2015-12-17T17:21:48+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -12,6 +12,77 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[为Octopress做迁移]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/12/17/wei-octopresszuo-qian-yi/"/>
+    <updated>2015-12-17T15:30:54+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/12/17/wei-octopresszuo-qian-yi</id>
+    <content type="html"><![CDATA[<p>最近刚换了工作，电脑也换了一个全新的，所有东西都做了一次大迁移，第一件事还是把Blog的环境迁过来，因为之前介绍的Octopress搭建是基于之前没有Octopress，第一次搭建的情况，而现在是git上已有了我们的博客环境，而要在新机器上将环境再重建起来，还是有很多不同的，所以这一篇博客会详细说明一下。</p>
+
+<!--more-->
+
+
+<h2>Octopress运作原理</h2>
+
+<p>Octopress的代码仓库有两个分支，<strong>source</strong>和<strong>master</strong>。<strong>source</strong>分支负责生成博客网站，而<strong>master</strong>分支就是我们的博客网站。</p>
+
+<p>在我们<a href="http://lucifer1988.github.io/blog/2014/02/13/hello-world-octopressfa-bu-wen-zhang-bu-zou/">第一次搭建博客环境时</a>，<strong>master</strong>分支是存储在<strong>_deploy</strong>子文件夹中的。由于该文件夹以下划线开头，所以在你执行<strong>git push origin source</strong>时，<strong>_deploy</strong>文件夹是被ignored，它只会在你执行<strong>rake deploy</strong>时更新。</p>
+
+<p>所以我们重建octopress时，也要按照这一顺序，clone source分支，将master分支重建于<strong>_deploy</strong>文件夹，安装依赖gems。</p>
+
+<h2>从github迁移新的Octopress环境</h2>
+
+<p>从github clone Octopress的source分支，因为git默认的clone命令是针对master分支的，所以很多人卡在了这一步，stackOverflow上有一个回答专门解决这一问题，<a href="http://stackoverflow.com/questions/1911109/clone-a-specific-git-branch">如何clone一个指定的git分支</a>。</p>
+
+<p>此外，在clone时还有可能遇到<strong>SSH connect to github fail</strong>的问题，github的官博有<a href="https://help.github.com/articles/updating-credentials-from-the-osx-keychain/">解决方法</a>。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">git</span> <span class="nb">clone</span> <span class="o">-</span><span class="n">b</span> <span class="n">source</span> <span class="n">git</span><span class="vi">@github</span><span class="o">.</span><span class="n">com</span><span class="ss">:username</span><span class="o">/</span><span class="n">username</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">io</span><span class="o">.</span><span class="n">git</span> <span class="n">octopress</span>
+</span><span class='line'><span class="n">cd</span> <span class="n">octopress</span>
+</span><span class='line'><span class="n">git</span> <span class="nb">clone</span> <span class="n">git</span><span class="vi">@github</span><span class="o">.</span><span class="n">com</span><span class="ss">:username</span><span class="o">/</span><span class="n">username</span><span class="o">.</span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">.</span><span class="n">git</span> <span class="n">_deploy</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>安装依赖的gems，这一步与我们第一次搭建时没有区别。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="n">install</span> <span class="n">bundler</span>
+</span><span class='line'><span class="n">bundle</span> <span class="n">install</span>
+</span><span class='line'><span class="n">rake</span> <span class="n">install</span> <span class="c1"># 注意如果你之前自己修改过主题，可不做这一步，否则会重新安装默认主题</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>之后的新建，提交等步骤，和之前是一致的，就不赘述了。</p>
+
+<h2>如何在两台电脑之间更新博客</h2>
+
+<p>可能有人会有这样的需求，其实知道原理的话，也很容易，在一台电脑提交新博客之后，那么在另一台电脑开始工作之前，先从git上更新分支，再开始新博客的书写。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">cd</span> <span class="n">octopress</span>
+</span><span class='line'><span class="n">git</span> <span class="n">pull</span> <span class="n">origin</span> <span class="n">source</span>
+</span><span class='line'><span class="n">cd</span> <span class="o">.</span><span class="n">/_deploy</span>
+</span><span class='line'><span class="n">git</span> <span class="n">pull</span> <span class="n">origin</span> <span class="n">master</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>本文主要参考了以下两篇博文：</p>
+
+<ol>
+<li><a href="http://blog.zerosharp.com/clone-your-octopress-to-blog-from-two-places/">zerosharp的博文</a></li>
+<li><a href="https://github.com/Pazzilivo/Notes/blob/master/Git/octopress.md">Pazzilivo的笔记</a></li>
+</ol>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Swifter读书笔记1]]></title>
@@ -14581,241 +14652,6 @@ NSStringFromClass([super class]) = Son
 <li>例子1：来自多个第三方类库的数据库管理对象对应不同数据库类型，现在需要提供一个统一的Manager，来返回这些不同的对象，依靠基类继承是不可能的，只能通过定义一组数据库通用的操作作为Protocol，然后分别继承这些类，而新类则遵从这一protocol，这样Manager只需返回id<Protocol>类型的对象即可，而使用者也只需要知道它们实现了这些方法也足够了。</li>
 <li>例子2：已确定只有一个类型，但其是一个内部使用的数据类型，不需要将其所有细节暴露，只需要暴露其中一部分方法即可，那么将这些方法声明为Protocol，然后返回类型定义为id<Protocol>即可，其实就是实现了对对象的大部分封装。</li>
 </ol>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Effective Objective-C读书笔记3]]></title>
-    <link href="http://lucifer1988.github.io/blog/2015/08/17/effective-objective-cdu-shu-bi-ji-3/"/>
-    <updated>2015-08-17T14:15:03+08:00</updated>
-    <id>http://lucifer1988.github.io/blog/2015/08/17/effective-objective-cdu-shu-bi-ji-3</id>
-    <content type="html"><![CDATA[<p>第二部分主要讲了一些OC底层的运作机制，这一部分开始，主要涉及实践部分，第三部分的主题是：Interface and API Design。</p>
-
-<!--more-->
-
-
-<h2>Item15 Use Prefix Names to Avoid Namespace Clashes</h2>
-
-<ol>
-<li>OC是没有内建的命名空间的，所以必须采取措施避免这一问题。</li>
-<li>解决方案是自己在所有类都添加自定义的前缀，一般是项目名缩写，但推荐使用三个字母，因为两个字母被苹果使用，所以重名的概率大。</li>
-<li>在.m文件中的纯C函数和全局变量也有可能出现重名，所以定义时需格外注意，也要加上前缀。</li>
-<li>还有一种可能，你自己封装的类库A和应用使用了同一类库B，而应用也使用了你的类库A，这样的话，只能手动将你自己使用的类库B的所有加上类库A的前缀，虽然麻烦，但是如果是大工程的话，必须这么做。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item16 Have a Designated Initializer</h2>
-
-<ol>
-<li>一个类可能有很多初始化方法，但其中基本初始化方法只需有一个，其他初始化方法只是参数变化，这样保证数据在一个方法中赋值，便于维护。</li>
-<li>为了避免用户使用原始的<em>init:</em>方法而出现错误，该类中应该重写<em>init:</em>方法，可以做一个默认的赋值，或者直接抛出异常。</li>
-<li>继承一个拥有基本初始化方法的类，子类的初始化方法要调用父类的基本初始化方法，而且需要重写父类的基本初始化方法，与上一条的理由一致。</li>
-<li>有时可能需要两个基本初始化方法，特例比如遵循NSCoding的类，要有一个-(id)initWithCoder:(NSCoder*)decoder的初始化方法，而该类的子类也必须重写initWithCoder:，同时调用父类initWithCoder:。</li>
-</ol>
-
-
-<h2>Item17 Implement the description Method</h2>
-
-<p>1.重写对象的-(NSString*)description方法，可以获得更多的实用信息，默认的只是类名和指针地址，这也是NSObject协议的其中一项。<br/>
-2.这是一种将NSDictionary特性结合起来的description写法。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">-</span><span class="p">(</span><span class="n">NSString</span> <span class="o">*</span><span class="p">)</span><span class="nf">description</span> <span class="p">{</span>
-</span><span class='line'>  <span class="k">return</span> <span class="p">[</span><span class="n">NSString</span> <span class="nl">stringWithFormat:</span><span class="s">@&quot;&lt;%@:%p,%@&gt;&quot;</span><span class="p">,</span>
-</span><span class='line'>  <span class="p">[</span><span class="n">self</span> <span class="n">class</span><span class="p">],</span>
-</span><span class='line'>  <span class="n">self</span><span class="p">,</span>
-</span><span class='line'>  <span class="err">@</span><span class="p">{</span><span class="s">@&quot;title&quot;</span><span class="o">:</span> <span class="n">_title</span><span class="p">,</span>
-</span><span class='line'>  <span class="s">@&quot;latitude&quot;</span><span class="o">:</span> <span class="err">@</span><span class="p">(</span><span class="n">_latitude</span><span class="p">),</span>
-</span><span class='line'>  <span class="s">@&quot;longitude&quot;</span><span class="o">:</span> <span class="err">@</span><span class="p">(</span><span class="n">_longitude</span><span class="p">)}</span>
-</span><span class='line'>  <span class="p">];</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-
-<p>3.LLDB中的<em>po</em>命令会执行print-object函数，它返回的是NSObject协议的另一方法-(NSString *)debugDescription，而这一方法默认返回的是description的结果，如果需要隐藏部分信息，可以分别重写这两个方法，OC默认类型很多就是这么干的，例如NSArray。</p>
-
-<!--more-->
-
-
-<h2>Item18 Prefer Immutable Objects</h2>
-
-<ol>
-<li>设计类的时候，其中的property除非必须可变，都应设计为不可变只读类型，之前Item8也讨论过类似问题，一个可变集合加入两个可变数组，然后设法改变数组，可能会出现集合中有相同数组，而不会报错的问题。</li>
-<li>解决这个问题的设计是在.h文件中设置property为readonly，而在.m文件中添加匿名分类，重新定义相同的property为readwrite，这样实现了对外只读，而内部可以进行修改。</li>
-<li>如果需要对外提供修改变量的方法，也不建议直接把可变变量暴露，而是对外还是暴露只读变量，内部再定义一个可变的内部变量，外部的只读变量的getter方法返回内部可变变量的copy，而同时添加增删的外部方法来操作内部变量。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item19 Use Clear and Consistent Naming</h2>
-
-<ol>
-<li>OC命名方式是尽量详细，多使用一些介词，表明方法功能，同时使用驼峰命名法。</li>
-</ol>
-
-
-<h3>Method Naming</h3>
-
-<ol>
-<li>如果一个方法返回了一个新对象，那么方法一般以该对象的类型开头。</li>
-<li>一个参数前需要加一个名词来描述他的类型。</li>
-<li>一个方法描述对一个对象进行操作时，需要包含一个动词，然后每个参数前依旧需要名词描述。</li>
-<li>避免使用缩写，而使用全称，例如：<em>str</em>和<em>string</em>。</li>
-<li><em>Boolean</em>类型的property的getter方法用<em>is</em>前缀，返回<em>Boolean</em>的方法应该以<em>has</em>或<em>is</em>作为前缀。</li>
-<li>保留<em>get</em>关键字，在方法并无返回值，但是通过传入的参数，进行值的返回时使用get，比如：-(void)getCharacters:(unichar *)buffer range:(NSRange)aRange。</li>
-</ol>
-
-
-<h3>Class and Protocol Naming</h3>
-
-<ol>
-<li>主要是注意你继承的类要以其类名结尾，但前缀不要，要加上自己的前缀，协议要以Delegate结尾。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item20 Prefix Private Method Names</h2>
-
-<ol>
-<li>用特殊前缀标记类的私有方法，会在调试时更加方便，Matt的方式是在方法前加<em>p_</em>前缀，例如：<em>&ndash;(void)p_privateMethod</em>，当然你最好定义自己的方式。</li>
-<li>Apple的方式是在方法前加<em>_</em>来标识私有方法，但不推荐开发者这么做，因为如果你继承了Cocoa的类，很容易覆盖原来的私有方法。</li>
-</ol>
-
-
-<!--more-->
-
-
-<h2>Item21 Understand the Objective-C Error Model</h2>
-
-<p>1.抛出exception后，本来将要释放的对象将得不到释放，所以会造成内存泄露，所以抛异常时一定是非常严重的错误出现的场景。<br/>
-2.场景一是基类的一些必须被子类重写的方法可以抛出异常已告知开发者去重写，因为OC没有基类的特殊概念。</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">mustOverrideMethod</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">NSString</span> <span class="o">*</span><span class="n">reason</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSString</span> <span class="nl">stringWithFormat:</span><span class="s">@&quot;%@ must be overridden&quot;</span><span class="p">,</span> <span class="n">NSStringRromSelector</span><span class="p">(</span><span class="n">_cmd</span><span class="p">)];</span>
-</span><span class='line'>  <span class="k">@throw</span><span class="p">[</span><span class="n">NSException</span> <span class="nl">exceptionWithName:</span><span class="n">NSInternalInconsistencyException</span> <span class="nl">reason:</span><span class="n">reason</span> <span class="nl">userInfo:</span><span class="nb">nil</span><span class="p">];</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>3.而处理一般的异常OC通常使用NSError，该类包含以下信息：<br/>
-1）Error domain(String):表明错误发生的域，一般是自定义的全局变量，例如：<em>NSURLErrorDomain</em>。
-2）Error code(Integer):表明特定域的错误码，参考HTTP的状态码。<br/>
-3）Userinfo(Dictionary):额外的信息，包括本地化描述信息和导致该错误的原因。<br/>
-4.NSError的一些使用场景：<br/>
-1）被用于Delegate中，例如：-(void)connection:(NSURLConnection <em>)connection didFailWithError:(NSError </em>)error。<br/>
-2）用于返回型参数，参照Item19，类似：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//-(BOOL)doSomething:(NSError**)error</span>
-</span><span class='line'><span class="n">NSError</span> <span class="o">*</span><span class="n">error</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
-</span><span class='line'><span class="kt">BOOL</span> <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span><span class="n">object</span> <span class="nl">doSomething:</span><span class="o">&amp;</span><span class="n">error</span><span class="p">];</span>
-</span><span class='line'><span class="k">if</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>  <span class="c1">//There was an error</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>
-5.上述方法传入的是NSError<em><em>类型，开启ARC时该类型会转化为NSError</em> __autoreleasing</em>类型，该对象会在方法执行后自动释放，这么做，是因为doSomething:不能确定调用者会不会对NSError释放，大部分方法return的对象也是一样会添加autorelease（除了new，alloc，copy，mutableCopy等）。<br/>
-6.doSomething的内部实现：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-<span class='line-number'>6</span>
-<span class='line-number'>7</span>
-<span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">BOOL</span><span class="p">)</span><span class="nf">doSomething:</span><span class="p">(</span><span class="n">NSError</span><span class="o">**</span><span class="p">)</span><span class="nv">error</span> <span class="p">{</span>
-</span><span class='line'>  <span class="c1">//Do something that may cause an error</span>
-</span><span class='line'>  <span class="k">if</span><span class="p">(</span><span class="cm">/*there was an error*/</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>      <span class="c1">//有必要检查error，有可能传入nil值</span>
-</span><span class='line'>      <span class="k">if</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>          <span class="c1">//Pass error through the out-parameter</span>
-</span><span class='line'>          <span class="o">*</span><span class="n">error</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSError</span> <span class="nl">errorWithDomain:</span><span class="n">domain</span> <span class="nl">code:</span><span class="n">code</span> <span class="nl">userInfo:</span><span class="n">userInfo</span><span class="p">];</span>
-</span><span class='line'>      <span class="p">}</span>
-</span><span class='line'>      <span class="k">return</span> <span class="n">NO</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-</span><span class='line'>      <span class="k">return</span> <span class="n">YES</span><span class="p">;</span>
-</span><span class='line'>  <span class="p">}</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p></p>
-
-<!--more-->
-
-
-<h2>Item22 Understand the NSCopying Protocol</h2>
-
-<p>1.想要让自定义对象实现copy功能，必须遵循NSCopying协议，其中只有一个方法需要重写：-(id)copyWithZone:(NSZone*)zone。<br/>
-2.一个重写copyWithZone:方法的例子，<em>friends是内部变量，所以使用了copy-></em>friends：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nf">copyWithZone:</span><span class="p">(</span><span class="n">NSZone</span> <span class="o">*</span><span class="p">)</span><span class="nv">zone</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">EOCPerson</span> <span class="o">*</span><span class="n">copy</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">self</span> <span class="n">class</span><span class="p">]</span> <span class="nl">allocWithZone:</span><span class="n">zone</span><span class="p">]</span> <span class="nl">initWithFirstName:</span><span class="n">_firstName</span> <span class="nl">andLastName:</span><span class="n">_lastName</span><span class="p">];</span>
-</span><span class='line'>  <span class="n">copy</span><span class="o">-&gt;</span><span class="n">_friends</span> <span class="o">=</span> <span class="p">[</span><span class="n">_friends</span> <span class="n">mutableCopy</span><span class="p">];</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">copy</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
-<p>3.关于这儿是否需要对_friends进行copy的讨论，作者认为如果原变量是可变的，是需要深拷贝的，而如果原变量是不可变的，则直接进行指针赋值即可，这样可以省一部分内存。<br/>
-4.如果你的类有mutable和immutable两个类型，那么应该分别遵循NSMutableCopying和NSCopying协议，分别返回可变和不可变的copy。<br/>
-5.采取这种方式的好处是可以提供一个可变与不可变类型的转换，而且采用copy，immutableCopy，mutableCopy三个方法的缺陷是我们很难判断将要复制的对象是不是可变的。<br/>
-6.接下来讨论的是深拷贝和浅拷贝的问题，OC默认的Copy协议支持的都是浅拷贝，也就是指针拷贝，但是一些类的初始化方法提供了深拷贝，例如NSSet的：-(id)initWithSet:(NSArray*)array copyItems:(BOOL)copyItems。所以如果你需要进行深拷贝，必须自己定义：</p>
-
-<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-<span class='line-number'>2</span>
-<span class='line-number'>3</span>
-<span class='line-number'>4</span>
-<span class='line-number'>5</span>
-</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">id</span><span class="p">)</span><span class="nf">deepCopy</span> <span class="p">{</span>
-</span><span class='line'>  <span class="n">EOCPerson</span> <span class="o">*</span><span class="n">copy</span> <span class="o">=</span> <span class="p">[[[</span><span class="n">self</span> <span class="n">class</span><span class="p">]</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithFirstName:</span><span class="n">_firstName</span> <span class="nl">andLastName:</span><span class="n">_lastName</span><span class="p">];</span>
-</span><span class='line'>  <span class="n">copy</span><span class="o">-&gt;</span><span class="n">_friends</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSMutableSet</span> <span class="n">alloc</span><span class="p">]</span> <span class="nl">initWithSet:</span><span class="n">_friends</span> <span class="nl">copyItems:</span><span class="n">YES</span><span class="p">];</span>
-</span><span class='line'>  <span class="k">return</span> <span class="n">copy</span><span class="p">;</span>
-</span><span class='line'><span class="p">}</span>
-</span></code></pre></td></tr></table></div></figure>
-
-
 
 ]]></content>
   </entry>

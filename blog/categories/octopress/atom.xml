@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Octopress | 刘毅的技术博客]]></title>
+  <link href="http://lucifer1988.github.io/blog/categories/octopress/atom.xml" rel="self"/>
+  <link href="http://lucifer1988.github.io/"/>
+  <updated>2015-12-17T17:21:48+08:00</updated>
+  <id>http://lucifer1988.github.io/</id>
+  <author>
+    <name><![CDATA[刘毅]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[为Octopress做迁移]]></title>
+    <link href="http://lucifer1988.github.io/blog/2015/12/17/wei-octopresszuo-qian-yi/"/>
+    <updated>2015-12-17T15:30:54+08:00</updated>
+    <id>http://lucifer1988.github.io/blog/2015/12/17/wei-octopresszuo-qian-yi</id>
+    <content type="html"><![CDATA[<p>最近刚换了工作，电脑也换了一个全新的，所有东西都做了一次大迁移，第一件事还是把Blog的环境迁过来，因为之前介绍的Octopress搭建是基于之前没有Octopress，第一次搭建的情况，而现在是git上已有了我们的博客环境，而要在新机器上将环境再重建起来，还是有很多不同的，所以这一篇博客会详细说明一下。</p>
+
+<!--more-->
+
+
+<h2>Octopress运作原理</h2>
+
+<p>Octopress的代码仓库有两个分支，<strong>source</strong>和<strong>master</strong>。<strong>source</strong>分支负责生成博客网站，而<strong>master</strong>分支就是我们的博客网站。</p>
+
+<p>在我们<a href="http://lucifer1988.github.io/blog/2014/02/13/hello-world-octopressfa-bu-wen-zhang-bu-zou/">第一次搭建博客环境时</a>，<strong>master</strong>分支是存储在<strong>_deploy</strong>子文件夹中的。由于该文件夹以下划线开头，所以在你执行<strong>git push origin source</strong>时，<strong>_deploy</strong>文件夹是被ignored，它只会在你执行<strong>rake deploy</strong>时更新。</p>
+
+<p>所以我们重建octopress时，也要按照这一顺序，clone source分支，将master分支重建于<strong>_deploy</strong>文件夹，安装依赖gems。</p>
+
+<h2>从github迁移新的Octopress环境</h2>
+
+<p>从github clone Octopress的source分支，因为git默认的clone命令是针对master分支的，所以很多人卡在了这一步，stackOverflow上有一个回答专门解决这一问题，<a href="http://stackoverflow.com/questions/1911109/clone-a-specific-git-branch">如何clone一个指定的git分支</a>。</p>
+
+<p>此外，在clone时还有可能遇到<strong>SSH connect to github fail</strong>的问题，github的官博有<a href="https://help.github.com/articles/updating-credentials-from-the-osx-keychain/">解决方法</a>。</p>
+
+<p><code>ruby
+git clone -b source git@github.com:username/username.github.io.git octopress
+cd octopress
+git clone git@github.com:username/username.github.com.git _deploy
+</code></p>
+
+<p>安装依赖的gems，这一步与我们第一次搭建时没有区别。</p>
+
+<p><code>ruby
+gem install bundler
+bundle install
+rake install # 注意如果你之前自己修改过主题，可不做这一步，否则会重新安装默认主题
+</code></p>
+
+<p>之后的新建，提交等步骤，和之前是一致的，就不赘述了。</p>
+
+<h2>如何在两台电脑之间更新博客</h2>
+
+<p>可能有人会有这样的需求，其实知道原理的话，也很容易，在一台电脑提交新博客之后，那么在另一台电脑开始工作之前，先从git上更新分支，再开始新博客的书写。</p>
+
+<p><code>ruby
+cd octopress
+git pull origin source
+cd ./_deploy
+git pull origin master
+</code></p>
+
+<p>本文主要参考了以下两篇博文：</p>
+
+<ol>
+<li><a href="http://blog.zerosharp.com/clone-your-octopress-to-blog-from-two-places/">zerosharp的博文</a></li>
+<li><a href="https://github.com/Pazzilivo/Notes/blob/master/Git/octopress.md">Pazzilivo的笔记</a></li>
+</ol>
+
+]]></content>
+  </entry>
+  
+</feed>
