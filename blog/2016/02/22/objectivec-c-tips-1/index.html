@@ -1,0 +1,386 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Objectivec-C Tips 1 - 刘毅的技术博客</title>
+  <meta name="author" content="刘毅">
+
+  
+  <meta name="description" content="开个坑吧，这一篇专门记一下开发中遇到的小问题，以及解决方案，作为一个开发备忘录。 Tip1.UITextField中文键盘输入监听 问题：监听UITextField的输入我们一般使用&ndash;(BOOL)textField:(UITextField )textField &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://lucifer1988.github.io/blog/2016/02/22/objectivec-c-tips-1">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="刘毅的技术博客" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<script type="text/javascript">
+
+function addBlankTargetForLinks () {
+
+  $('a[href^="http"]').each(function(){
+
+      $(this).attr('target', '_blank');
+
+  });
+
+}
+
+$(document).bind('DOMNodeInserted', function(event) {
+
+  addBlankTargetForLinks();
+
+});
+
+</script>
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">刘毅的技术博客</a></h1>
+  
+    <h2>记录自己的学习生活点滴，也希望和大家交流分享！</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:lucifer1988.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">首页</a></li>
+  <li><a href="/blog/archives">所有文章</a></li>
+  <li><a href="/blog/categories/ios">iOS开发专题</a></li>
+  <li><a href="http://weibo.com/u/2638849461" target="_blank">我的微博</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Objectivec-C Tips 1</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-02-22T10:59:43+08:00" pubdate data-updated="true">Feb 22<span>nd</span>, 2016</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>开个坑吧，这一篇专门记一下开发中遇到的小问题，以及解决方案，作为一个开发备忘录。</p>
+
+<!--more-->
+
+
+<h2>Tip1.UITextField中文键盘输入监听</h2>
+
+<p>问题：监听UITextField的输入我们一般使用<em>&ndash;(BOOL)textField:(UITextField </em>)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString<em>)string</em>来监听Field的输入，但如果使用中文键盘，会有问题：只能监听用户在拼汉字时输入的字母，而用户在选汉字时则不会进入回调，而我们恰恰需要监听用户最终输入的汉字。</p>
+
+<p>解决方案：注册对@“UITextFieldTextDidChangeNotification”事件的监听，该通知会在用户选汉字时发出，我们可以利用这一通知来做对Field的中文长度和内容的判断，注意要在监听者的dealloc方法中移除监听。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//1.注册UITextFieldTextDidChangeNotification监听</span>
+</span><span class='line'><span class="p">[[</span><span class="n">NSNotificationCenter</span> <span class="n">defaultCenter</span><span class="p">]</span><span class="nl">addObserver:</span><span class="n">self</span> <span class="nl">selector:</span><span class="k">@selector</span><span class="p">(</span><span class="nl">textFiledEditChanged:</span><span class="p">)</span>
+</span><span class='line'>                                            <span class="nl">name:</span><span class="s">@&quot;UITextFieldTextDidChangeNotification&quot;</span>
+</span><span class='line'>                                          <span class="nl">object:</span><span class="n">myTextField</span><span class="p">];</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//2.监听处理</span>
+</span><span class='line'><span class="cp">#define kMaxLength 25</span>
+</span><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">textFiledEditChanged:</span><span class="p">(</span><span class="n">NSNotification</span> <span class="o">*</span><span class="p">)</span><span class="nv">obj</span><span class="p">{</span>
+</span><span class='line'>   <span class="n">UITextField</span> <span class="o">*</span><span class="n">textField</span> <span class="o">=</span> <span class="p">(</span><span class="n">UITextField</span> <span class="o">*</span><span class="p">)</span><span class="n">obj</span><span class="p">.</span><span class="n">object</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>   <span class="n">NSString</span> <span class="o">*</span><span class="n">toBeString</span> <span class="o">=</span> <span class="n">textField</span><span class="p">.</span><span class="n">text</span><span class="p">;</span>
+</span><span class='line'>   <span class="n">NSString</span> <span class="o">*</span><span class="n">lang</span> <span class="o">=</span> <span class="p">[[</span><span class="n">textField</span> <span class="n">textInputMode</span><span class="p">]</span> <span class="n">primaryLanguage</span><span class="p">];</span> <span class="c1">// 键盘输入模式</span>
+</span><span class='line'>   <span class="k">if</span> <span class="p">([</span><span class="n">lang</span> <span class="nl">isEqualToString:</span><span class="s">@&quot;zh-Hans&quot;</span><span class="p">])</span> <span class="p">{</span> <span class="c1">// 简体中文输入，包括简体拼音，健体五笔，简体手写</span>
+</span><span class='line'>       <span class="n">UITextRange</span> <span class="o">*</span><span class="n">selectedRange</span> <span class="o">=</span> <span class="p">[</span><span class="n">textField</span> <span class="n">markedTextRange</span><span class="p">];</span>
+</span><span class='line'>       <span class="c1">// 获取高亮部分</span>
+</span><span class='line'>       <span class="n">UITextPosition</span> <span class="o">*</span><span class="n">position</span> <span class="o">=</span> <span class="p">[</span><span class="n">textField</span> <span class="nl">positionFromPosition:</span><span class="n">selectedRange</span><span class="p">.</span><span class="n">start</span> <span class="nl">offset:</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'>       <span class="c1">// 没有高亮选择的字，则对已输入的文字进行字数统计和限制</span>
+</span><span class='line'>       <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">position</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>           <span class="k">if</span> <span class="p">(</span><span class="n">toBeString</span><span class="p">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="n">kMaxLength</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>               <span class="n">textField</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="p">[</span><span class="n">toBeString</span> <span class="nl">substringToIndex:</span><span class="n">kMaxLength</span><span class="p">];</span>
+</span><span class='line'>           <span class="p">}</span>
+</span><span class='line'>       <span class="p">}</span>
+</span><span class='line'>       <span class="c1">// 有高亮选择的字符串，则暂不对文字进行统计和限制</span>
+</span><span class='line'>       <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>       <span class="p">}</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'>   <span class="c1">// 中文输入法以外的处理</span>
+</span><span class='line'>   <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>   <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">dealloc</span><span class="p">{</span>
+</span><span class='line'>   <span class="p">[[</span><span class="n">NSNotificationCenter</span> <span class="n">defaultCenter</span><span class="p">]</span><span class="nl">removeObserver:</span><span class="n">self</span>
+</span><span class='line'>                                                  <span class="nl">name:</span><span class="s">@&quot;UITextFieldTextDidChangeNotification&quot;</span>
+</span><span class='line'>                                                <span class="nl">object:</span><span class="n">_albumNameTextField</span><span class="p">];</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">刘毅</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2016-02-22T10:59:43+08:00" pubdate data-updated="true">Feb 22<span>nd</span>, 2016</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/objectivec-c-tip/'>Objectivec-C,tip</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  
+  
+  
+    <style>
+    .flash-video{display:none;}
+</style>
+<!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+  <span class="jiathis_txt">分享到：</span>
+  <a class="jiathis_button_qzone">QQ空间</a>
+  <a class="jiathis_button_tsina">新浪微博</a>
+  <a class="jiathis_button_tqq">腾讯微博</a>
+  <a class="jiathis_button_renren">人人网</a>
+  <a class="jiathis_button_douban">豆瓣</a>
+  <a class="jiathis_button_weixin">微信</a>
+  <a href="http://www.jiathis.com/share?uid=1885095" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+</div>
+<script type="text/javascript">
+var jiathis_config = {data_track_clickback:'true'};
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=1885095" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+
+
+<br />
+<!-- UY BEGIN -->
+<div id="uyan_frame"></div>
+<script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1885095"></script>
+<!-- UY END -->
+
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2015/12/17/wei-octopresszuo-qian-yi/" title="Previous Post: 为Octopress做迁移">&laquo; 为Octopress做迁移</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2016/02/22/objectivec-c-tips-1/">Objectivec-C Tips 1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/12/17/wei-octopresszuo-qian-yi/">为Octopress做迁移</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/27/swifterdu-shu-bi-ji-1/">Swifter读书笔记1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/26/swift-by-tutorials-swift-quick-reference/">Swift by Tutorials--Swift Quick Reference</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/25/swift-by-tutorials-swift-and-cocoa/">Swift by Tutorials--Swift and Cocoa</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/23/swift-by-tutorials-functional-programming/">Swift by Tutorials--Functional Programming</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/20/swift-by-tutorials-enums-and-switch-statements/">Swift by Tutorials--Enums and Switch Statements</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/09/calayer-and-coreanimation/">CALayer&amp;CoreAnimation</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/11/05/ioskai-fa-bei-wang-lu-1/">iOS开发备忘录1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2015/10/30/hui-da-sunnyde-55dao-iosmian-shi-ti-2/">回答Sunny的55道iOS面试题2</a>
+      </li>
+    
+  </ul>
+</section>
+<section>
+  <h1>About Me</h1>
+    <p> iOS开发老司机, Swift新司机<br/>
+      <br/>我的经历:
+      <br/>2007.9 进入吉大学习电子信息工程
+      <br/>2011.9 考研失利，转投中传计算机专业，接触iOS
+      <br/>2013.8 入职盘古搜索，以iOS程序员的身份开始职业生涯
+      <br/>2014.3 公司和即刻搜索合并，入职新成立的中国搜索
+      <br/>2015.12 人生第一次离职，离开国搜，入职联通支付<br/>
+      <br/>我的微博: <a href="http://weibo.com/u/2638849461" target="_blank">JamesRaynor-刘毅</a>
+      <br/>我的git主页: <a href="https://github.com/lucifer1988" target="_blank">lucifer1988</a>
+      <br/>
+      <br/><span id="wb_follow_btn"></span>
+  </p>
+</section>
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2016 - 刘毅 -
+  <span class="credit">Powered by <a href="http://octopress.org" target="_blank">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+
+
+<script src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=3350288267" type="text/javascript" charset="utf-8"></script>
+<script>
+    WB2.anyWhere(function(W){
+        W.widget.followButton({
+            'uid': 2638849461,
+            'nick_name': 'JamesRaynor-刘毅',
+            'id': "wb_follow_btn",
+            'show_head' : true, 
+            'show_name' : true, 
+            'show_cancel': false
+        });
+    });
+</script>
+6vvqnj09Z6
+
+</body>
+</html>

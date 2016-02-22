@@ -4,7 +4,7 @@
   <title><![CDATA[Category: iOS | 刘毅的技术博客]]></title>
   <link href="http://lucifer1988.github.io/blog/categories/ios/atom.xml" rel="self"/>
   <link href="http://lucifer1988.github.io/"/>
-  <updated>2015-12-17T17:21:48+08:00</updated>
+  <updated>2016-02-22T14:34:46+08:00</updated>
   <id>http://lucifer1988.github.io/</id>
   <author>
     <name><![CDATA[刘毅]]></name>
@@ -370,6 +370,452 @@ case true:
 
 <p>}
 ```</p>
+
+<h2>7.Optional Chaining</h2>
+
+<p>Optional Chaining在之前也介绍过，可以摆脱Swift中不必要的有值判断，但使用时也需注意其返回值和执行方法的不确定性。</p>
+
+<p>```objectivec
+class Toy {</p>
+
+<pre><code>let name: String
+init(name: String) {
+    self.name = name
+}
+</code></pre>
+
+<p>}</p>
+
+<p>class Pet {</p>
+
+<pre><code>var toy: Toy?
+</code></pre>
+
+<p>}</p>
+
+<p>class Child {</p>
+
+<pre><code>var pet: Pet?
+</code></pre>
+
+<p>}</p>
+
+<p>let xiaoming = Child()
+let toyName = xiaoming.pet?.toy?.name
+```
+如上，虽然name定义为toy的String类型，非Optional，但由于Optional Chaining的使用，是可能提前返回nil的，所以最终toyName的类型，还是String？。</p>
+
+<p>实际开发中，一般还是用Optional Binding+Optional Chaining的方式来取值。</p>
+
+<p>```objectivec
+if let toyname = xiaoming.pet?.toy?.name {</p>
+
+<pre><code>print(toyname)
+</code></pre>
+
+<p>}
+```</p>
+
+<p>如果，我们给Toy再加一个扩展：</p>
+
+<p>```objectivec
+extension Toy {</p>
+
+<pre><code>func play() {
+    //...
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>如果我们想将play()封装成一个以Child为参数的closure，那么就要注意closure的返回类型了。以下列出了错误和正确的写法。</p>
+
+<p><code>objectivec
+//wrong
+//let playClosure = {(child: Child) -&gt; () in child.pet?.toy?.play()}
+//right
+let playClosure = {(child: Child) -&gt; ()? in child.pet?.toy?.play()}
+</code></p>
+
+<p>由于toy之前的值的不确定性，所以play()不一定可以正常执行，所以应该是()?类型，或者Void?类型，最后列出我们实际使用的场景，依然使用Optional Binding。</p>
+
+<p>```objectivec
+if let result: () = playClosure(xiaoming) {</p>
+
+<pre><code>//...
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>8.操作符</h2>
+
+<p>Swift与OC的一大区别是支持操作符的重载，比如我们需要定义以下结构体的相加运算，我们可以重载加号操作符。</p>
+
+<p>```objectivec
+struct Vector2D {</p>
+
+<pre><code>var x = 0.0
+var y = 0.0
+</code></pre>
+
+<p>}</p>
+
+<p>func +(left: Vector2D, right: Vector2D) &ndash;> Vector2D {</p>
+
+<pre><code>return Vector2D(x: left.x+right.x, y: left.y+right.y)
+</code></pre>
+
+<p>}</p>
+
+<p>let v1 = Vector2D(x: 2.0, y: 3.0)
+let v2 = Vector2D(x: 1.0, y: 4.0)
+let v3 = v1+v2
+print(v3)
+```</p>
+
+<p>类似的，我们也可以重载减号（-），负号（-）这样的运算符。</p>
+
+<p>但是如果我们要定义一个全新的运算符，比如点积运算，单纯重载是无效的，因为该方法并不存在于Swift之中，需要我们先声明，如下：</p>
+
+<p>```objectivec
+infix operator +* {</p>
+
+<pre><code>associativity none
+precedence 160
+</code></pre>
+
+<p>}
+```</p>
+
+<p>infix表示这是一个中位操作符，即前后都是输入，其他修饰子还包括prefix（一个输入，并操作符作用于输入之前，类似++i，!i）和postfix（一个输入，并操作符作用于输入之后，类似i++，i&mdash;）。</p>
+
+<p>associativity定义的事结合律，就是计算顺序，比如常见的加法和减法就是left，我们这里定义的点积的结果是Double，不会再和其他点积结合，所以就是none。</p>
+
+<p>precedence是运算的优先级，越高的优先级优先进行运算，Swift中乘除法是150，加减法是140，这里的点积是160，是优先于乘除法的。</p>
+
+<p>之后就可以定义点积运算了。</p>
+
+<p>```objectivec
+func +* (left: Vector2D, right: Vector2D) &ndash;> Double {</p>
+
+<pre><code>return left.x*right.x+left.y*right.y
+</code></pre>
+
+<p>}</p>
+
+<p>let result = v1 +* v2
+```</p>
+
+<p>需要注意的是，重载的操作符都是函数，所以是全局的，也就是说多次重载会导致冲突，尤其是多个module同时重载时。所以应该尽量将其作为其他某个方法的简便写法，避免实现大量逻辑或提供独一无二的功能，因为这样即使出现冲突，使用者还可以通过方法名调用的方式来使用，总之，重载操作符的特性不要滥用，除非确实存在大量并全局的需求。</p>
+
+<h2>9.func的参数修饰</h2>
+
+<p>这一问题在之前也说过，一般我们声明Swift函数时都不会添加参数修饰符，如：</p>
+
+<p>```objectivec
+func incrementor(variable: Int) &ndash;> Int {</p>
+
+<pre><code>return variable + 1
+</code></pre>
+
+<p>}
+```</p>
+
+<p>而很多人可能不会这么写，因为有++这样的运算符，一般都会这么写：</p>
+
+<p>```objectivec
+func incrementor(variable: Int) &ndash;> Int {</p>
+
+<pre><code>return ++variable
+</code></pre>
+
+<p>}
+```</p>
+
+<p>然而直接报错，原因是Swift默认参数是let型的，所以++对自己会重新赋值，所以会报错，修改也很简单。修改参数为var就好。</p>
+
+<p>```objectivec
+func incrementor(var variable: Int) &ndash;> Int {</p>
+
+<pre><code>return ++variable
+</code></pre>
+
+<p>}</p>
+
+<p>var putIn = 3
+let resultOut = incrementor(putIn)
+print(resultOut)
+print(putIn)
+```</p>
+
+<p>但在我们使用时会发现，返回值没错，但是作为输入的putIn并没有改变，这一原因是即使我们将参数声明为var，但Swift在使用之前还是会将其copy一份，然后对其copy修改，所以实际输入的变量并不会改变。</p>
+
+<p>如果我们想对输入参数在方法内修改，就要使用inout关键字，这样我们就将参数的指针输入了方法，所以在调用时也需要传入参数的指针，其实这与OC中的block使用外部变量是一样的，默认就是值拷贝，无法修改原值，如需修改，在原值加_block关键字。</p>
+
+<p>```objectivec
+func incrementor(inout variable: Int) {</p>
+
+<pre><code>++variable
+</code></pre>
+
+<p>}</p>
+
+<p>var putIn = 3
+incrementor(&amp;putIn)
+print(putIn)
+```</p>
+
+<p>作者补充的一点是，参数修饰符是有传递限制性的，入股统一参数要跨层调用，需要保证同一参数的修饰统一，如下例：</p>
+
+<p>```objectivec
+func makeIncrementor(addNumber: Int) &ndash;> ((inout variable: Int) &ndash;> ()) {</p>
+
+<pre><code>func incrementor(inout variable: Int) -&gt; () {
+    variable + addNumber
+}
+return incrementor
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>10.字面量转换</h2>
+
+<p>字面量就是指特定的数字，字符串或布尔值这样可以直接表明类型，并直接赋值的值。如下：</p>
+
+<p><code>objectivec
+let aNumber = 3
+let aString = "Hello"
+let aBool = true
+let anArray = [1, 2, 3]
+let aDictionary = ["key1": "value1", "key2": "value2"]
+</code></p>
+
+<p>Swift提供了一组协议，用来将字面量转换为特定类型，对于实现了字面量转换接口的类型，在字面量赋值时，可以直接通过赋值的方式，将其转化为对应类型。这些协议有：</p>
+
+<ul>
+<li>ArrayLiteralConvertible</li>
+<li>BooleanLiteralConvertible</li>
+<li>DictionaryLiteralConvertible</li>
+<li>FloatLiteralConvertible</li>
+<li>NilLiteralConvertible</li>
+<li>IntegerLiteralConvertible</li>
+<li>StringLiteralConvertible</li>
+</ul>
+
+
+<p>下面举例BooleanLiteralConvertible的实现，BooleanLiteralConvertible的定义是：</p>
+
+<p>```objectivec
+protocol BooleanLiteralConvertible {</p>
+
+<pre><code>typealias BooleanLiteralConvertible
+
+init(booleanLiteral value: BooleanLiteralType)
+</code></pre>
+
+<p>}
+```</p>
+
+<p>BooleanLiteralConvertible在Swift中已有定义：</p>
+
+<p><code>objectivec
+typealias BooleanLiteralType = Bool
+</code></p>
+
+<p>那么我们自己实现字面量转换时，就需要实现init方法就好了，这样我们就可以直接使用true和false对MyBool类型赋值：</p>
+
+<p>```objectivec
+enum MyBool: Int {</p>
+
+<pre><code>case myTrue, myFalse
+</code></pre>
+
+<p>}</p>
+
+<p>extension MyBool: BooleanLiteralConvertible {</p>
+
+<pre><code>init(booleanLiteral value: Self.BooleanLiteralType) {
+    self = value ? myTrue : myFalse
+}
+</code></pre>
+
+<p>}</p>
+
+<p>let myTrue: MyBool = true
+let myFalse: MyBool = false</p>
+
+<p>myTrue.rawValue
+myFalse.rawValue
+```</p>
+
+<p>BooleanLiteralConvertible是这些协议中最简单的了，如果是StringLiteralConvertible协议，还要实现另外两个方法，这两个方法我们一般开发中不会遇到，是对应的<a href="https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/Strings/Articles/stringsClusters.html">字符簇和字符</a>的字面量转换。</p>
+
+<ul>
+<li>ExtendedGraphemeClusterLiteralConvertible</li>
+<li>UnicodeScalarLiteralConvertible</li>
+</ul>
+
+
+<p>继续举例比如，我们声明一个Person类，想通过String赋值，来生成Person对象，那么可以这样实现。</p>
+
+<p>```objectivec
+class Person: StringLiteralConvertible {</p>
+
+<pre><code>let name: String
+init(name value: String) {
+    self.name = value
+}
+
+required init(stringLiteral value: String) {
+    self.name = value
+}
+
+required init(extendedGraphemeClusterLiteral value: String) {
+    self.name = value
+}
+
+required init(unicodeScalarLiteral value: String) {
+    self.name = value
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>下面三个init方法都加上了<strong>required</strong>关键字，这是由初始化方法的完备性需求所决定的，该类的子类都需要保证能实现类似的字面量转换，以确保类型安全。</p>
+
+<p>上面多次调用了self.name = value，其实是不必要的，我们可以在之后的每个init中调用最初的init方法，当然这需要在其他init方法前加<strong>convenience</strong>关键字。</p>
+
+<p>```objectivec
+class Person: StringLiteralConvertible {</p>
+
+<pre><code>let name: String
+init(name value: String) {
+    self.name = value
+}
+
+required convenience init(stringLiteral value: String) {
+    self.init(name: value)
+}
+
+required convenience init(extendedGraphemeClusterLiteral value: String) {
+    self.init(name: value)
+}
+
+required convenience init(unicodeScalarLiteral value: String) {
+    self.init(name: value)
+}
+</code></pre>
+
+<p>}</p>
+
+<p>let p: Person = &ldquo;xiaoming&rdquo;
+print(p.name)
+```</p>
+
+<p>Person例子中，没有像MyBool一样，使用extension来扩展，因为在extension中，我们无法定义required的初始化方法，也就是说我们无法为非final的class添加字面量转换。</p>
+
+<p>综上，字面量转换是一个强大的功能，使用得当对代码简洁度有很大提高，但是对于使用者来讲，如果没有详细的文档支持，会造成很多困惑，所以它的最佳实践还有待开发者们继续挖掘。</p>
+
+<h2>11.下标</h2>
+
+<p>Swift中的Array和Dictionary是支持下标读写的，这一点与新版OC是一致的。</p>
+
+<p>```objectivec
+var arr = [1, 2, 3]
+arr[2]
+arr[2] = 4</p>
+
+<p>var dict = [&ldquo;cat&rdquo;:&ldquo;meow&rdquo;, &ldquo;goat&rdquo;:&ldquo;mie&rdquo;]
+dict[&ldquo;cat&rdquo;]
+dict[&ldquo;cat&rdquo;] = &ldquo;miao&rdquo;
+```</p>
+
+<p>而Swift比较先进的是，Swift是允许自定义下标的，比如作者给出的，使用subscript关键字为Array添加支持以[Int]为index来读取的extension。</p>
+
+<p>```objectivec
+extension Array {</p>
+
+<pre><code>subscript(input: [Int]) -&gt; ArraySlice&lt;Element&gt; {
+    get {
+        var result = ArraySlice&lt;Element&gt;()
+        for i in input {
+            assert(i &lt; self.count, "index out of range")
+            result.append(self[i])
+        }
+        return result
+    }
+    set {
+        for (index, i) in input.enumerate() {
+            assert(i &lt; self.count, "index out of range")
+            self[i] = newValue[index]
+        }
+    }
+}
+</code></pre>
+
+<p>}</p>
+
+<p>var arr = [1, 2, 3, 4, 5]
+arr[[0, 2, 3]]
+arr[[0, 2, 3]] = [-1, -3, -4]
+arr
+```</p>
+
+<h2>12.方法嵌套</h2>
+
+<p>方法在Swift中成为了第一对象，可以作为参数，可以作为结果返回，而且可以在方法中定义子方法，这对内容过长的方法进行重构提供了新的思路。如果子方法只会被调用一次，那么它更适合被声明到父方法内部。</p>
+
+<p>```objectivec
+func appendQuery(var url: String, key: String, value: AnyObject) &ndash;> String {</p>
+
+<pre><code>func appendQueryDictionary(var url: String, key: String, value: [String: AnyObject]) {
+    //...
+    return result
+}
+
+func appendQueryArray(var url: String, key: String, value: [AnyObject]) {
+    //...
+    return result
+}
+
+func appendQuerySingle(var url: String, key: String, value: AnyObject) {
+    //...
+    return result
+}
+
+if let dictionary = value as? [String: AnyObject] {
+    return appendQueryDictionary(url, key: key, value: dictionary)
+} else if let array = value as? [AnyObject] {
+    return appendQueryArray(url, key: key, value: array)
+} else {
+    return appendQuerySingle(url, key: key, value: value)
+}
+</code></pre>
+
+<p>}
+```</p>
+
+<p>还有在方法模板中（就是在Swift By Tutorials中提到的<a href="http://lucifer1988.github.io/blog/2015/11/23/swift-by-tutorials-functional-programming/">Partial application</a>），开发者一方面希望提供一个模板来让使用者定制方法，而同时不希望暴露太多的的实现细节。</p>
+
+<p>```objectivec
+func makeIncrementor(addNumber: Int) &ndash;> ((inout Int) &ndash;> Void {</p>
+
+<pre><code>func incrementor(inout variable: Int) -&gt; Void {
+    variable += addNumber;
+}
+return incrementor;
+</code></pre>
+
+<p>}
+```</p>
+
+<h2>13.命名空间</h2>
+
+<p>OC是没有命名空间的，开发时只能通过自己添加前缀来区分，但是还是有可能出现类文件相同的情况，而另一种情况是，一些第三方库本身引用了其他第三方库，而开发者同时使用这两个库时，就会出现冲突。</p>
 ]]></content>
   </entry>
   

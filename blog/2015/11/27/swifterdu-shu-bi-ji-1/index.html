@@ -598,7 +598,589 @@ $(document).bind('DOMNodeInserted', function(event) {
 </span></code></pre></td></tr></table></div></figure>
 
 
+<h2>7.Optional Chaining</h2>
 
+<p>Optional Chaining在之前也介绍过，可以摆脱Swift中不必要的有值判断，但使用时也需注意其返回值和执行方法的不确定性。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="n">Toy</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="nl">name:</span> <span class="n">String</span>
+</span><span class='line'>    <span class="n">init</span><span class="p">(</span><span class="nl">name:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">class</span> <span class="n">Pet</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">toy:</span> <span class="n">Toy</span><span class="o">?</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">class</span> <span class="n">Child</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="nl">pet:</span> <span class="n">Pet</span><span class="o">?</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">xiaoming</span> <span class="o">=</span> <span class="n">Child</span><span class="p">()</span>
+</span><span class='line'><span class="n">let</span> <span class="n">toyName</span> <span class="o">=</span> <span class="n">xiaoming</span><span class="p">.</span><span class="n">pet</span><span class="o">?</span><span class="p">.</span><span class="n">toy</span><span class="o">?</span><span class="p">.</span><span class="n">name</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如上，虽然name定义为toy的String类型，非Optional，但由于Optional Chaining的使用，是可能提前返回nil的，所以最终toyName的类型，还是String？。</p>
+
+<p>实际开发中，一般还是用Optional Binding+Optional Chaining的方式来取值。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">if</span> <span class="n">let</span> <span class="n">toyname</span> <span class="o">=</span> <span class="n">xiaoming</span><span class="p">.</span><span class="n">pet</span><span class="o">?</span><span class="p">.</span><span class="n">toy</span><span class="o">?</span><span class="p">.</span><span class="n">name</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">print</span><span class="p">(</span><span class="n">toyname</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果，我们给Toy再加一个扩展：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">extension</span> <span class="n">Toy</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">func</span> <span class="n">play</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">//...</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>如果我们想将play()封装成一个以Child为参数的closure，那么就要注意closure的返回类型了。以下列出了错误和正确的写法。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="c1">//wrong</span>
+</span><span class='line'><span class="c1">//let playClosure = {(child: Child) -&gt; () in child.pet?.toy?.play()}</span>
+</span><span class='line'><span class="c1">//right</span>
+</span><span class='line'><span class="n">let</span> <span class="n">playClosure</span> <span class="o">=</span> <span class="p">{(</span><span class="nl">child:</span> <span class="n">Child</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">()</span><span class="o">?</span> <span class="k">in</span> <span class="n">child</span><span class="p">.</span><span class="n">pet</span><span class="o">?</span><span class="p">.</span><span class="n">toy</span><span class="o">?</span><span class="p">.</span><span class="n">play</span><span class="p">()}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>由于toy之前的值的不确定性，所以play()不一定可以正常执行，所以应该是()?类型，或者Void?类型，最后列出我们实际使用的场景，依然使用Optional Binding。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">if</span> <span class="n">let</span> <span class="nl">result:</span> <span class="p">()</span> <span class="o">=</span> <span class="n">playClosure</span><span class="p">(</span><span class="n">xiaoming</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="c1">//...</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>8.操作符</h2>
+
+<p>Swift与OC的一大区别是支持操作符的重载，比如我们需要定义以下结构体的相加运算，我们可以重载加号操作符。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">struct</span> <span class="n">Vector2D</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">var</span> <span class="n">x</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span class='line'>    <span class="n">var</span> <span class="n">y</span> <span class="o">=</span> <span class="mf">0.0</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">func</span> <span class="o">+</span><span class="p">(</span><span class="nl">left:</span> <span class="n">Vector2D</span><span class="p">,</span> <span class="nl">right:</span> <span class="n">Vector2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Vector2D</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">Vector2D</span><span class="p">(</span><span class="nl">x:</span> <span class="n">left</span><span class="p">.</span><span class="n">x</span><span class="o">+</span><span class="n">right</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="nl">y:</span> <span class="n">left</span><span class="p">.</span><span class="n">y</span><span class="o">+</span><span class="n">right</span><span class="p">.</span><span class="n">y</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">v1</span> <span class="o">=</span> <span class="n">Vector2D</span><span class="p">(</span><span class="nl">x:</span> <span class="mf">2.0</span><span class="p">,</span> <span class="nl">y:</span> <span class="mf">3.0</span><span class="p">)</span>
+</span><span class='line'><span class="n">let</span> <span class="n">v2</span> <span class="o">=</span> <span class="n">Vector2D</span><span class="p">(</span><span class="nl">x:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="nl">y:</span> <span class="mf">4.0</span><span class="p">)</span>
+</span><span class='line'><span class="n">let</span> <span class="n">v3</span> <span class="o">=</span> <span class="n">v1</span><span class="o">+</span><span class="n">v2</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">v3</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>类似的，我们也可以重载减号（-），负号（-）这样的运算符。</p>
+
+<p>但是如果我们要定义一个全新的运算符，比如点积运算，单纯重载是无效的，因为该方法并不存在于Swift之中，需要我们先声明，如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">infix</span> <span class="n">operator</span> <span class="o">+*</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">associativity</span> <span class="n">none</span>
+</span><span class='line'>    <span class="n">precedence</span> <span class="mi">160</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>infix表示这是一个中位操作符，即前后都是输入，其他修饰子还包括prefix（一个输入，并操作符作用于输入之前，类似++i，!i）和postfix（一个输入，并操作符作用于输入之后，类似i++，i&mdash;）。</p>
+
+<p>associativity定义的事结合律，就是计算顺序，比如常见的加法和减法就是left，我们这里定义的点积的结果是Double，不会再和其他点积结合，所以就是none。</p>
+
+<p>precedence是运算的优先级，越高的优先级优先进行运算，Swift中乘除法是150，加减法是140，这里的点积是160，是优先于乘除法的。</p>
+
+<p>之后就可以定义点积运算了。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="o">+*</span> <span class="p">(</span><span class="nl">left:</span> <span class="n">Vector2D</span><span class="p">,</span> <span class="nl">right:</span> <span class="n">Vector2D</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Double</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">left</span><span class="p">.</span><span class="n">x</span><span class="o">*</span><span class="n">right</span><span class="p">.</span><span class="n">x</span><span class="o">+</span><span class="n">left</span><span class="p">.</span><span class="n">y</span><span class="o">*</span><span class="n">right</span><span class="p">.</span><span class="n">y</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="n">result</span> <span class="o">=</span> <span class="n">v1</span> <span class="o">+*</span> <span class="n">v2</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>需要注意的是，重载的操作符都是函数，所以是全局的，也就是说多次重载会导致冲突，尤其是多个module同时重载时。所以应该尽量将其作为其他某个方法的简便写法，避免实现大量逻辑或提供独一无二的功能，因为这样即使出现冲突，使用者还可以通过方法名调用的方式来使用，总之，重载操作符的特性不要滥用，除非确实存在大量并全局的需求。</p>
+
+<h2>9.func的参数修饰</h2>
+
+<p>这一问题在之前也说过，一般我们声明Swift函数时都不会添加参数修饰符，如：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">incrementor</span><span class="p">(</span><span class="nl">variable:</span> <span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Int</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">variable</span> <span class="o">+</span> <span class="mi">1</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>而很多人可能不会这么写，因为有++这样的运算符，一般都会这么写：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">incrementor</span><span class="p">(</span><span class="nl">variable:</span> <span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Int</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="o">++</span><span class="n">variable</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>然而直接报错，原因是Swift默认参数是let型的，所以++对自己会重新赋值，所以会报错，修改也很简单。修改参数为var就好。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">incrementor</span><span class="p">(</span><span class="n">var</span> <span class="nl">variable:</span> <span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Int</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">return</span> <span class="o">++</span><span class="n">variable</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">var</span> <span class="n">putIn</span> <span class="o">=</span> <span class="mi">3</span>
+</span><span class='line'><span class="n">let</span> <span class="n">resultOut</span> <span class="o">=</span> <span class="n">incrementor</span><span class="p">(</span><span class="n">putIn</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">resultOut</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">putIn</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>但在我们使用时会发现，返回值没错，但是作为输入的putIn并没有改变，这一原因是即使我们将参数声明为var，但Swift在使用之前还是会将其copy一份，然后对其copy修改，所以实际输入的变量并不会改变。</p>
+
+<p>如果我们想对输入参数在方法内修改，就要使用inout关键字，这样我们就将参数的指针输入了方法，所以在调用时也需要传入参数的指针，其实这与OC中的block使用外部变量是一样的，默认就是值拷贝，无法修改原值，如需修改，在原值加_block关键字。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">incrementor</span><span class="p">(</span><span class="n">inout</span> <span class="nl">variable:</span> <span class="n">Int</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="o">++</span><span class="n">variable</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">var</span> <span class="n">putIn</span> <span class="o">=</span> <span class="mi">3</span>
+</span><span class='line'><span class="n">incrementor</span><span class="p">(</span><span class="o">&amp;</span><span class="n">putIn</span><span class="p">)</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">putIn</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>作者补充的一点是，参数修饰符是有传递限制性的，入股统一参数要跨层调用，需要保证同一参数的修饰统一，如下例：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">makeIncrementor</span><span class="p">(</span><span class="nl">addNumber:</span> <span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">((</span><span class="n">inout</span> <span class="nl">variable:</span> <span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">())</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">func</span> <span class="n">incrementor</span><span class="p">(</span><span class="n">inout</span> <span class="nl">variable:</span> <span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">variable</span> <span class="o">+</span> <span class="n">addNumber</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">incrementor</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>10.字面量转换</h2>
+
+<p>字面量就是指特定的数字，字符串或布尔值这样可以直接表明类型，并直接赋值的值。如下：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">let</span> <span class="n">aNumber</span> <span class="o">=</span> <span class="mi">3</span>
+</span><span class='line'><span class="n">let</span> <span class="n">aString</span> <span class="o">=</span> <span class="s">&quot;Hello&quot;</span>
+</span><span class='line'><span class="n">let</span> <span class="n">aBool</span> <span class="o">=</span> <span class="n">true</span>
+</span><span class='line'><span class="n">let</span> <span class="n">anArray</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+</span><span class='line'><span class="n">let</span> <span class="n">aDictionary</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;key1&quot;</span><span class="o">:</span> <span class="s">&quot;value1&quot;</span><span class="p">,</span> <span class="s">&quot;key2&quot;</span><span class="o">:</span> <span class="s">&quot;value2&quot;</span><span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Swift提供了一组协议，用来将字面量转换为特定类型，对于实现了字面量转换接口的类型，在字面量赋值时，可以直接通过赋值的方式，将其转化为对应类型。这些协议有：</p>
+
+<ul>
+<li>ArrayLiteralConvertible</li>
+<li>BooleanLiteralConvertible</li>
+<li>DictionaryLiteralConvertible</li>
+<li>FloatLiteralConvertible</li>
+<li>NilLiteralConvertible</li>
+<li>IntegerLiteralConvertible</li>
+<li>StringLiteralConvertible</li>
+</ul>
+
+
+<p>下面举例BooleanLiteralConvertible的实现，BooleanLiteralConvertible的定义是：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">protocol</span> <span class="n">BooleanLiteralConvertible</span> <span class="p">{</span>
+</span><span class='line'>  <span class="n">typealias</span> <span class="n">BooleanLiteralConvertible</span>
+</span><span class='line'>  
+</span><span class='line'>  <span class="n">init</span><span class="p">(</span><span class="n">booleanLiteral</span> <span class="nl">value:</span> <span class="n">BooleanLiteralType</span><span class="p">)</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>BooleanLiteralConvertible在Swift中已有定义：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">typealias</span> <span class="n">BooleanLiteralType</span> <span class="o">=</span> <span class="n">Bool</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>那么我们自己实现字面量转换时，就需要实现init方法就好了，这样我们就可以直接使用true和false对MyBool类型赋值：</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="k">enum</span> <span class="nl">MyBool:</span> <span class="n">Int</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">case</span> <span class="n">myTrue</span><span class="p">,</span> <span class="n">myFalse</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">extension</span> <span class="nl">MyBool:</span> <span class="n">BooleanLiteralConvertible</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">init</span><span class="p">(</span><span class="n">booleanLiteral</span> <span class="nl">value:</span> <span class="n">Self</span><span class="p">.</span><span class="n">BooleanLiteralType</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span> <span class="o">=</span> <span class="n">value</span> <span class="o">?</span> <span class="n">myTrue</span> <span class="o">:</span> <span class="n">myFalse</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="nl">myTrue:</span> <span class="n">MyBool</span> <span class="o">=</span> <span class="n">true</span>
+</span><span class='line'><span class="n">let</span> <span class="nl">myFalse:</span> <span class="n">MyBool</span> <span class="o">=</span> <span class="n">false</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">myTrue</span><span class="p">.</span><span class="n">rawValue</span>
+</span><span class='line'><span class="n">myFalse</span><span class="p">.</span><span class="n">rawValue</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>BooleanLiteralConvertible是这些协议中最简单的了，如果是StringLiteralConvertible协议，还要实现另外两个方法，这两个方法我们一般开发中不会遇到，是对应的<a href="https://developer.apple.com/library/mac/documentation/Cocoa/Conceptual/Strings/Articles/stringsClusters.html">字符簇和字符</a>的字面量转换。</p>
+
+<ul>
+<li>ExtendedGraphemeClusterLiteralConvertible</li>
+<li>UnicodeScalarLiteralConvertible</li>
+</ul>
+
+
+<p>继续举例比如，我们声明一个Person类，想通过String赋值，来生成Person对象，那么可以这样实现。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="nl">Person:</span> <span class="n">StringLiteralConvertible</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="nl">name:</span> <span class="n">String</span>
+</span><span class='line'>    <span class="n">init</span><span class="p">(</span><span class="n">name</span> <span class="nl">value:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">value</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">required</span> <span class="n">init</span><span class="p">(</span><span class="n">stringLiteral</span> <span class="nl">value:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">value</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">required</span> <span class="n">init</span><span class="p">(</span><span class="n">extendedGraphemeClusterLiteral</span> <span class="nl">value:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">value</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">required</span> <span class="n">init</span><span class="p">(</span><span class="n">unicodeScalarLiteral</span> <span class="nl">value:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">value</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>下面三个init方法都加上了<strong>required</strong>关键字，这是由初始化方法的完备性需求所决定的，该类的子类都需要保证能实现类似的字面量转换，以确保类型安全。</p>
+
+<p>上面多次调用了self.name = value，其实是不必要的，我们可以在之后的每个init中调用最初的init方法，当然这需要在其他init方法前加<strong>convenience</strong>关键字。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">class</span> <span class="nl">Person:</span> <span class="n">StringLiteralConvertible</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">let</span> <span class="nl">name:</span> <span class="n">String</span>
+</span><span class='line'>    <span class="n">init</span><span class="p">(</span><span class="n">name</span> <span class="nl">value:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">value</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">required</span> <span class="n">convenience</span> <span class="n">init</span><span class="p">(</span><span class="n">stringLiteral</span> <span class="nl">value:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">init</span><span class="p">(</span><span class="nl">name:</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">required</span> <span class="n">convenience</span> <span class="n">init</span><span class="p">(</span><span class="n">extendedGraphemeClusterLiteral</span> <span class="nl">value:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">init</span><span class="p">(</span><span class="nl">name:</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">required</span> <span class="n">convenience</span> <span class="n">init</span><span class="p">(</span><span class="n">unicodeScalarLiteral</span> <span class="nl">value:</span> <span class="n">String</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">self</span><span class="p">.</span><span class="n">init</span><span class="p">(</span><span class="nl">name:</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">let</span> <span class="nl">p:</span> <span class="n">Person</span> <span class="o">=</span> <span class="s">&quot;xiaoming&quot;</span>
+</span><span class='line'><span class="n">print</span><span class="p">(</span><span class="n">p</span><span class="p">.</span><span class="n">name</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Person例子中，没有像MyBool一样，使用extension来扩展，因为在extension中，我们无法定义required的初始化方法，也就是说我们无法为非final的class添加字面量转换。</p>
+
+<p>综上，字面量转换是一个强大的功能，使用得当对代码简洁度有很大提高，但是对于使用者来讲，如果没有详细的文档支持，会造成很多困惑，所以它的最佳实践还有待开发者们继续挖掘。</p>
+
+<h2>11.下标</h2>
+
+<p>Swift中的Array和Dictionary是支持下标读写的，这一点与新版OC是一致的。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">var</span> <span class="n">arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]</span>
+</span><span class='line'><span class="n">arr</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</span><span class='line'><span class="n">arr</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">var</span> <span class="n">dict</span> <span class="o">=</span> <span class="p">[</span><span class="s">&quot;cat&quot;</span><span class="o">:</span><span class="s">&quot;meow&quot;</span><span class="p">,</span> <span class="s">&quot;goat&quot;</span><span class="o">:</span><span class="s">&quot;mie&quot;</span><span class="p">]</span>
+</span><span class='line'><span class="n">dict</span><span class="p">[</span><span class="s">&quot;cat&quot;</span><span class="p">]</span>
+</span><span class='line'><span class="n">dict</span><span class="p">[</span><span class="s">&quot;cat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;miao&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>而Swift比较先进的是，Swift是允许自定义下标的，比如作者给出的，使用subscript关键字为Array添加支持以[Int]为index来读取的extension。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">extension</span> <span class="n">Array</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">subscript</span><span class="p">(</span><span class="nl">input:</span> <span class="p">[</span><span class="n">Int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">ArraySlice</span><span class="o">&lt;</span><span class="n">Element</span><span class="o">&gt;</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">get</span> <span class="p">{</span>
+</span><span class='line'>            <span class="n">var</span> <span class="n">result</span> <span class="o">=</span> <span class="n">ArraySlice</span><span class="o">&lt;</span><span class="n">Element</span><span class="o">&gt;</span><span class="p">()</span>
+</span><span class='line'>            <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">input</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">assert</span><span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">self</span><span class="p">.</span><span class="n">count</span><span class="p">,</span> <span class="s">&quot;index out of range&quot;</span><span class="p">)</span>
+</span><span class='line'>                <span class="n">result</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">self</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">result</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="n">set</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">for</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">in</span> <span class="n">input</span><span class="p">.</span><span class="n">enumerate</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>                <span class="n">assert</span><span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="n">self</span><span class="p">.</span><span class="n">count</span><span class="p">,</span> <span class="s">&quot;index out of range&quot;</span><span class="p">)</span>
+</span><span class='line'>                <span class="n">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">newValue</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+</span><span class='line'>            <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">var</span> <span class="n">arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">]</span>
+</span><span class='line'><span class="n">arr</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]</span>
+</span><span class='line'><span class="n">arr</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+</span><span class='line'><span class="n">arr</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>12.方法嵌套</h2>
+
+<p>方法在Swift中成为了第一对象，可以作为参数，可以作为结果返回，而且可以在方法中定义子方法，这对内容过长的方法进行重构提供了新的思路。如果子方法只会被调用一次，那么它更适合被声明到父方法内部。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="nf">appendQuery</span><span class="p">(</span><span class="n">var</span> <span class="nl">url:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">key:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">value:</span> <span class="n">AnyObject</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">String</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">func</span> <span class="n">appendQueryDictionary</span><span class="p">(</span><span class="n">var</span> <span class="nl">url:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">key:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">value:</span> <span class="p">[</span><span class="nl">String:</span> <span class="n">AnyObject</span><span class="p">])</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">//...</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">result</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="nf">appendQueryArray</span><span class="p">(</span><span class="n">var</span> <span class="nl">url:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">key:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">value:</span> <span class="p">[</span><span class="n">AnyObject</span><span class="p">])</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">//...</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">result</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">func</span> <span class="nf">appendQuerySingle</span><span class="p">(</span><span class="n">var</span> <span class="nl">url:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">key:</span> <span class="n">String</span><span class="p">,</span> <span class="nl">value:</span> <span class="n">AnyObject</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="c1">//...</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">result</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">if</span> <span class="n">let</span> <span class="n">dictionary</span> <span class="o">=</span> <span class="n">value</span> <span class="n">as</span><span class="o">?</span> <span class="p">[</span><span class="nl">String:</span> <span class="n">AnyObject</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">appendQueryDictionary</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="nl">key:</span> <span class="n">key</span><span class="p">,</span> <span class="nl">value:</span> <span class="n">dictionary</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="n">let</span> <span class="n">array</span> <span class="o">=</span> <span class="n">value</span> <span class="n">as</span><span class="o">?</span> <span class="p">[</span><span class="n">AnyObject</span><span class="p">]</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">appendQueryArray</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="nl">key:</span> <span class="n">key</span><span class="p">,</span> <span class="nl">value:</span> <span class="n">array</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>        <span class="k">return</span> <span class="n">appendQuerySingle</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="nl">key:</span> <span class="n">key</span><span class="p">,</span> <span class="nl">value:</span> <span class="n">value</span><span class="p">)</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>还有在方法模板中（就是在Swift By Tutorials中提到的<a href="http://lucifer1988.github.io/blog/2015/11/23/swift-by-tutorials-functional-programming/">Partial application</a>），开发者一方面希望提供一个模板来让使用者定制方法，而同时不希望暴露太多的的实现细节。</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='objectivec'><span class='line'><span class="n">func</span> <span class="n">makeIncrementor</span><span class="p">(</span><span class="nl">addNumber:</span> <span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">((</span><span class="n">inout</span> <span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Void</span> <span class="p">{</span>
+</span><span class='line'>    <span class="n">func</span> <span class="n">incrementor</span><span class="p">(</span><span class="n">inout</span> <span class="nl">variable:</span> <span class="n">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Void</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">variable</span> <span class="o">+=</span> <span class="n">addNumber</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>    <span class="k">return</span> <span class="n">incrementor</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h2>13.命名空间</h2>
+
+<p>OC是没有命名空间的，开发时只能通过自己添加前缀来区分，但是还是有可能出现类文件相同的情况，而另一种情况是，一些第三方库本身引用了其他第三方库，而开发者同时使用这两个库时，就会出现冲突。</p>
 </div>
 
 
@@ -689,6 +1271,10 @@ var jiathis_config = {data_track_clickback:'true'};
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2016/02/22/objectivec-c-tips-1/">Objectivec-C Tips 1</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2015/12/17/wei-octopresszuo-qian-yi/">为Octopress做迁移</a>
       </li>
     
@@ -724,10 +1310,6 @@ var jiathis_config = {data_track_clickback:'true'};
         <a href="/blog/2015/10/30/hui-da-sunnyde-55dao-iosmian-shi-ti-2/">回答Sunny的55道iOS面试题2</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2015/10/28/hui-da-sunnyde-55dao-iosmian-shi-ti-1/">回答Sunny的55道iOS面试题1</a>
-      </li>
-    
   </ul>
 </section>
 <section>
@@ -753,7 +1335,7 @@ var jiathis_config = {data_track_clickback:'true'};
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2015 - 刘毅 -
+  Copyright &copy; 2016 - 刘毅 -
   <span class="credit">Powered by <a href="http://octopress.org" target="_blank">Octopress</a></span>
 </p>
 
